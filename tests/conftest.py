@@ -24,9 +24,19 @@ def MM_LANDSAT8_USGS_20201106_B5():
     return fp
 
 @pytest.fixture
-def landsat_band3(MM_LANDSAT8_USGS_20201106_B3):
+def landsat_band3_img(MM_LANDSAT8_USGS_20201106_B3):
 
     img = None
     with open(file=MM_LANDSAT8_USGS_20201106_B3,mode='rb') as tif:
         img = tif.read()
     return img
+
+@pytest.fixture
+def landsat_band3_array(MM_LANDSAT8_USGS_20201106_B3):
+    
+    array = None
+
+    with rio.open(fp=MM_LANDSAT8_USGS_20201106_B3) as tif:
+        array = tif.read(1)
+    
+    return array

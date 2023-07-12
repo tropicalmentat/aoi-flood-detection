@@ -15,4 +15,13 @@ def test_img_to_array(landsat_band3):
     array, profile = po.image_to_array(img=landsat_band3)
     logger.debug(array)
     logger.debug(profile)
+    assert array is not None and profile is not None
+
+def test_dn_to_radiance(landsat_band3_array):
+    logger.debug(landsat_band3_array)
+
+    radiance = po.dn_to_radiance(landsat_band3_array)
+
+    logger.debug(radiance)
+
     assert False

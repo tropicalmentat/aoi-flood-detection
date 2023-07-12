@@ -21,6 +21,10 @@ def image_to_array(img: bytes):
 
                 return array, profile
 
+def get_nodata_array():
+
+    return
+
 def load_band(fpath):
     img = None
 
@@ -29,10 +33,19 @@ def load_band(fpath):
         logger.debug(profile)
     return img
 
-def dn_to_radiance(img: bytes):
+def dn_to_radiance(array: np.ndarray):
+    # gain and bias are from the 
+    # image .MTL file in the RADIOMETRIC
+    # RESCALING segment
+    # gain = RADIANCE_MULT_<BAND NUMBER>
+    # bias = RADIANCE_ADD_<BAND NUMBER>
+    gain = 0.012059
+    bias = -60.29402
+    
+    # TODO: apply mask to this operation
+    radiance_array = gain*array + bias
 
-
-    return img
+    return radiance_array
 
 def main():
     
