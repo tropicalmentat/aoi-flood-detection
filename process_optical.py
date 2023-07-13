@@ -19,7 +19,12 @@ def dn_to_radiance(array: np.ndarray):
 
     return radiance_array
 
-def radiance_to_reflectance(array: np.array):
+def radiance_to_reflectance(array: np.ndarray):
+
+    planetary_reflectance = 0
+    pi = 0
+    d = 0 # earth-sun distance
+    esun = 0 # mean solar exo-atmospheric irradiances
 
     return
 

@@ -36,6 +36,6 @@ def image_to_array(img: bytes, masked: bool = True):
                 src.read(masked=True,boundless=True,fill_value=src.nodata,out=array)
                 
                 if masked==True:
-                    return ma.masked_equal(x=array,value=profile['nodata'])
+                    return ma.masked_equal(x=array,value=profile['nodata']), profile
                 else:
                     return array, profile
