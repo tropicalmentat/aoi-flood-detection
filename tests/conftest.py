@@ -40,3 +40,13 @@ def landsat_band3_array(MM_LANDSAT8_USGS_20201106_B3):
         array = tif.read(1)
     
     return array
+
+@pytest.fixture
+def landsat_band3_profile(MM_LANDSAT8_USGS_20201106_B3):
+
+    profile = None
+
+    with rio.open(fp=MM_LANDSAT8_USGS_20201106_B3) as tif:
+        profile = tif.profile
+
+    return profile

@@ -1,5 +1,6 @@
 import utils
 import logging
+from numpy.dtypes import BoolDType
 
 logger = logging.getLogger(__name__)
 
@@ -16,3 +17,13 @@ def test_img_to_array(landsat_band3_img):
     logger.debug(array)
     logger.debug(profile)
     assert array is not None and profile is not None
+
+def test_get_nodata_mask(landsat_band3_array, landsat_band3_profile):
+
+    nodata_array = utils.get_nodata_mask(
+        array=landsat_band3_array, profile=landsat_band3_profile
+        )
+
+    logger.debug(nodata_array)
+
+    assert isinstance(nodata_array.dtype,BoolDType)
