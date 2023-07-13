@@ -1,12 +1,11 @@
 import rasterio as rio
 import logging
 import numpy as np
+from numpy.ma import nomask
 
 logger = logging.getLogger(__name__)
 
-
-
-def dn_to_radiance(array: np.ndarray, mask: np.ndarray):
+def dn_to_radiance(array: np.ndarray):
     # gain and bias are from the 
     # image .MTL file in the RADIOMETRIC
     # RESCALING segment

@@ -1,5 +1,10 @@
 import pytest
 import rasterio as rio
+import numpy as np
+import numpy.ma as ma
+import logging
+
+logger = logging.getLogger(__name__)
 
 @pytest.fixture
 def pre_goni_cv_opt():
@@ -42,6 +47,18 @@ def landsat_band3_array(MM_LANDSAT8_USGS_20201106_B3):
     return array
 
 @pytest.fixture
+def landsat_band3_masked_array(MM_LANDSAT8_USGS_20201106_B3):
+
+    masked_array = None
+
+    with rio.open(fp=MM_LANDSAT8_USGS_20201106_B3) as tif:
+        array = tif.read(1)
+        masked_array = ma.masked_equal(x=array,value=0)
+    
+    return masked_array
+
+
+@pytest.fixture
 def landsat_band3_profile(MM_LANDSAT8_USGS_20201106_B3):
 
     profile = None
@@ -50,3 +67,14 @@ def landsat_band3_profile(MM_LANDSAT8_USGS_20201106_B3):
         profile = tif.profile
 
     return profile
+
+@pytest.fixture
+def nodata_mask(MM_LANDSAT8_USGS_20201106_B3):
+
+    mask = None
+
+    with rio.open(fp=MM_LANDSAT8_USGS_20201106_B3) as tif:
+        array = tif.read(1)
+        mask = np.where(array==tif.profile['nodata'],True,False)
+
+    return mask
