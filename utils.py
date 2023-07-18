@@ -39,3 +39,14 @@ def image_to_array(img: bytes, masked: bool = True):
                     return ma.masked_equal(x=array,value=profile['nodata']), profile
                 else:
                     return array, profile
+
+def get_earth_sun_distance(data: str):
+
+    distance = None
+
+    for ln in data.readlines():
+        if 'EARTH_SUN_DISTANCE' in ln:
+            distance = float(ln.split('=')[1].strip(' '))
+            logger.debug(type(distance))
+            logger.debug(distance)
+    return distance

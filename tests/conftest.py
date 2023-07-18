@@ -3,6 +3,7 @@ import rasterio as rio
 import numpy as np
 import numpy.ma as ma
 import logging
+import pandas as pd
 
 logger = logging.getLogger(__name__)
 
@@ -13,6 +14,19 @@ def pre_goni_cv_opt():
     fp = f'./tests/data/s1b-iw-grd-vh-20200914t095832-20200914t095857-023370-02c637-002.tiff'
 
     return fp
+
+@pytest.fixture
+def landsat_mtl_file():
+
+    fp = f'./tests/data/LO08_L1TP_116050_20201106_20201112_01_T1_MTL.txt'
+
+    return fp
+
+@pytest.fixture
+def landsat_mtl_data(landsat_mtl_file):
+
+    data = open(file=landsat_mtl_file,mode='r') 
+    return data
 
 @pytest.fixture
 def MM_LANDSAT8_USGS_20201106_B3():
@@ -78,3 +92,12 @@ def nodata_mask(MM_LANDSAT8_USGS_20201106_B3):
         mask = np.where(array==tif.profile['nodata'],True,False)
 
     return mask
+
+@pytest.fixture
+def earth_sun_distance():
+
+    fp = f'./tests/data/earth-sun-distance.csv'
+
+    df = pd.read_csv(fp)
+
+    return df

@@ -1,6 +1,7 @@
 import rasterio as rio
 import logging
 import numpy as np
+from math import pi
 from numpy.ma import nomask
 
 logger = logging.getLogger(__name__)
@@ -25,6 +26,12 @@ def radiance_to_reflectance(array: np.ndarray):
     pi = 0
     d = 0 # earth-sun distance
     esun = 0 # mean solar exo-atmospheric irradiances
+
+    return
+
+def preprocess_landsat(img: bytes):
+
+    # read image and extract profile
 
     return
 

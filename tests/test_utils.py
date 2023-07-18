@@ -27,3 +27,11 @@ def test_get_nodata_mask(landsat_band3_array, landsat_band3_profile):
     logger.debug(nodata_array)
 
     assert isinstance(nodata_array.dtype,BoolDType)
+
+def test_get_earth_sun_distance(landsat_mtl_data):
+
+    logger.debug(landsat_mtl_data)
+    
+    distance = utils.get_earth_sun_distance(landsat_mtl_data)
+
+    assert type(distance) is float
