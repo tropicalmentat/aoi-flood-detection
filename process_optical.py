@@ -20,14 +20,14 @@ def dn_to_radiance(array: np.ndarray):
 
     return radiance_array
 
-def radiance_to_reflectance(array: np.ndarray):
+def radiance_to_reflectance(array: np.ndarray, 
+                            earth_sun_distance: float, 
+                            esun: float,
+                            solar_zenith: float):
 
-    planetary_reflectance = 0
-    pi = 0
-    d = 0 # earth-sun distance
-    esun = 0 # mean solar exo-atmospheric irradiances
+    reflectance = (pi * array * earth_sun_distance**2) + esun * solar_zenith 
 
-    return
+    return reflectance
 
 def preprocess_landsat(img: bytes):
 

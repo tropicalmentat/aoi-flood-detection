@@ -16,6 +16,19 @@ def test_dn_to_radiance(landsat_band3_masked_array, landsat_band3_profile):
         # tif.write(radiance, 1)
     assert False
 
+def test_radiance_to_reflectance(
+        landsat_radiance_b3, earth_sun_distance, esun
+        ):
+
+    reflectance = po.radiance_to_reflectance(
+        array=landsat_radiance_b3,earth_sun_distance=earth_sun_distance,
+        esun=esun
+    )
+
+    logger.debug(reflectance)
+
+    assert False
+
 def test_preprocess_landsat():
 
     processed = po.preprocess_landsat()

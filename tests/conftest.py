@@ -95,9 +95,28 @@ def nodata_mask(MM_LANDSAT8_USGS_20201106_B3):
 
 @pytest.fixture
 def earth_sun_distance():
+    # earth-sun-distance for the date
+    # 2020-11-06
+    return 0.9912142
 
-    fp = f'./tests/data/earth-sun-distance.csv'
+@pytest.fixture
+def landsat_radiance_b3():
 
-    df = pd.read_csv(fp)
+    fp = f'./tests/data/landsat_b3.tiff'
+    masked_array = None
+    with rio.open(fp=fp) as tif:
+        array = tif.read(1)
+        masked_array = ma.masked_equal(x=array,value=0)
+    return masked_array
 
-    return df
+@pytest.fixture
+def esun():
+    # mean solar exo-atmospheric irradiances
+    # for 2022-11-06
+
+    return 1842
+
+@pytest.fixture
+def solar_zenith():
+
+    return 
