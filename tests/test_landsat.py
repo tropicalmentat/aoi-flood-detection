@@ -1,5 +1,5 @@
 import logging
-import process_optical as po
+import preprocess_landsat as pl
 import rasterio as rio
 
 logger = logging.getLogger(__name__)
@@ -8,7 +8,7 @@ logging.getLogger('rasterio').setLevel(logging.CRITICAL)
 def test_dn_to_radiance(landsat_band3_masked_array, landsat_metadata, landsat_band3_profile):
     logger.debug(landsat_band3_masked_array)
 
-    radiance = po.dn_to_radiance(
+    radiance = pl.dn_to_radiance(
         array=landsat_band3_masked_array,band=3,metadata=landsat_metadata)
     landsat_band3_profile['dtype'] = 'float64'
 
@@ -20,7 +20,7 @@ def test_radiance_to_reflectance(
         landsat_band3_masked_array, landsat_metadata, landsat_band3_profile
         ):
 
-    reflectance = po.radiance_to_reflectance(
+    reflectance = pl.radiance_to_reflectance(
         array=landsat_band3_masked_array,band=3,metadata=landsat_metadata
     )
 
@@ -32,7 +32,5 @@ def test_radiance_to_reflectance(
     assert False
 
 def test_preprocess_landsat():
-
-    processed = po.preprocess_landsat()
 
     assert False
