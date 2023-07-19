@@ -17,12 +17,11 @@ def test_dn_to_radiance(landsat_band3_masked_array, landsat_band3_profile):
     assert False
 
 def test_radiance_to_reflectance(
-        landsat_radiance_b3, earth_sun_distance, esun
+        landsat_radiance_b3, landsat_metadata
         ):
 
     reflectance = po.radiance_to_reflectance(
-        array=landsat_radiance_b3,earth_sun_distance=earth_sun_distance,
-        esun=esun
+        array=landsat_radiance_b3,band=3,metadata=landsat_metadata
     )
 
     logger.debug(reflectance)

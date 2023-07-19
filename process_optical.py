@@ -20,14 +20,14 @@ def dn_to_radiance(array: np.ndarray):
 
     return radiance_array
 
-def radiance_to_reflectance(array: np.ndarray, 
-                            earth_sun_distance: float, 
-                            esun: float,
-                            solar_zenith: float):
-    # TODO refer to data users handbook to convert DN directly to reflectance and radiance
-    reflectance = (pi * array * earth_sun_distance**2) + esun * solar_zenith 
+def radiance_to_reflectance(array: np.ndarray,band: int, metadata: dict):
+    # OLI top-of-atmosphere reflectance
+    mult_scaling_factor = metadata[f'RADIANCE_MULT_BAND_{str(band)}']
+    add_scaling_factor = metadata[f'RADIANCE_ADD_BAND_{str(band)}']
 
-    return reflectance
+    toa_reflectance = (mult_scaling_factor * array) + add_scaling_factor
+
+    return toa_reflectance
 
 def preprocess_landsat(img: bytes):
 
