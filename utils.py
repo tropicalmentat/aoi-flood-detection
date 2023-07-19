@@ -40,6 +40,29 @@ def image_to_array(img: bytes, masked: bool = True):
                 else:
                     return array, profile
 
+def build_preprocess_metadata(data):
+
+    metadata = {}
+
+    for ln in data.readlines():
+        if 'GROUP' in ln: # skip group headers
+            continue
+        key = ln.split('=')[0].strip(' ')
+        # handle the numerical values as float
+        # and the string values as text
+        try:
+            value = float(ln.split('=')[1].strip(' ').strip('\n'))
+        except Exception as e:
+            logger.warning(e)
+            try:
+                value = ln.split('=')[1].strip(' ').strip('\n') 
+            except Exception as e:
+                logger.error(e)
+        metadata[key] = value
+    logger.debug(metadata)
+
+    return metadata
+
 def get_earth_sun_distance(data: str):
 
     distance = None

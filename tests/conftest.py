@@ -4,6 +4,7 @@ import numpy as np
 import numpy.ma as ma
 import logging
 import pandas as pd
+from json import loads
 
 logger = logging.getLogger(__name__)
 
@@ -117,6 +118,11 @@ def esun():
     return 1842
 
 @pytest.fixture
-def solar_zenith():
+def landsat_metadata():
 
-    return 
+    fp = f'./tests/data/landsat8_mtl.json'
+
+    metadata = None
+    with open(file=fp) as data:
+        metadata = loads(data.read())
+    return metadata

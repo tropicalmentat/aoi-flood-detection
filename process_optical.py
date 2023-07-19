@@ -24,7 +24,7 @@ def radiance_to_reflectance(array: np.ndarray,
                             earth_sun_distance: float, 
                             esun: float,
                             solar_zenith: float):
-
+    # TODO refer to data users handbook to convert DN directly to reflectance and radiance
     reflectance = (pi * array * earth_sun_distance**2) + esun * solar_zenith 
 
     return reflectance
