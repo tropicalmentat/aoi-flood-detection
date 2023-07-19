@@ -1,4 +1,7 @@
-TEST
+# Extraction of flooded areas
+
+## Methodology
+- Each satellite image source (Landsat 8, Sentinel SAR) will have its own preprocessing logic.
 
 ### References
 - [Sentinel 1 RADAR](https://pro.arcgis.com/en/pro-app/latest/help/analysis/image-analyst/analysis-ready-sentinel-1-grd-data-generation.htm)
