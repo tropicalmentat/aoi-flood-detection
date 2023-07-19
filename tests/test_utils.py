@@ -6,12 +6,6 @@ from numpy.dtypes import BoolDType
 logger = logging.getLogger(__name__)
 
 
-def test_load_band(MM_LANDSAT8_USGS_20201106_B3):
-
-    img = utils.load_band(MM_LANDSAT8_USGS_20201106_B3)    
-
-    assert False
-
 def test_img_to_array(landsat_band3_img):
 
     array, profile = utils.image_to_array(img=landsat_band3_img)

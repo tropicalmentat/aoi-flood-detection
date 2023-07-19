@@ -1,5 +1,5 @@
 import logging
-import preprocess_landsat as pl
+import preprocess.landsat as pl
 import rasterio as rio
 
 logger = logging.getLogger(__name__)
@@ -27,8 +27,8 @@ def test_radiance_to_reflectance(
     logger.debug(reflectance.min())
     logger.debug(reflectance.max())
 
-    with rio.open(fp='tests/data/landsat_b3_reflectance.tiff', mode='w', **landsat_band3_profile) as tif:
-        tif.write(reflectance, 1)
+    # with rio.open(fp='tests/data/landsat_b3_reflectance.tiff', mode='w', **landsat_band3_profile) as tif:
+        # tif.write(reflectance, 1)
     assert False
 
 def test_preprocess_landsat():

@@ -30,43 +30,43 @@ def landsat_mtl_data(landsat_mtl_file):
     return data
 
 @pytest.fixture
-def MM_LANDSAT8_USGS_20201106_B3():
+def landsat_b3_fp():
 
     fp = f'./tests/data/LO08_L1TP_116050_20201106_20201112_01_T1_B3.tiff'
 
     return fp
 
 @pytest.fixture
-def MM_LANDSAT8_USGS_20201106_B5():
+def landsat_b5_fp():
 
     fp = f'./tests/data/LO08_L1TP_116050_20201106_20201112_01_T1_B5.tiff'
 
     return fp
 
 @pytest.fixture
-def landsat_band3_img(MM_LANDSAT8_USGS_20201106_B3):
+def landsat_band3_img(landsat_b3_fp):
 
     img = None
-    with open(file=MM_LANDSAT8_USGS_20201106_B3,mode='rb') as tif:
+    with open(file=landsat_b3_fp,mode='rb') as tif:
         img = tif.read()
     return img
 
 @pytest.fixture
-def landsat_band3_array(MM_LANDSAT8_USGS_20201106_B3):
+def landsat_band3_array(landsat_b3_fp):
     
     array = None
 
-    with rio.open(fp=MM_LANDSAT8_USGS_20201106_B3) as tif:
+    with rio.open(fp=landsat_b3_fp) as tif:
         array = tif.read(1)
     
     return array
 
 @pytest.fixture
-def landsat_band3_masked_array(MM_LANDSAT8_USGS_20201106_B3):
+def landsat_band3_masked_array(landsat_b3_fp):
 
     masked_array = None
 
-    with rio.open(fp=MM_LANDSAT8_USGS_20201106_B3) as tif:
+    with rio.open(fp=landsat_b3_fp) as tif:
         array = tif.read(1)
         masked_array = ma.masked_equal(x=array,value=0)
     
@@ -74,21 +74,21 @@ def landsat_band3_masked_array(MM_LANDSAT8_USGS_20201106_B3):
 
 
 @pytest.fixture
-def landsat_band3_profile(MM_LANDSAT8_USGS_20201106_B3):
+def landsat_band3_profile(landsat_b3_fp):
 
     profile = None
 
-    with rio.open(fp=MM_LANDSAT8_USGS_20201106_B3) as tif:
+    with rio.open(fp=landsat_b3_fp) as tif:
         profile = tif.profile
 
     return profile
 
 @pytest.fixture
-def nodata_mask(MM_LANDSAT8_USGS_20201106_B3):
+def nodata_mask(landsat_b3_fp):
 
     mask = None
 
-    with rio.open(fp=MM_LANDSAT8_USGS_20201106_B3) as tif:
+    with rio.open(fp=landsat_b3_fp) as tif:
         array = tif.read(1)
         mask = np.where(array==tif.profile['nodata'],True,False)
 
