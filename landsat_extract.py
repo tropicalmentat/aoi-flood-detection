@@ -1,10 +1,12 @@
 from preprocess.landsat import radiance_to_reflectance
+import numpy.ma as ma
 import utils
 import logging
+import rasterio as rio
 
 logger = logging.getLogger(__name__)
 
-def prepare(band3_fp: str,
+def extract(band3_fp: str,
             band5_fp: str,
             mtl_fp: str):
     
@@ -25,4 +27,16 @@ def prepare(band3_fp: str,
     b5_reflect = radiance_to_reflectance(array=b5_array,
                                          band=5,
                                          metadata=metadata)
-    return
+
+    num = b3_reflect.__sub__(b5_reflect)
+    den = b3_reflect.__add__(b5_reflect)
+    ndwi = num/den
+    
+    water = ma.where(ndwi>0,1,0)
+
+    water_profile = b3_profile.copy()
+    water_profile['nodata'] = 9999
+
+    # with rio.open(fp=f'./tests/data/ndwi.tif',mode='w',**water_profile) as tif:
+        # tif.write(water)
+    return ndwi
