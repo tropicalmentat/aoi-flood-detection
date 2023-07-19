@@ -14,11 +14,8 @@ def get_nodata_mask(array: np.ndarray, profile: dict):
 
 def load_band(fpath):
     img = None
-
-    with rio.open(fp=fpath) as tif:
-
-        profile = tif.profile
-        logger.debug(profile)
+    with open(file=fpath,mode='rb') as tif:
+        img = tif.read()
     return img
 
 def image_to_array(img: bytes, masked: bool = True):
@@ -40,26 +37,26 @@ def image_to_array(img: bytes, masked: bool = True):
                 else:
                     return array, profile
 
-def build_preprocess_metadata(data):
+def build_preprocess_metadata(landsat_mtl_fp):
 
     metadata = {}
-
-    for ln in data.readlines():
-        if 'GROUP' in ln: # skip group headers
-            continue
-        key = ln.split('=')[0].strip(' ')
-        # handle the numerical values as float
-        # and the string values as text
-        try:
-            value = float(ln.split('=')[1].strip(' ').strip('\n'))
-        except Exception as e:
-            logger.warning(e)
+    with open(landsat_mtl_fp) as mtl:
+        for ln in mtl.readlines():
+            if 'GROUP' in ln: # skip group headers
+                continue
+            key = ln.split('=')[0].strip(' ')
+            # handle the numerical values as float
+            # and the string values as text
             try:
-                value = ln.split('=')[1].strip(' ').strip('\n') 
+                value = float(ln.split('=')[1].strip(' ').strip('\n'))
             except Exception as e:
-                logger.error(e)
-        metadata[key] = value
-    logger.debug(metadata)
+                # logger.warning(e)
+                try:
+                    value = ln.split('=')[1].strip(' ').strip('\n') 
+                except Exception as e:
+                    # logger.error(e)
+                    continue
+            metadata[key] = value
 
     return metadata
 

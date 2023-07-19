@@ -23,17 +23,9 @@ def test_get_nodata_mask(landsat_band3_array, landsat_band3_profile):
 
     assert isinstance(nodata_array.dtype,BoolDType)
 
-def test_get_earth_sun_distance(landsat_mtl_data):
+def test_build_metadata(landsat_mtl_fp):
 
-    logger.debug(landsat_mtl_data)
-    
-    distance = utils.get_earth_sun_distance(landsat_mtl_data)
-
-    assert type(distance) is float
-
-def test_build_metadata(landsat_mtl_data):
-
-    metadata = utils.build_preprocess_metadata(landsat_mtl_data)
+    metadata = utils.build_preprocess_metadata(landsat_mtl_fp)
 
     logger.debug(metadata)
     with open(file=f'./tests/data/landsat8_mtl.json',mode='w') as mt:

@@ -17,16 +17,16 @@ def pre_goni_cv_opt():
     return fp
 
 @pytest.fixture
-def landsat_mtl_file():
+def landsat_mtl_fp():
 
     fp = f'./tests/data/LO08_L1TP_116050_20201106_20201112_01_T1_MTL.txt'
 
     return fp
 
 @pytest.fixture
-def landsat_mtl_data(landsat_mtl_file):
+def landsat_mtl_data(landsat_mtl_fp):
 
-    data = open(file=landsat_mtl_file,mode='r') 
+    data = open(file=landsat_mtl_fp,mode='r') 
     return data
 
 @pytest.fixture

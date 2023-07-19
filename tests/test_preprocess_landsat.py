@@ -17,7 +17,7 @@ def test_dn_to_radiance(landsat_band3_masked_array, landsat_metadata, landsat_ba
     assert False
 
 def test_radiance_to_reflectance(
-        landsat_band3_masked_array, landsat_metadata, landsat_band3_profile
+        landsat_band3_masked_array, landsat_metadata
         ):
 
     reflectance = pl.radiance_to_reflectance(
