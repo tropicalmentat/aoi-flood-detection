@@ -15,8 +15,8 @@ def extract(band3_fp: str,
 
     metadata = utils.build_preprocess_metadata(landsat_mtl_fp=mtl_fp)
     
-    b3_img = utils.load_band(fpath=band3_fp)
-    b5_img = utils.load_band(fpath=band5_fp)
+    b3_img = utils.load_image(fpath=band3_fp)
+    b5_img = utils.load_image(fpath=band5_fp)
     
     b3_array, b3_profile = utils.image_to_array(img=b3_img, masked=True)
     b5_array, b5_profile = utils.image_to_array(img=b5_img, masked=True)

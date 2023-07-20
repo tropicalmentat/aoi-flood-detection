@@ -12,7 +12,7 @@ def get_nodata_mask(array: np.ndarray, profile: dict):
 
     return mask
 
-def load_band(fpath):
+def load_image(fpath):
     img = None
     with open(file=fpath,mode='rb') as tif:
         img = tif.read()
