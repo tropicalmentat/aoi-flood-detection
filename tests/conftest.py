@@ -27,12 +27,13 @@ def sentinel1b_img(sentinel1b_fp):
 @pytest.fixture
 def sentinel1b_band(sentinel1b_img):
     window = Window(col_off=0,row_off=0,width=500,height=500)
-    band = None
+    masked = None
     with rio.MemoryFile(sentinel1b_img) as img:
         with img.open() as tif:
             band = tif.read(window=window)
+            masked = ma.masked_where(band==0,band,copy=False)
 
-    return band
+    return masked
 
 @pytest.fixture
 def landsat_mtl_fp():

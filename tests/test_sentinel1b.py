@@ -9,4 +9,4 @@ def test_calibration_to_backscatter(sentinel1b_band):
     
     calibrated = sr.calibrate_backscatter(band=sentinel1b_band) 
     
-    assert False
+    assert sentinel1b_band.min() != calibrated.min()

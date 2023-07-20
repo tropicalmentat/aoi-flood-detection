@@ -9,7 +9,7 @@ def calibrate_backscatter(band: np.ndarray):
     backscatter = 10 * np.log10(np.square(band)) - 82.0
     logger.debug(backscatter)
 
-    return
+    return backscatter
 
 def speckle_filtering():
 
