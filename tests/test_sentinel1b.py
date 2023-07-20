@@ -1,12 +1,12 @@
 import rasterio as rio
+import utils
 import logging
+import preprocess.sentinel_radar as sr 
 
 logger = logging.getLogger(__name__)
 
-def test_load(sentinel1b_fp):
-    img = None
-    with rio.open(fp=sentinel1b_fp) as tif:
-        profile = tif.profile
-        logger.debug(profile)
-
+def test_calibration_to_backscatter(sentinel1b_band):
+    
+    calibrated = sr.calibrate_backscatter(band=sentinel1b_band) 
+    
     assert False

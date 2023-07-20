@@ -5,6 +5,7 @@ import numpy.ma as ma
 import logging
 import pandas as pd
 from json import loads
+from rasterio.windows import Window
 
 logger = logging.getLogger(__name__)
 
@@ -15,6 +16,23 @@ def sentinel1b_fp():
     fp = f'./tests/data/SENTINEL1/s1b-iw-grd-vh-20200914t095832-20200914t095857-023370-02c637-002.tiff'
 
     return fp
+
+@pytest.fixture
+def sentinel1b_img(sentinel1b_fp):
+
+    img = open(sentinel1b_fp,mode='rb')
+
+    return img
+
+@pytest.fixture
+def sentinel1b_band(sentinel1b_img):
+    window = Window(col_off=0,row_off=0,width=500,height=500)
+    band = None
+    with rio.MemoryFile(sentinel1b_img) as img:
+        with img.open() as tif:
+            band = tif.read(window=window)
+
+    return band
 
 @pytest.fixture
 def landsat_mtl_fp():
