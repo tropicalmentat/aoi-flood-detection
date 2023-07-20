@@ -9,17 +9,17 @@ from json import loads
 logger = logging.getLogger(__name__)
 
 @pytest.fixture
-def pre_goni_cv_opt():
-    # optical img for typhoon goni
+def sentinel1b_fp():
+    # radar img for typhoon goni
     # for cagayan valley pre typhoon
-    fp = f'./tests/data/s1b-iw-grd-vh-20200914t095832-20200914t095857-023370-02c637-002.tiff'
+    fp = f'./tests/data/SENTINEL1/s1b-iw-grd-vh-20200914t095832-20200914t095857-023370-02c637-002.tiff'
 
     return fp
 
 @pytest.fixture
 def landsat_mtl_fp():
 
-    fp = f'./tests/data/LO08_L1TP_116050_20201106_20201112_01_T1_MTL.txt'
+    fp = f'./tests/data/LANDSAT8/LO08_L1TP_116050_20201106_20201112_01_T1_MTL.txt'
 
     return fp
 
@@ -32,14 +32,14 @@ def landsat_mtl_data(landsat_mtl_fp):
 @pytest.fixture
 def landsat_b3_fp():
 
-    fp = f'./tests/data/LO08_L1TP_116050_20201106_20201112_01_T1_B3.tiff'
+    fp = f'./tests/data/LANDSAT8/LO08_L1TP_116050_20201106_20201112_01_T1_B3.tiff'
 
     return fp
 
 @pytest.fixture
 def landsat_b5_fp():
 
-    fp = f'./tests/data/LO08_L1TP_116050_20201106_20201112_01_T1_B5.tiff'
+    fp = f'./tests/data/LANDSAT8/LO08_L1TP_116050_20201106_20201112_01_T1_B5.tiff'
 
     return fp
 
@@ -103,7 +103,7 @@ def earth_sun_distance():
 @pytest.fixture
 def landsat_radiance_b3():
 
-    fp = f'./tests/data/landsat_b3.tiff'
+    fp = f'./tests/data/LANDSAT/landsat_b3.tiff'
     masked_array = None
     with rio.open(fp=fp) as tif:
         array = tif.read(1)
@@ -120,7 +120,7 @@ def esun():
 @pytest.fixture
 def landsat_metadata():
 
-    fp = f'./tests/data/landsat8_mtl.json'
+    fp = f'./tests/data/LANDSAT8/landsat8_mtl.json'
 
     metadata = None
     with open(file=fp) as data:

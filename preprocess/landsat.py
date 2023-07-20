@@ -25,16 +25,3 @@ def radiance_to_reflectance(
     toa_reflectance = (mult_scaling_factor * array) + add_scaling_factor
 
     return toa_reflectance
-
-def preprocess_band():
-
-    # read image and extract profile
-
-    return
-
-def main():
-    
-    return
-
-if __name__=="__main__":
-    main()
