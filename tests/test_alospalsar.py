@@ -1,12 +1,15 @@
 import rasterio as rio
 import utils
 import logging
-import preprocess.sentinel_radar as sr 
+import preprocess.alospalsar as ap 
 
 logger = logging.getLogger(__name__)
 
-def test_calibration_to_backscatter(sentinel1b_band):
+def test_calibration_to_backscatter(alos2_palsar2_band):
     
-    calibrated = sr.calibrate_backscatter(band=sentinel1b_band) 
+    calibrated = ap.calibrate_backscatter(band=alos2_palsar2_band) 
+
+    logger.debug(calibrated.min())
+    logger.debug(calibrated.max())
     
-    assert sentinel1b_band.min() != calibrated.min()
+    assert alos2_palsar2_band.min() != calibrated.min()

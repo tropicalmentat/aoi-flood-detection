@@ -36,6 +36,31 @@ def sentinel1b_band(sentinel1b_img):
     return masked
 
 @pytest.fixture
+def alos2_palsar2_fp():
+
+    fp = f'./tests/data/ALOS2-PALSAR2/IMG-HH-ALOS2350060270-201115-FBDR2.1GUA.tiff'
+    return fp
+
+@pytest.fixture
+def alos2_palsar2_img(alos2_palsar2_fp):
+    img = None
+    with open(file=alos2_palsar2_fp,mode='rb') as tif:
+        img = tif.read()
+    return img
+
+@pytest.fixture
+def alos2_palsar2_band(alos2_palsar2_img):
+    window = Window(col_off=1000,row_off=5000,width=500,height=500)
+    masked = None
+    with rio.MemoryFile(file_or_bytes=alos2_palsar2_img) as img:
+        with img.open() as tif:
+            band = tif.read(window=window)
+            logger.debug(tif.profile)
+            logger.debug(band)
+            masked = ma.masked_where(condition=band==0,a=band,copy=False)
+    return masked
+
+@pytest.fixture
 def landsat_mtl_fp():
 
     fp = f'./tests/data/LANDSAT8/LO08_L1TP_116050_20201106_20201112_01_T1_MTL.txt'
