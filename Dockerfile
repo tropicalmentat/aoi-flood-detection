@@ -1,5 +1,9 @@
 FROM osgeo/gdal:ubuntu-small-3.6.3
 
-# Install Java JDK
-# Install maven
-# Install snappy
+# Orfeo toolbox dependencies
+RUN apt update && \
+    apt install -y --no-install-recommends \
+    file python3 python3-dev python3-numpy
+
+RUN apt install -y --no-install-recommends \
+    g++ swig cmake make
