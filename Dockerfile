@@ -7,3 +7,5 @@ RUN apt update && \
 
 RUN apt install -y --no-install-recommends \
     g++ swig cmake make
+
+RUN curl -O https://www.orfeo-toolbox.org/packages/OTB-8.1.2-Linux64.run
