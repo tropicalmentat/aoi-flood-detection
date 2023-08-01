@@ -19,4 +19,9 @@ COPY ./tests /function/tests/
 WORKDIR /function
 
 RUN pip3 install -U pip \
-    && pip3 wheel --no-cache-dir -r ./requirements.txt
+    && pip3 install --no-cache-dir -r ./requirements.txt
+
+COPY ./landsat_extract.py /function/
+COPY ./utils.py /function/
+
+COPY ./preprocess/ /function/preprocess/
