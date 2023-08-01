@@ -21,7 +21,7 @@ WORKDIR /function
 RUN pip3 install -U pip \
     && pip3 install --no-cache-dir -r ./requirements.txt
 
-COPY ./landsat_extract.py /function/
-COPY ./utils.py /function/
+COPY ./src/landsat/landsat_extract.py /function/src/landsat
+COPY ./shared/utils.py /function/shared/
 
-COPY ./preprocess/ /function/preprocess/
+COPY ./shared/preprocess/ /function/shared/preprocess/
