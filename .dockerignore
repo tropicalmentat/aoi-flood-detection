@@ -1,0 +1,13 @@
+*/data
+
+# ignore image files (too big!)
+*.jp2
+*.tiff
+*.tif
+
+# ignore shp files
+*.shp
+*.shx
+*.prj
+*.dbf
+*.cpg
