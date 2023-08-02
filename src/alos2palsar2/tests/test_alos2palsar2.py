@@ -13,3 +13,9 @@ def test_calibration_to_backscatter(alos2_palsar2_band):
     logger.debug(calibrated.max())
 
     assert alos2_palsar2_band.min() != calibrated.min()
+
+def test_despeckle():
+    
+    despeckled = ap.speckle_filtering() 
+
+    assert False

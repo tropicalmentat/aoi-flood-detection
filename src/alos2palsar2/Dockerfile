@@ -9,7 +9,9 @@ RUN curl -O https://www.orfeo-toolbox.org/packages/OTB-8.1.2-Linux64.run
 
 COPY requirements.txt /function/
 
-COPY ./tests /function/tests/
+COPY src/alos2palsar2/tests /function/tests/
+
+COPY tests/conftest.py /function/tests/
 
 WORKDIR /function
 
