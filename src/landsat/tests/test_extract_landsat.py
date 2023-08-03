@@ -1,4 +1,4 @@
-import extract as le
+import src.extract as le
 
 def test_extract(landsat_b3_fp,
                  landsat_b5_fp,
