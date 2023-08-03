@@ -1,6 +1,6 @@
-from preprocess.landsat import radiance_to_reflectance
+from shared.preprocess.landsat import radiance_to_reflectance
 import numpy.ma as ma
-import utils
+import shared.utils as utils
 import logging
 import rasterio as rio
 

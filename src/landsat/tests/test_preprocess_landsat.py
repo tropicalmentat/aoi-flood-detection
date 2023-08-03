@@ -1,5 +1,5 @@
 import logging
-import preprocess.landsat as pl
+import shared.preprocess.landsat as pl
 import rasterio as rio
 
 logger = logging.getLogger(__name__)
