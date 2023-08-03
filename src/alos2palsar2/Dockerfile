@@ -9,16 +9,11 @@ RUN curl -O https://www.orfeo-toolbox.org/packages/OTB-8.1.2-Linux64.run
 
 COPY requirements.txt /function/
 
-COPY src/alos2palsar2/tests /function/tests/
-
-COPY tests/conftest.py /function/tests/
-
 WORKDIR /function
 
 RUN pip3 install -U pip \
     && pip3 install --no-cache-dir -r ./requirements.txt
 
-# COPY ./src/landsat/landsat_extract.py /function/src/landsat
-COPY ./shared/utils.py /function/shared/
+COPY ./src/alos2palsar2 /function/src/alos2palsar2/
 
-COPY ./shared/preprocess/ /function/shared/preprocess/
+COPY ./shared/ /function/shared/
