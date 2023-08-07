@@ -15,6 +15,6 @@ def extract(img_fp: str):
 
     calibrated = calibrate_backscatter(band=array)
 
-    filtered = speckle_filtering()
+    filtered = speckle_filtering(band=calibrated)
 
     return
