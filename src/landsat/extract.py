@@ -13,7 +13,7 @@ def extract(band3_fp: str,
     if band3_fp is None or band5_fp is None:
         raise Exception()
 
-    metadata = utils.build_preprocess_metadata(landsat_mtl_fp=mtl_fp)
+    metadata = utils.build_landsat_metadata(landsat_mtl_fp=mtl_fp)
     
     b3_img = utils.load_image(fpath=band3_fp)
     b5_img = utils.load_image(fpath=band5_fp)

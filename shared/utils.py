@@ -37,7 +37,7 @@ def image_to_array(img: bytes, masked: bool = True):
                 else:
                     return array, profile
 
-def build_preprocess_metadata(landsat_mtl_fp):
+def build_landsat_metadata(landsat_mtl_fp):
 
     metadata = {}
     with open(landsat_mtl_fp) as mtl:

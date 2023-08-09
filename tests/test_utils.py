@@ -25,7 +25,7 @@ def test_get_nodata_mask(landsat_band3_array, landsat_band3_profile):
 
 def test_build_metadata(landsat_mtl_fp):
 
-    metadata = utils.build_preprocess_metadata(landsat_mtl_fp)
+    metadata = utils.build_landsat_metadata(landsat_mtl_fp)
 
     logger.debug(metadata)
     with open(file=f'./tests/data/landsat8_mtl.json',mode='w') as mt:
