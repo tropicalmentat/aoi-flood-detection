@@ -7,8 +7,8 @@ logger = logging.getLogger(__name__)
 
 def calibrate_backscatter(band: np.ndarray):
     logger.debug(band)
-    backscatter = 10 * np.log10(np.square(band)) - 82.0
-    logger.debug(backscatter)
+    backscatter = 20 * np.log10(band) - 82.0
+    logger.debug(backscatter.compressed())
 
     return backscatter
 

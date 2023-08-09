@@ -25,6 +25,7 @@ def image_to_array(img: bytes, masked: bool = True):
         with NamedTemporaryFile() as tmp_array:
             with rio.open(fp=tmp.name) as src:
                 profile = src.profile
+                logger.debug(profile)
     
                 array = np.memmap(
                     filename=tmp_array.name,dtype=profile['dtype'],mode='w+',
@@ -58,6 +59,23 @@ def build_landsat_metadata(landsat_mtl_fp):
                     continue
             metadata[key] = value
 
+    return metadata
+
+def build_alos2palsar2_metadata(metadata_fp):
+    # collect geocode information
+    metadata = {}
+    with open(file=metadata_fp,mode='r') as summary:
+        for ln in summary.readlines():
+            key = ln.split('=')[0]
+            try:
+                value = float(ln.split('=')[1].replace('"','').strip('\n'))
+            except Exception as e:
+                try:
+                    value = ln.split('=')[1].replace('"','').strip('\n')
+                except Exception as e:
+                    continue
+            metadata[key] = value
+    logger.debug(metadata)
     return metadata
 
 def get_earth_sun_distance(data: str):

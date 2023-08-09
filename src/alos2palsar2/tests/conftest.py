@@ -61,6 +61,13 @@ def alos2_palsar2_band(alos2_palsar2_img):
     return masked
 
 @pytest.fixture
+def alos2palsar2_summary_fp():
+
+    fp = f'./tests/data/ALOS2-PALSAR2/summary.txt'
+
+    return fp
+
+@pytest.fixture
 def landsat_mtl_fp():
 
     fp = f'./tests/data/LANDSAT8/LO08_L1TP_116050_20201106_20201112_01_T1_MTL.txt'
