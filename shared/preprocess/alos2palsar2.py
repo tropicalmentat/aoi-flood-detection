@@ -23,7 +23,7 @@ def speckle_filtering(band: np.ndarray):
 
     filtered = app.GetImageAsNumpyArray('out')
 
-    return
+    return filtered
 
 def main():
 

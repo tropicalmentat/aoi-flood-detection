@@ -2,7 +2,9 @@ from shared.preprocess.alos2palsar2 import (
     calibrate_backscatter,
     speckle_filtering
 )
+import numpy as np
 import shared.utils as utils
+import rasterio as rio
 import logging
 
 logger = logging.getLogger(__name__)
