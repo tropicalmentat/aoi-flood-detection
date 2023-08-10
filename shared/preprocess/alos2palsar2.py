@@ -27,8 +27,8 @@ def speckle_filtering(band: np.ndarray):
     return filtered
 
 def project_image(band: np.ndarray, src_profile, src_crs, dst_crs):
-    logger.debug(src_profile)
-
+    src_transform = src_profile['transform'].to_gdal()
+    logger.debug(src_transform)
     transform = calculate_default_transform(src_crs=src_crs,
                                             dst_crs=dst_crs,
                                             width=src_profile['width'],

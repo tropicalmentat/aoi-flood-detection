@@ -78,6 +78,20 @@ def build_alos2palsar2_metadata(metadata_fp):
     logger.debug(metadata)
     return metadata
 
+def derive_minmax_coords(profile):
+    # determine the min and max longitude/easting 
+    # and latitude/northing
+    width = profile['width']
+    height = profile['height']
+    gdal_format = profile['transform'].to_gdal()
+    logger.debug(gdal_format)
+    minx=gdal_format[0]
+    maxx=gdal_format[0] + gdal_format[1]*width + gdal_format[1]
+    miny=gdal_format[3]
+    maxy=gdal_format[3] + gdal_format[5]*height + gdal_format[5]
+    logger.debug(f'({minx},{miny},{maxx},{maxy}')
+    return (minx,miny,maxx,maxy)
+
 def geocode_alos2palsar2():
 
     return
