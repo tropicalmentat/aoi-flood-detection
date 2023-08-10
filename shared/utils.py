@@ -78,6 +78,10 @@ def build_alos2palsar2_metadata(metadata_fp):
     logger.debug(metadata)
     return metadata
 
+def geocode_alos2palsar2():
+
+    return
+
 def get_earth_sun_distance(data: str):
 
     distance = None

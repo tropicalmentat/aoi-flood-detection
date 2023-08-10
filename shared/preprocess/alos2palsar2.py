@@ -2,6 +2,7 @@ import rasterio as rio
 import numpy as np
 import logging
 import otbApplication as otb
+from rasterio.warp import calculate_default_transform
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +25,17 @@ def speckle_filtering(band: np.ndarray):
     filtered = app.GetImageAsNumpyArray('out')
 
     return filtered
+
+def project_image(band: np.ndarray, src_profile, src_crs, dst_crs):
+    logger.debug(src_profile)
+
+    transform = calculate_default_transform(src_crs=src_crs,
+                                            dst_crs=dst_crs,
+                                            width=src_profile['width'],
+                                            height=src_profile['height'])
+    logger.debug(transform)
+
+    return
 
 def main():
 

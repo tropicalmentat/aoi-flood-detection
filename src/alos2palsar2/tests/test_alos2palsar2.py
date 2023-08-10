@@ -4,18 +4,35 @@ import logging
 import shared.preprocess.alos2palsar2 as ap 
 
 logger = logging.getLogger(__name__)
+logging.getLogger('rasterio').setLevel(logging.CRITICAL)
 
-def test_calibration_to_backscatter(alos2_palsar2_band):
+def test_calibration_to_backscatter(alos2palsar2_band):
+    band, profile = alos2palsar2_band
     
-    calibrated = ap.calibrate_backscatter(band=alos2_palsar2_band) 
+    calibrated = ap.calibrate_backscatter(band=band) 
 
     logger.debug(calibrated.min())
     logger.debug(calibrated.max())
 
-    assert alos2_palsar2_band.min() != calibrated.min()
+    assert alos2palsar2_band.min() != calibrated.min()
 
-def test_despeckle():
+def test_despeckle(alos2palsar2_band):
+    band,profile = alos2palsar2_band
     
-    despeckled = ap.speckle_filtering() 
+    despeckled = ap.speckle_filtering(band=band) 
+
+    logger.debug(despeckled)
+
+    assert False
+
+def test_project_img(alos2palsar2_band):
+    band,profile = alos2palsar2_band
+    src_crs = profile['crs']
+    dst_crs = rio.CRS.from_epsg(32651)
+    logger.debug(dst_crs)
+    projected = ap.project_image(band=alos2palsar2_band,
+                                 src_profile=profile,
+                                 src_crs=src_crs,
+                                 dst_crs=dst_crs)
 
     assert False
