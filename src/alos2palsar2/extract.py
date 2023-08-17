@@ -14,8 +14,9 @@ logger = logging.getLogger(__name__)
 
 def get_preprocessed(img_fp):
 
-    img = None
-    with NamedTemporaryFile() as tmp, rio.MemoryFile(tmp) as mem:
+    preprocessed = None
+
+    with NamedTemporaryFile() as tmp:
         img = utils.load_image(fpath=img_fp) 
     
         array, profile = utils.image_to_array(img=img,band_idx=1)
@@ -28,20 +29,23 @@ def get_preprocessed(img_fp):
         filtered = None
         logger.debug(masked.compressed())
         casted = masked.astype(dtype='float32', casting='same_kind', copy=False)
-        filled = (np.ma.filled(a=casted,fill_value=-9999.0))[:]
+        filled = np.memmap(
+            filename=tmp.name,dtype=casted.dtype,shape=casted.shape
+        )
+        filled[:] = (np.ma.filled(a=casted,fill_value=-9999.0))[:]
         casted = None
         profile.update({'dtype':filled.dtype})
-        profile.update(compression='lzw')
-        with mem.open(
-            driver='GTiff',width=profile['width'],height=profile['height'],
-            count=profile['count'],dtype=profile['dtype']) as src:
-            src.write(filled,1)
-        img = mem.read()
-    return img 
+        filled.flush()
+        tmp.seek(0)
+        preprocessed = tmp.read()
+    
+    return preprocessed, profile 
 
-def extract(pre_img:str, post_img:str):
+def extract(pre_fp:str, post_fp:str):
+    pre,pre_profile = get_preprocessed(pre_fp)
 
-    pre = get_preprocessed(pre_img)
+    post,_ = get_preprocessed(post_fp)
     logger.debug(len(pre))
+    logger.debug(len(post))
 
     return
