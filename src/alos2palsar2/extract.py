@@ -3,6 +3,8 @@ from shared.preprocess.alos2palsar2 import (
     speckle_filtering
 )
 from tempfile import NamedTemporaryFile
+from skimage.morphology import square
+from skimage.filters.rank import majority
 import numpy as np
 import shared.utils as utils
 import rasterio as rio
@@ -65,10 +67,13 @@ def extract(pre_fp:str, post_fp:str):
 
         threshold = np.ma.where(diff<-3,1,0)
 
+        filtered = majority(image=threshold,footprint=square(width=5))
+        logger.debug(filtered)
+
         with rio.open(
-            fp=f'./tests/data/threshold.tiff',mode='w',
+            fp=f'./tests/data/filtered.tiff',mode='w',
             width=pre_profile['width'],height=pre_profile['height'],count=1,dtype='int16',
             transform=pre_profile['transform'],crs=pre_profile['crs'],compress='lzw'
         ) as tmp:
-            tmp.write(threshold,1)
+            tmp.write(filtered,1)
     return
