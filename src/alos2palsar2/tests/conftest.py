@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 @pytest.fixture
 def alos2palsar2_fp():
 
-    fp = f'./tests/data/ALOS2-PALSAR2/IMG-HH-ALOS2350060270-201115-FBDR2.1GUA.tiff'
+    fp = f'./tests/data/ALOS2-PALSAR2/20201115/IMG-HH-ALOS2350060270-201115-FBDR2.1GUA.tiff'
     return fp
 
 @pytest.fixture
@@ -29,12 +29,13 @@ def alos2palsar2_band(alos2palsar2_img):
     profile = None
     with rio.MemoryFile(file_or_bytes=alos2palsar2_img) as img:
         with img.open() as tif:
-            band = tif.read(window=window)
+            band = tif.read()
             profile = tif.profile
+            bounds = tif.bounds
             logger.debug(tif.profile)
             logger.debug(band)
             masked = ma.masked_where(condition=band==0,a=band,copy=False)
-    return masked, profile
+    return masked, profile, bounds
 
 @pytest.fixture
 def alos2palsar2_summary_fp():

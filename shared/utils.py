@@ -18,7 +18,7 @@ def load_image(fpath):
         img = tif.read()
     return img
 
-def image_to_array(img: bytes, masked: bool = True):
+def image_to_array(img: bytes, masked: bool = True, band_idx=int):
     with NamedTemporaryFile(mode='wb',suffix='.tif') as tmp:
         tmp.write(img)
         tmp.seek(0)
@@ -29,14 +29,12 @@ def image_to_array(img: bytes, masked: bool = True):
     
                 array = np.memmap(
                     filename=tmp_array.name,dtype=profile['dtype'],mode='w+',
-                    shape = (src.count, *src.shape)
+                    shape = src.shape
                 )
-                src.read(masked=True,boundless=True,fill_value=src.nodata,out=array)
+                src.read(band_idx,out=array)
+                logger.debug(array.shape)
                 
-                if masked==True:
-                    return ma.masked_equal(x=array,value=profile['nodata']), profile
-                else:
-                    return array, profile
+                return array, profile
 
 def build_landsat_metadata(landsat_mtl_fp):
 

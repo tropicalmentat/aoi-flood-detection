@@ -1,5 +1,4 @@
 import rasterio as rio
-import shared.utils
 import logging
 import shared.preprocess.alos2palsar2 as ap 
 
@@ -26,13 +25,14 @@ def test_despeckle(alos2palsar2_band):
     assert False
 
 def test_project_img(alos2palsar2_band):
-    band,profile = alos2palsar2_band
+    band,profile,bounds = alos2palsar2_band
     src_crs = profile['crs']
-    dst_crs = rio.CRS.from_epsg(32651)
+    dst_crs = rio.CRS.from_epsg(4326)
     logger.debug(dst_crs)
-    projected = ap.project_image(band=alos2palsar2_band,
+    projected = ap.project_image(band=band,
                                  src_profile=profile,
+                                 src_bounds=bounds,
                                  src_crs=src_crs,
                                  dst_crs=dst_crs)
-
+# 
     assert False
