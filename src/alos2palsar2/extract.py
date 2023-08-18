@@ -19,14 +19,14 @@ def get_preprocessed(img_fp):
     with NamedTemporaryFile() as tmp:
         img = utils.load_image(fpath=img_fp) 
     
-        array, profile = utils.image_to_array(img=img,band_idx=1)
+        array, profile, bounds = utils.image_to_array(img=img,band_idx=1)
     
         calibrated = calibrate_backscatter(band=array)
     
-        filtered = speckle_filtering(band=calibrated)
+        despeckled = speckle_filtering(band=calibrated)
         calibrated = None
-        masked = np.ma.masked_outside(x=filtered,v1=round(filtered.max(),2),v2=-99.0)
-        filtered = None
+        masked = np.ma.masked_outside(x=despeckled,v1=round(despeckled.max(),2),v2=-99.0)
+        despeckled = None
         logger.debug(masked.compressed())
         casted = masked.astype(dtype='float32', casting='same_kind', copy=False)
         filled = np.memmap(
@@ -39,14 +39,14 @@ def get_preprocessed(img_fp):
         tmp.seek(0)
         preprocessed = tmp.read()
     
-    return preprocessed, profile 
+    return preprocessed, profile, bounds 
 
 def extract(pre_fp:str, post_fp:str):
 
     with NamedTemporaryFile() as pre_tmp, NamedTemporaryFile() as post_tmp:
-        pre,pre_profile = get_preprocessed(pre_fp)
+        pre,pre_profile,pre_bounds = get_preprocessed(pre_fp)
 
-        post,post_profile = get_preprocessed(post_fp)
+        post,post_profile,post_bounds = get_preprocessed(post_fp)
         logger.debug(len(pre))
         logger.debug(len(post))
         pre_tmp.write(pre)
@@ -68,12 +68,16 @@ def extract(pre_fp:str, post_fp:str):
         threshold = np.ma.where(diff<-3,1,0)
 
         filtered = majority(image=threshold,footprint=square(width=5))
-        logger.debug(filtered)
+        projected = utils.project_image(
+            band=filtered,src_bounds=pre_bounds,src_profile=pre_profile,src_crs=pre_profile['crs'],dst_crs=rio.CRS.from_epsg(32651)
+            )
+        logger.debug(projected)
+        logger.debug(projected.dtype)
 
         with rio.open(
             fp=f'./tests/data/filtered.tiff',mode='w',
             width=pre_profile['width'],height=pre_profile['height'],count=1,dtype='int16',
             transform=pre_profile['transform'],crs=pre_profile['crs'],compress='lzw'
         ) as tmp:
-            tmp.write(filtered,1)
+            tmp.write(projected,1)
     return

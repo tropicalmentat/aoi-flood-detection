@@ -1,4 +1,5 @@
 from tempfile import NamedTemporaryFile
+from rasterio.warp import calculate_default_transform, reproject
 import rasterio as rio
 import numpy as np
 import numpy.ma as ma
@@ -26,7 +27,7 @@ def image_to_array(img: bytes, masked: bool = True, band_idx=int):
             with rio.open(fp=tmp.name) as src:
                 profile = src.profile
                 logger.debug(profile)
-    
+                bounds = src.bounds
                 array = np.memmap(
                     filename=tmp_array.name,dtype=profile['dtype'],mode='w+',
                     shape = src.shape
@@ -34,7 +35,7 @@ def image_to_array(img: bytes, masked: bool = True, band_idx=int):
                 src.read(band_idx,out=array)
                 logger.debug(array.shape)
                 
-                return array, profile
+                return array, profile, bounds
 
 def build_landsat_metadata(landsat_mtl_fp):
 
@@ -104,3 +105,31 @@ def get_earth_sun_distance(data: str):
             logger.debug(type(distance))
             logger.debug(distance)
     return distance
+
+def project_image(band: np.ndarray, src_bounds, src_profile, src_crs, dst_crs):
+    logger.debug(src_bounds.top)
+    transform,w,h = calculate_default_transform(src_crs=src_crs,
+                                                dst_crs=dst_crs,
+                                                width=src_profile['width'],
+                                                height=src_profile['height'],
+                                                left=src_bounds.left,
+                                                bottom=src_bounds.bottom,
+                                                right=src_bounds.right,
+                                                top=src_bounds.top)
+    logger.debug((h,w))
+    with NamedTemporaryFile() as tmp:
+        output = np.memmap(
+            filename=tmp.name,dtype=band.dtype,shape=(h,w))
+        logger.debug(src_profile['transform'].to_gdal())
+        logger.debug(transform.to_gdal())
+        logger.debug(band.shape)
+        logger.debug(output.shape)
+    
+        reproject(source=band,
+                  destination=output,
+                  src_crs=src_crs,
+                  dst_crs=dst_crs,
+                  src_transform=src_profile['transform'],
+                  dst_transform=transform)
+        
+        return output
