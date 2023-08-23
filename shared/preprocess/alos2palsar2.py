@@ -15,7 +15,7 @@ def calibrate_backscatter(band: np.ndarray):
 
     return backscatter
 
-def speckle_filtering(band: np.ndarray):
+def despeckle(band: np.ndarray):
     input = band.astype(dtype='float64')
 
     app = otb.Registry.CreateApplication("Despeckle")

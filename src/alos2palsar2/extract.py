@@ -1,14 +1,17 @@
 from shared.preprocess.alos2palsar2 import (
     calibrate_backscatter,
-    speckle_filtering
+    despeckle
 )
 from tempfile import NamedTemporaryFile
 from skimage.morphology import square
 from skimage.filters.rank import majority
+from rasterio.features import shapes
+# from osgeo.gdal import Polygonize
 import numpy as np
 import shared.utils as utils
 import rasterio as rio
 import logging
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +26,7 @@ def get_preprocessed(img_fp):
     
         calibrated = calibrate_backscatter(band=array)
     
-        despeckled = speckle_filtering(band=calibrated)
+        despeckled = despeckle(band=calibrated)
         calibrated = None
         masked = np.ma.masked_outside(x=despeckled,v1=round(despeckled.max(),2),v2=-99.0)
         despeckled = None
@@ -68,16 +71,22 @@ def extract(pre_fp:str, post_fp:str):
         threshold = np.ma.where(diff<-3,1,0)
 
         filtered = majority(image=threshold,footprint=square(width=5))
-        projected = utils.project_image(
-            band=filtered,src_bounds=pre_bounds,src_profile=pre_profile,src_crs=pre_profile['crs'],dst_crs=rio.CRS.from_epsg(32651)
-            )
-        logger.debug(projected)
-        logger.debug(projected.dtype)
 
-        with rio.open(
-            fp=f'./tests/data/filtered.tiff',mode='w',
-            width=pre_profile['width'],height=pre_profile['height'],count=1,dtype='int16',
-            transform=pre_profile['transform'],crs=pre_profile['crs'],compress='lzw'
-        ) as tmp:
-            tmp.write(projected,1)
+        features = shapes(source=filtered)
+
+        for feat in features:
+            logger.debug(feat[0])
+
+        # projected = utils.project_image(
+        #     band=filtered,src_bounds=pre_bounds,src_profile=pre_profile,src_crs=pre_profile['crs'],dst_crs=rio.CRS.from_epsg(32651)
+        #     )
+        # logger.debug(projected)
+        # logger.debug(projected.dtype)
+
+        # with rio.open(
+        #     fp=f'./tests/data/filtered.tiff',mode='w',
+        #     width=pre_profile['width'],height=pre_profile['height'],count=1,dtype='int16',
+        #     transform=pre_profile['transform'],crs=pre_profile['crs'],compress='lzw'
+        # ) as tmp:
+        #     tmp.write(projected,1)
     return

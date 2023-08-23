@@ -18,7 +18,7 @@ def test_calibration_to_backscatter(alos2palsar2_band):
 def test_despeckle(alos2palsar2_band):
     band,profile = alos2palsar2_band
     
-    despeckled = ap.speckle_filtering(band=band) 
+    despeckled = ap.despeckle(band=band) 
 
     logger.debug(despeckled)
 
