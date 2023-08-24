@@ -7,6 +7,7 @@ from skimage.morphology import square
 from skimage.filters.rank import majority
 from rasterio.features import shapes
 # from osgeo.gdal import Polygonize
+from json import dumps
 import numpy as np
 import shared.utils as utils
 import rasterio as rio
@@ -62,21 +63,42 @@ def extract(pre_fp:str, post_fp:str):
             filename=pre_tmp.name,dtype='float32',mode='r',shape=(pre_profile['height'],pre_profile['width'])
         )
         post_mem = np.memmap(
-            filename=post_tmp.name,dtype='float32',mode='r',shape=(post_profile['height'],post_profile['width'])
+            filename=post_tmp.name,dtype='float32',mode='r',shape=(pre_profile['height'],pre_profile['width'])
         )
 
         diff = np.ma.masked_equal(
             post_mem,value=pre_profile['nodata']) - np.ma.masked_equal(pre_mem,value=pre_profile['nodata'])
 
+        logger.info(f'Applying threshold')
+
         threshold = np.ma.where(diff<-3,1,0)
+
+        logger.info(f'Applying majority filter')
 
         filtered = majority(image=threshold,footprint=square(width=5))
 
-        features = shapes(source=filtered)
+        logger.info(f'Extracting flood pixels as vector features')
+
+        features = shapes(source=filtered,transform=pre_profile['transform'])
+
+        logger.info(f'Converting to FeatureCollection')
+
+        flood = {'type':'FeatureCollection',
+                 'features':[]}
 
         for feat in features:
-            logger.debug(feat[0])
+            if feat[1] == 1.0:
+                feature = {'type':'Feature', 
+                            'geometry':feat[0],
+                            'properties':{
+                                 'value':1.0
+                             }
+                             }
+                flood['features'].append(feature)
 
+
+        with open(file=f'./tests/data/mm_flood.json',mode='w') as json:
+            json.write(dumps(flood))
         # projected = utils.project_image(
         #     band=filtered,src_bounds=pre_bounds,src_profile=pre_profile,src_crs=pre_profile['crs'],dst_crs=rio.CRS.from_epsg(32651)
         #     )

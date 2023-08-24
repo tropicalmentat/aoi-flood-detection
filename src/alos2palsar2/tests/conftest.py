@@ -29,7 +29,7 @@ def alos2palsar2_post_band(alos2palsar2_post_img):
     profile = None
     with rio.MemoryFile(file_or_bytes=alos2palsar2_post_img) as img:
         with img.open() as tif:
-            band = tif.read()
+            band = tif.read(window=window)
             profile = tif.profile
             bounds = tif.bounds
             logger.debug(tif.profile)
@@ -57,11 +57,11 @@ def alos2palsar2_pre_band(alos2palsar2_pre_img):
     profile = None
     with rio.MemoryFile(file_or_bytes=alos2palsar2_pre_img) as img:
         with img.open() as tif:
-            band = tif.read()
+            band = tif.read(window=window)
             profile = tif.profile
             bounds = tif.bounds
             logger.debug(tif.profile)
-            logger.debug(band)
+            logger.debug(band.shape)
             masked = ma.masked_where(condition=band==0,a=band,copy=False)
     return masked, profile, bounds
 
