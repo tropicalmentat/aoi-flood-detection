@@ -1,5 +1,6 @@
 from tempfile import NamedTemporaryFile
 from rasterio.warp import calculate_default_transform, reproject
+from rasterio.windows import Window
 import rasterio as rio
 import numpy as np
 import numpy.ma as ma
@@ -19,7 +20,9 @@ def load_image(fpath):
         img = tif.read()
     return img
 
-def image_to_array(img: bytes, masked: bool = True, band_idx=int):
+def image_to_array(
+        img: bytes, masked: bool = True, band_idx=int,
+        cols: tuple=None, rows:tuple=None):
     with NamedTemporaryFile(mode='wb',suffix='.tif') as tmp:
         tmp.write(img)
         tmp.seek(0)
@@ -28,14 +31,25 @@ def image_to_array(img: bytes, masked: bool = True, band_idx=int):
                 profile = src.profile
                 logger.debug(profile)
                 bounds = src.bounds
-                array = np.memmap(
-                    filename=tmp_array.name,dtype=profile['dtype'],mode='w+',
-                    shape = src.shape
-                )
-                src.read(band_idx,out=array)
-                logger.debug(array.shape)
-                
-                return array, profile, bounds
+                if cols is not None and rows is not None:
+                    window = Window.from_slices(rows=rows,cols=cols)
+                    array = np.memmap(
+                        filename=tmp_array.name,dtype=profile['dtype'],mode='w+',
+                        shape = (rows[1]-rows[0],cols[1]-cols[0])
+                    )
+                    src.read(band_idx,out=array,window=window)
+                    logger.debug(array.shape)
+
+                    return array, profile, bounds
+                else:
+                    array = np.memmap(
+                        filename=tmp_array.name,dtype=profile['dtype'],mode='w+',
+                        shape = src.shape
+                    )
+                    src.read(band_idx,out=array)
+                    logger.debug(array.shape)
+
+                    return array, profile, bounds
 
 def build_landsat_metadata(landsat_mtl_fp):
 
