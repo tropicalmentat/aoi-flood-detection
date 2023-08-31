@@ -71,3 +71,10 @@ def alos2palsar2_summary_fp():
     fp = f'./tests/data/ALOS2-PALSAR2/summary.txt'
 
     return fp
+
+@pytest.fixture
+def flood_extract():
+
+    fp = f'./tests/data/mm_flood.json.zip'
+
+    return fp

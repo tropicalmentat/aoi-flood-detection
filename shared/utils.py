@@ -1,6 +1,9 @@
 from tempfile import NamedTemporaryFile
 from rasterio.warp import calculate_default_transform, reproject
 from rasterio.windows import Window
+from pyproj import Transformer
+from shapely import get_coordinates, set_coordinates
+from shapely.geometry import shape, mapping
 import rasterio as rio
 import numpy as np
 import numpy.ma as ma
@@ -105,10 +108,6 @@ def derive_minmax_coords(profile):
     logger.debug(f'({minx},{miny},{maxx},{maxy}')
     return (minx,miny,maxx,maxy)
 
-def geocode_alos2palsar2():
-
-    return
-
 def get_earth_sun_distance(data: str):
 
     distance = None
@@ -147,3 +146,26 @@ def project_image(band: np.ndarray, src_bounds, src_profile, src_crs, dst_crs):
                   dst_transform=transform)
         
         return output
+
+def project_coordinates(feature_collection,src_crs,dst_crs):
+    transformer = Transformer.from_crs(src_crs,dst_crs,always_xy=True)
+    projected_fc = {
+        'type':'FeatureCollection',
+        'features':[],
+        'crs':dst_crs.to_string()
+    }
+    for feature in feature_collection['features']:
+        geometry = shape(feature['geometry'])
+        projected_coords = []
+        for coords in get_coordinates(geometry):
+            projected_coords.append(list(transformer.transform(coords[0],coords[1])))
+        set_coordinates(geometry,projected_coords)
+        projected_feature = {
+            'type':'Feature',
+            'geometry':mapping(geometry),
+            'properties':{
+                'value':1.0
+            }
+        }
+        projected_fc['features'].append(projected_feature)
+    return projected_fc

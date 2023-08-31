@@ -5,8 +5,6 @@ RUN apt update && \
 
 RUN mkdir function
 
-# RUN curl -O https://www.orfeo-toolbox.org/packages/OTB-8.1.2-Linux64.run
-
 COPY requirements.txt /function/
 
 WORKDIR /function

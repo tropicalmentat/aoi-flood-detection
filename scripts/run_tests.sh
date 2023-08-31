@@ -8,4 +8,4 @@ docker run \
         -v ./tests/data:/function/src/tests/data \
         -w /function/src \
         --entrypoint pytest \
-        -i msgeo-alos2palsar2 -k test_extract --log-cli-level=DEBUG
+        -i msgeo-alos2palsar2 -k test_project_coordinates --log-cli-level=DEBUG

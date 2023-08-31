@@ -89,11 +89,11 @@ def extract(pre_fp:str, post_fp:str):
         for feat in features:
             if feat[1] == 1.0:
                 feature = {'type':'Feature', 
-                            'geometry':feat[0],
-                            'properties':{
-                                 'value':1.0
-                             }
-                             }
+                           'geometry':feat[0],
+                           'properties':{
+                                'value':1.0
+                            }
+                            }
                 flood['features'].append(feature)
 
 
