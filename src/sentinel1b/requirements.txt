@@ -1,0 +1,5 @@
+numpy==1.20.3
+pytest==7.4.0
+sarsen
+scikit-image==0.21.0
+shapely==2.0.1

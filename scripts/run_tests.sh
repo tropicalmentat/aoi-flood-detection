@@ -3,9 +3,9 @@ echo "Running tests"
 docker system prune -f
 
 docker run \
-        -v ./src/alos2palsar2/:/function/src \
+        -v ./src/sentinel1b/:/function/src \
         -v ./shared/:/function/shared \
         -v ./tests/data:/function/src/tests/data \
         -w /function/src \
         --entrypoint pytest \
-        -i msgeo-alos2palsar2 -k test_project_coordinates --log-cli-level=DEBUG
+        -i msgeo-sentinel1b -k test_extract_sentinel1b --log-cli-level=DEBUG
