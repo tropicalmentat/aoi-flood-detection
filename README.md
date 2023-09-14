@@ -1,7 +1,18 @@
-# Extraction of flooded areas
+# Area-of-Interest Workflows for Manila Observatory's 
 
-## Methodology
-- Each satellite image source (Landsat 8, Sentinel SAR) will have its own preprocessing logic.
+Containerized data processing workflows for Synthetic Aperture Radar (SAR) and optical imagery. The following sensors and platforms are supported:
+
+1. Landsat 8 (Optical)
+2. Sentinel2 (Optical)
+2. ALOS2-PALSAR2 (SAR)
+3. Sentinel1b (SAR)
+
+
+### Requirements
+- 
+
+### Usage
+
 
 ### Notes
 - Sentinel 1 imagery
