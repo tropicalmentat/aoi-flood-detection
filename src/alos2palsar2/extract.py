@@ -16,14 +16,14 @@ import os
 
 logger = logging.getLogger(__name__)
 
-def get_preprocessed(img_fp):
+def get_preprocessed(img_fp,cols=None,rows=None):
 
     preprocessed = None
 
     with NamedTemporaryFile() as tmp:
         img = utils.load_image(fpath=img_fp) 
     
-        array, profile, bounds = utils.image_to_array(img=img,band_idx=1)
+        array, profile, bounds = utils.image_to_array(img=img,band_idx=1,cols=cols,rows=rows)
     
         calibrated = calibrate_backscatter(band=array)
     
@@ -45,12 +45,12 @@ def get_preprocessed(img_fp):
     
     return preprocessed, profile, bounds 
 
-def extract(pre_fp:str, post_fp:str):
+def extract(pre_fp:str, post_fp:str, cols=None, rows=None):
 
     with NamedTemporaryFile() as pre_tmp, NamedTemporaryFile() as post_tmp:
-        pre,pre_profile,pre_bounds = get_preprocessed(pre_fp)
+        pre,pre_profile,pre_bounds = get_preprocessed(pre_fp, cols=cols, rows=rows)
 
-        post,post_profile,post_bounds = get_preprocessed(post_fp)
+        post,post_profile,post_bounds = get_preprocessed(post_fp, cols=cols, rows=rows)
         logger.debug(len(pre))
         logger.debug(len(post))
         pre_tmp.write(pre)
@@ -96,9 +96,6 @@ def extract(pre_fp:str, post_fp:str):
                             }
                 flood['features'].append(feature)
 
-
-        with open(file=f'./tests/data/mm_flood.json',mode='w') as json:
-            json.write(dumps(flood))
         # projected = utils.project_image(
         #     band=filtered,src_bounds=pre_bounds,src_profile=pre_profile,src_crs=pre_profile['crs'],dst_crs=rio.CRS.from_epsg(32651)
         #     )
@@ -111,4 +108,4 @@ def extract(pre_fp:str, post_fp:str):
         #     transform=pre_profile['transform'],crs=pre_profile['crs'],compress='lzw'
         # ) as tmp:
         #     tmp.write(projected,1)
-    return
+    return flood

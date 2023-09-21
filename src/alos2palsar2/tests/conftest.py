@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 def alos2palsar2_post_fp():
 
     fp = f'./tests/data/ALOS2-PALSAR2/20201115/IMG-HH-ALOS2350060270-201115-FBDR2.1GUA.tiff'
+    # fp = f'./tests/data/579365d3-2b8b-4dac-a37b-d1996c890a76/IMG-HH-ALOS2456220150-221103-WBDR2.1GUA.tif'
     return fp
 
 @pytest.fixture
@@ -30,7 +31,11 @@ def alos2palsar2_post_band(alos2palsar2_post_img):
     with rio.MemoryFile(file_or_bytes=alos2palsar2_post_img) as img:
         with img.open() as tif:
             band = tif.read(window=window)
+            win_transform = tif.window_transform(window)
             profile = tif.profile
+            logger.debug(profile['transform'])
+            profile.update({'transform':win_transform})
+            logger.debug(profile['transform'])
             bounds = tif.bounds
             logger.debug(tif.profile)
             logger.debug(band)
@@ -41,6 +46,7 @@ def alos2palsar2_post_band(alos2palsar2_post_img):
 def alos2palsar2_pre_fp():
 
     fp = f'./tests/data/ALOS2-PALSAR2/20191117/IMG-HV-ALOS2296240270-191117-FBDR2.1GUA.tiff'
+    # fp = f'./tests/data/a0fc7a16-768b-4c93-8c44-eb1564a1c051/IMG-HH-ALOS2425170150-220407-WBDR2.1GUA.tif'
     return fp
 
 @pytest.fixture
@@ -58,7 +64,11 @@ def alos2palsar2_pre_band(alos2palsar2_pre_img):
     with rio.MemoryFile(file_or_bytes=alos2palsar2_pre_img) as img:
         with img.open() as tif:
             band = tif.read(window=window)
+            win_transform = tif.window_transform(window)
             profile = tif.profile
+            logger.debug(profile['transform'])
+            profile.update({'transform':win_transform})
+            logger.debug(profile['transform'])
             bounds = tif.bounds
             logger.debug(tif.profile)
             logger.debug(band.shape)

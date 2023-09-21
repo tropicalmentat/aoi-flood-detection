@@ -36,14 +36,20 @@ def image_to_array(
                 bounds = src.bounds
                 if cols is not None and rows is not None:
                     window = Window.from_slices(rows=rows,cols=cols)
+                    win_bounds = src.window_bounds(window)
+                    win_transform = src.window_transform(window)
+                    profile['transform'] = win_transform
+                    profile['width'] = cols[1]
+                    profile['height'] = rows[1]
+                    logger.debug(profile)
                     array = np.memmap(
                         filename=tmp_array.name,dtype=profile['dtype'],mode='w+',
-                        shape = (rows[1]-rows[0],cols[1]-cols[0])
+                        shape = (rows[1],cols[1])
                     )
                     src.read(band_idx,out=array,window=window)
                     logger.debug(array.shape)
 
-                    return array, profile, bounds
+                    return array, profile, win_bounds
                 else:
                     array = np.memmap(
                         filename=tmp_array.name,dtype=profile['dtype'],mode='w+',
