@@ -6,6 +6,7 @@ import rasterio as rio
 
 logger = logging.getLogger(__name__)
 
+# TODO: Generalize func signatures for optical imagery
 def extract_flood(band3_fp: str,
                   band5_fp: str,
                   mtl_fp: str):
