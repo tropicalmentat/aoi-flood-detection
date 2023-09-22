@@ -47,3 +47,32 @@ def extract_flood(band3_fp: str,
     # with rio.open(fp=f'./tests/data/ndwi.tif',mode='w',**water_profile) as tif:
         # tif.write(water)
     return ndwi
+
+def extract_true_color(
+        band4_fp:str, band3_fp:str, band2_fp:str,
+        outdir: str
+        ):
+
+    band4_img = utils.load_image(fpath=band4_fp) 
+    band3_img = utils.load_image(fpath=band3_fp)
+    band2_img = utils.load_image(fpath=band2_fp)
+
+    band4_array, b4_profile = utils.image_to_array(
+        img=band4_fp
+    )
+    band3_array, b3_profile = utils.image_to_array(
+        img=band3_img
+    )
+    band2_array, b2_profile = utils.image_to_array(
+        img=band2_img
+    )
+
+    with rio.open(
+        fp=outdir,mode='w',width=b4_profile['width'],height=b4_profile['height'],
+        crs=b4_profile['crs'],transform=b4_profile['transform'],count=3
+        ) as tif:
+        tif.write(band4_array,1)
+        tif.write(band3_array,2)
+        tif.write(band2_array,3)
+
+    return

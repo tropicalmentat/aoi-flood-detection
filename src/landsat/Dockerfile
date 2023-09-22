@@ -10,7 +10,7 @@ RUN apt install -y --no-install-recommends \
 
 RUN mkdir function
 
-COPY ./requirements.txt /function/
+COPY ./src/landsat/requirements.txt /function/
 
 WORKDIR /function
 

@@ -47,6 +47,7 @@ def image_to_array(
                         shape = (rows[1],cols[1])
                     )
                     src.read(band_idx,out=array,window=window)
+                    logger.debug(array)
                     logger.debug(array.shape)
 
                     return array, profile, win_bounds
