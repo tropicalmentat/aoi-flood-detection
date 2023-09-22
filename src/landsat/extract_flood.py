@@ -6,9 +6,16 @@ import rasterio as rio
 
 logger = logging.getLogger(__name__)
 
-def extract(band3_fp: str,
-            band5_fp: str,
-            mtl_fp: str):
+def extract_flood(band3_fp: str,
+                  band5_fp: str,
+                  mtl_fp: str):
+    """
+    Parameters
+    ----------
+    band3_fp: Filepath of band3
+    band5_fp: Filepath of band5
+    mtl_fp: Filepath of metadata file
+    """
     
     if band3_fp is None or band5_fp is None:
         raise Exception()
