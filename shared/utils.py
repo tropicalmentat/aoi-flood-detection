@@ -24,7 +24,7 @@ def load_image(fpath):
     return img
 
 def image_to_array(
-        img: bytes, masked: bool = True, band_idx=int,
+        img: bytes, masked: bool = True, band_idx: int=1,
         cols: tuple=None, rows:tuple=None):
     with NamedTemporaryFile(mode='wb',suffix='.tif') as tmp:
         tmp.write(img)
@@ -56,6 +56,8 @@ def image_to_array(
                         filename=tmp_array.name,dtype=profile['dtype'],mode='w+',
                         shape = src.shape
                     )
+                    logger.debug(band_idx)
+                    logger.debug(array)
                     src.read(band_idx,out=array)
                     logger.debug(array.shape)
 

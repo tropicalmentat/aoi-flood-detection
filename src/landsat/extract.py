@@ -25,8 +25,8 @@ def extract_flood(band3_fp: str,
     b3_img = utils.load_image(fpath=band3_fp)
     b5_img = utils.load_image(fpath=band5_fp)
     
-    b3_array, b3_profile = utils.image_to_array(img=b3_img, masked=True)
-    b5_array, b5_profile = utils.image_to_array(img=b5_img, masked=True)
+    b3_array, b3_profile,_ = utils.image_to_array(img=b3_img, masked=True)
+    b5_array, b5_profile,_ = utils.image_to_array(img=b5_img, masked=True)
     
     b3_reflect = radiance_to_reflectance(array=b3_array,
                                          band=3,
