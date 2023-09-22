@@ -74,9 +74,23 @@ def landsat_mtl_data(landsat_mtl_fp):
     return data
 
 @pytest.fixture
+def landsat_b2_fp():
+
+    fp = f'./tests/data/LANDSAT8/LO08_L1TP_116050_20201106_20201112_01_T1_B2.tiff'
+
+    return fp
+
+@pytest.fixture
 def landsat_b3_fp():
 
     fp = f'./tests/data/LANDSAT8/LO08_L1TP_116050_20201106_20201112_01_T1_B3.tiff'
+
+    return fp
+
+@pytest.fixture
+def landsat_b4_fp():
+
+    fp = f'./tests/data/LANDSAT8/LO08_L1TP_116050_20201106_20201112_01_T1_B4.tiff'
 
     return fp
 

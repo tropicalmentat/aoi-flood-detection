@@ -57,19 +57,18 @@ def extract_true_color(
     band3_img = utils.load_image(fpath=band3_fp)
     band2_img = utils.load_image(fpath=band2_fp)
 
-    band4_array, b4_profile = utils.image_to_array(
-        img=band4_fp
-    )
-    band3_array, b3_profile = utils.image_to_array(
+    band4_array, b4_profile,_ = utils.image_to_array(
+        img=band4_img)
+    band3_array, b3_profile,_ = utils.image_to_array(
         img=band3_img
     )
-    band2_array, b2_profile = utils.image_to_array(
+    band2_array, b2_profile,_ = utils.image_to_array(
         img=band2_img
     )
 
     with rio.open(
         fp=outdir,mode='w',width=b4_profile['width'],height=b4_profile['height'],
-        crs=b4_profile['crs'],transform=b4_profile['transform'],count=3
+        crs=b4_profile['crs'],transform=b4_profile['transform'],count=3,dtype=b4_profile['dtype']
         ) as tif:
         tif.write(band4_array,1)
         tif.write(band3_array,2)
