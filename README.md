@@ -7,9 +7,15 @@ Containerized data processing workflows for Synthetic Aperture Radar (SAR) and o
 2. ALOS2-PALSAR2 (SAR)
 3. Sentinel1b (SAR)
 
+# TODO: Add description of modules/files to use to generate flood extracts/data
+### Repository Structure
+- Each sensor (with the exception of Landsat8 and Sentinel2) have their own exclusive module in the `src` directory. This is because the raw data per sensor have different processing requirements, 
+- The execution of the flood extraction workflow is facilitated by the `extract.py` script in each module. This script consolidates the pre-processing steps required for the raw data to be transformed to flood data. 
+- The functions commonly used across the sensors are located in the `shared` directory.
 
 ### Requirements
-- 
+- Git (to clone the repository)
+- Docker 
 
 ### Usage
 
