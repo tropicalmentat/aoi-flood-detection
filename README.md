@@ -1,6 +1,6 @@
-# Area-of-Interest Workflows for Manila Observatory's 
+# Area-of-Interest Workflows for Extraction of Flood Hazards 
 
-Containerized data processing workflows for Synthetic Aperture Radar (SAR) and optical imagery. The following sensors and platforms are supported:
+Containerized data processing workflows to extract flood hazards for Synthetic Aperture Radar (SAR) and optical imagery. The following sensors and platforms are supported:
 
 1. Landsat 8 (Optical)
 2. Sentinel2 (Optical)
