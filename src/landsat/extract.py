@@ -47,7 +47,7 @@ def extract_flood(band3_fp: str,
 
     # with rio.open(fp=f'./tests/data/ndwi.tif',mode='w',**water_profile) as tif:
         # tif.write(water)
-    return ndwi
+    return water
 
 def extract_true_color(
         band4_fp:str, band3_fp:str, band2_fp:str,
