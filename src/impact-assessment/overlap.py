@@ -4,6 +4,9 @@ import json
 import geopandas as gpd
 import logging
 
+from shapely.geometry import shape
+from shapely import area
+
 logger = logging.getLogger(__name__)
 logging.getLogger('fiona').setLevel(logging.CRITICAL)
 
@@ -29,6 +32,18 @@ def initialize_data(flood_fpath, bounds_fpath):
 def overlap_analysis(
         flood: gpd.GeoDataFrame, bounds: gpd.GeoDataFrame
 ):
+    
+    flood.sindex
+    count = 0
     for feature in bounds.iterfeatures():
-        logger.debug(feature)
+        polygon = shape(feature['geometry'])
+        bound_area = area(polygon)
+        clipped = flood.clip(mask=polygon)
+        flood_area = clipped.area.sum()
+        if len(clipped) > 0:
+            count += 1
+            logger.debug(f'{flood_area} / {bound_area} = {flood_area*100/bound_area}')
+        
+    logger.debug(count)
+
     return
