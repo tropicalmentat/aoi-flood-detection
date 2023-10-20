@@ -12,10 +12,18 @@ def test_init_data(flood_fp, ph_municity_bounds):
 
 def test_overlap(data):
 
-    flood_ds, bounds_ds = data
+    flood_ds, bounds_ds, _ = data
 
     result = op.overlap_analysis(
         flood=flood_ds, bounds=bounds_ds
     )
+
+    assert False
+
+def test_pov_incidence_reclass(data):
+    
+    _, bounds, pov_inc = data
+    
+    result = op.poverty_incidence_reclassify(pov_data=pov_inc)
 
     assert False
