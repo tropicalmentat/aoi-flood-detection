@@ -35,19 +35,23 @@ def overlap_analysis(
 ):
     
     flood.sindex
-    count = 0
+    geoprocessed = {
+        'type' : 'FeatureCollection',
+        'features' : []
+    }
     for feature in bounds.iterfeatures():
         polygon = shape(feature['geometry'])
         bound_area = area(polygon)
         clipped = flood.clip(mask=polygon)
         flood_area = clipped.area.sum()
         if len(clipped) > 0:
-            count += 1
-            logger.debug(f'{flood_area} / {bound_area} = {flood_area*100/bound_area}')
-        
-    logger.debug(count)
+            # logger.debug(f'{flood_area} / {bound_area} = {flood_area*100/bound_area}')
+            feature['properties']['perc_flooded'] = flood_area*100/bound_area
+            geoprocessed['features'].append(feature)
+    
+    analyzed = gpd.GeoDataFrame.from_features(geoprocessed, crs=bounds.crs)
 
-    return
+    return analyzed
 
 def poverty_incidence_reclassify(pov_data):
 
