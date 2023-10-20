@@ -3,6 +3,7 @@
 import json
 import geopandas as gpd
 import logging
+import duckdb
 
 from shapely.geometry import shape
 from shapely import area
@@ -47,3 +48,24 @@ def overlap_analysis(
     logger.debug(count)
 
     return
+
+def poverty_incidence_reclassify(pov_data):
+
+    def reclassify(pov_inc):
+
+        if pov_inc > 80:
+            return 5
+        elif pov_inc > 60 and pov_inc <= 80:
+            return 4
+        elif pov_inc > 40 and pov_inc <= 60:
+            return 3
+        elif pov_inc > 20 and pov_inc <= 40:
+            return 2
+        elif pov_inc <= 20:
+            return 1
+
+    pov_inc = pov_data.Poverty_In
+
+    pov_data['reclass'] = pov_inc.apply(lambda x: reclassify(x))
+
+    return pov_data

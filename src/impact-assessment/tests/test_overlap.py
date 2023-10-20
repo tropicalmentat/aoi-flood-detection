@@ -10,7 +10,7 @@ def test_init_data(flood_fp, ph_municity_bounds):
 
     assert type(flood) is GeoDataFrame and type(bounds) is GeoDataFrame
 
-def test_overlap(data):
+def test_overlap_analysis(data):
 
     flood_ds, bounds_ds, _ = data
 
