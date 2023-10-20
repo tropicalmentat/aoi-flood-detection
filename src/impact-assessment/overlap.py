@@ -34,6 +34,19 @@ def overlap_analysis(
         flood: gpd.GeoDataFrame, bounds: gpd.GeoDataFrame
 ):
     
+    def reclassify(flooded):
+
+        if flooded > 80:
+            return 5
+        elif flooded > 60 and flooded <= 80:
+            return 4
+        elif flooded > 40 and flooded <= 60:
+            return 3
+        elif flooded > 20 and flooded <= 40:
+            return 2
+        elif flooded <= 20:
+            return 1
+
     flood.sindex
     geoprocessed = {
         'type' : 'FeatureCollection',
@@ -47,6 +60,8 @@ def overlap_analysis(
         if len(clipped) > 0:
             # logger.debug(f'{flood_area} / {bound_area} = {flood_area*100/bound_area}')
             feature['properties']['perc_flooded'] = flood_area*100/bound_area
+            feature['properties']['reclassified'] = reclassify(
+                feature['properties']['perc_flooded'])
             geoprocessed['features'].append(feature)
     
     analyzed = gpd.GeoDataFrame.from_features(geoprocessed, crs=bounds.crs)
