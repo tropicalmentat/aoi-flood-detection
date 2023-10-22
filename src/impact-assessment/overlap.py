@@ -3,7 +3,6 @@
 import json
 import geopandas as gpd
 import logging
-import duckdb
 
 from shapely.geometry import shape
 from shapely import area

@@ -4,6 +4,8 @@ from rasterio.windows import Window
 from pyproj import Transformer
 from shapely import get_coordinates, set_coordinates
 from shapely.geometry import shape, mapping
+from rasterio.features import rasterize
+
 import rasterio as rio
 import numpy as np
 import numpy.ma as ma
@@ -178,3 +180,14 @@ def project_coordinates(feature_collection,src_crs,dst_crs):
         }
         projected_fc['features'].append(projected_feature)
     return projected_fc
+
+def convert_to_raster(feature_collection):
+
+    iter_pairs = [
+        (feat['geometry'],feat['properties']['reclassified']) for feat in feature_collection['features']
+    ]
+    logger.debug(iter_pairs[0])
+    
+    raster = rasterize(shapes=iter_pairs)
+
+    return

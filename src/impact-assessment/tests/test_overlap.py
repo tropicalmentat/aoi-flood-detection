@@ -1,5 +1,7 @@
 import pytest
+import json
 from .. import overlap as op
+from shared.utils import convert_to_raster
 from geopandas import GeoDataFrame
 
 def test_init_data(flood_fp, ph_municity_bounds):
@@ -18,6 +20,8 @@ def test_overlap_analysis(data):
         flood=flood_ds, bounds=bounds_ds
     )
 
+    with open(file='./tests/data/overlapped.json', mode='w') as f:
+        f.write(json.dumps(result.__geo_interface__))
     assert False
 
 def test_pov_incidence_reclass(data):
@@ -25,5 +29,11 @@ def test_pov_incidence_reclass(data):
     _, bounds, pov_inc = data
     
     result = op.poverty_incidence_reclassify(pov_data=pov_inc)
+    
+    assert False
+
+def test_rasterize(overlap_bounds):
+
+    result = convert_to_raster(feature_collection=overlap_bounds)
 
     assert False

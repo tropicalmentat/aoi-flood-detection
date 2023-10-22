@@ -1,6 +1,7 @@
 import pytest
 import json
 import geopandas as gpd
+from zipfile import ZipFile
 
 @pytest.fixture
 def flood_fp():
@@ -35,3 +36,12 @@ def data(flood_fp, ph_municity_bounds, ph_pov_inc_2020):
     flood_df.set_crs(flood_crs,inplace=True)
 
     return flood_df, bounds_df, pov_inc_df
+
+@pytest.fixture
+def overlap_bounds():
+
+    fp = f'./tests/data/overlapped.json.zip'
+
+    with ZipFile(file=fp) as archive:
+        data = json.loads(archive.read(name=f'overlapped.json'))
+        return data
