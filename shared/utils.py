@@ -1,10 +1,12 @@
 from tempfile import NamedTemporaryFile
 from rasterio.warp import calculate_default_transform, reproject
 from rasterio.windows import Window
+from rasterio.features import rasterize
+from rasterio.transform import from_bounds
+from rasterio.coords import BoundingBox
 from pyproj import Transformer
 from shapely import get_coordinates, set_coordinates
-from shapely.geometry import shape, mapping
-from rasterio.features import rasterize
+from shapely.geometry import shape, mapping, MultiPolygon, GeometryCollection
 
 import rasterio as rio
 import numpy as np
@@ -12,6 +14,7 @@ import numpy.ma as ma
 import logging
 
 logger = logging.getLogger(__name__)
+logging.getLogger('rasterio').setLevel(logging.CRITICAL)
 
 def get_nodata_mask(array: np.ndarray, profile: dict):
 
@@ -181,13 +184,65 @@ def project_coordinates(feature_collection,src_crs,dst_crs):
         projected_fc['features'].append(projected_feature)
     return projected_fc
 
-def convert_to_raster(feature_collection):
-
+def convert_to_raster(feature_collection, crs):
+    logger.debug(crs)
     iter_pairs = [
         (feat['geometry'],feat['properties']['reclassified']) for feat in feature_collection['features']
     ]
-    logger.debug(iter_pairs[0])
     
-    raster = rasterize(shapes=iter_pairs)
+    mp = GeometryCollection(geoms=[
+        shape(feat['geometry']) for feat in feature_collection['features']
+    ])
+    
+    # shapely bounds returns coords in 
+    # the following tuple: 
+    # (xmin, ymin, xmax, ymax)
+    # will be used to as the raster bounds
+    # which has the form 
+    # (lower left x, lower left y, upper right x, upper right y)
+    bounds = mp.bounds
+    width = bounds[2] - bounds[0]
+    height = bounds[3] - bounds[1]
+    
+    # array shape in the form
+    # (height, width)
+    array_shape = (round(height), round(width))
 
+    logger.debug(bounds)
+    logger.debug(f'height:{height}, width:{width}')
+
+    src_transform = from_bounds(
+        west=bounds[0], south=bounds[1], east=bounds[2], north=bounds[3], 
+        width=width, height=height
+        )
+    
+    with NamedTemporaryFile() as tmp_rast, NamedTemporaryFile() as tmp_rprj:
+        logger.debug(src_transform)
+
+        rasterized = np.memmap(
+            filename=tmp_rast, dtype=np.int8,
+            shape=array_shape
+        )
+
+        rasterized[:] = rasterize(
+            shapes=iter_pairs, out_shape=array_shape, transform=src_transform
+            )[:]
+    
+        rasterized.flush()
+
+        dst_transform = calculate_default_transform(
+            src_crs=crs, dst_crs=crs, width=width, height=height, left=bounds[0],
+            bottom=bounds[1], right=bounds[2], top=bounds[3], resolution=(30,30)
+        )
+
+        dst_array = np.memmap(
+            filename=tmp_rprj.name, dtype=np.int8, shape=(dst_transform[2],dst_transform[1])
+        )
+
+        logger.debug(dst_transform)
+        reprojected = reproject(
+            source=rasterized, destination=dst_array, src_crs=crs, dst_crs=crs,
+            src_transform=src_transform, dst_transform=dst_transform[0]
+        )
+        logger.debug(reprojected)
     return

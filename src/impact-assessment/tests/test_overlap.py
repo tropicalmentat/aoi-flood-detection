@@ -1,8 +1,12 @@
 import pytest
 import json
+import logging
 from .. import overlap as op
 from shared.utils import convert_to_raster
 from geopandas import GeoDataFrame
+from pyproj.crs import CRS
+
+logger = logging.getLogger(__name__)
 
 def test_init_data(flood_fp, ph_municity_bounds):
 
@@ -34,6 +38,6 @@ def test_pov_incidence_reclass(data):
 
 def test_rasterize(overlap_bounds):
 
-    result = convert_to_raster(feature_collection=overlap_bounds)
+    result = convert_to_raster(feature_collection=overlap_bounds, crs=CRS.from_epsg(32651))
 
     assert False
