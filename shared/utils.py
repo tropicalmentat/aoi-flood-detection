@@ -1,12 +1,12 @@
 from tempfile import NamedTemporaryFile
-from rasterio.warp import calculate_default_transform, reproject
+from rasterio.warp import calculate_default_transform, reproject, aligned_target
 from rasterio.windows import Window
 from rasterio.features import rasterize
 from rasterio.transform import from_bounds
-from rasterio.coords import BoundingBox
+from rasterio.profiles import DefaultGTiffProfile
 from pyproj import Transformer
 from shapely import get_coordinates, set_coordinates
-from shapely.geometry import shape, mapping, MultiPolygon, GeometryCollection
+from shapely.geometry import shape, mapping, GeometryCollection
 
 import rasterio as rio
 import numpy as np
@@ -211,6 +211,9 @@ def convert_to_raster(feature_collection, crs):
     logger.debug(bounds)
     logger.debug(f'height:{height}, width:{width}')
 
+    # we use the bounds information
+    # of the geometry to define the
+    # corresponding array
     src_transform = from_bounds(
         west=bounds[0], south=bounds[1], east=bounds[2], north=bounds[3], 
         width=width, height=height
@@ -220,29 +223,43 @@ def convert_to_raster(feature_collection, crs):
         logger.debug(src_transform)
 
         rasterized = np.memmap(
-            filename=tmp_rast, dtype=np.int8,
+            filename=tmp_rast, dtype=np.int16,
             shape=array_shape
         )
 
-        rasterized[:] = rasterize(
-            shapes=iter_pairs, out_shape=array_shape, transform=src_transform
-            )[:]
+        rasterize(
+            shapes=iter_pairs, out_shape=array_shape,
+            transform=src_transform, out=rasterized, dtype='int16'
+            )
     
         rasterized.flush()
 
-        dst_transform = calculate_default_transform(
-            src_crs=crs, dst_crs=crs, width=width, height=height, left=bounds[0],
-            bottom=bounds[1], right=bounds[2], top=bounds[3], resolution=(30,30)
-        )
-
-        dst_array = np.memmap(
-            filename=tmp_rprj.name, dtype=np.int8, shape=(dst_transform[2],dst_transform[1])
+        dst_transform = aligned_target(
+            transform=src_transform, width=width, height=height, resolution=(30,30)
         )
 
         logger.debug(dst_transform)
-        reprojected = reproject(
-            source=rasterized, destination=dst_array, src_crs=crs, dst_crs=crs,
-            src_transform=src_transform, dst_transform=dst_transform[0]
-        )
-        logger.debug(reprojected)
-    return
+
+        # dst_array = np.memmap(
+        #     filename=tmp_rprj.name, dtype=np.int16, shape=(dst_transform[2],dst_transform[1])
+        # )
+
+        # reproject(
+        #     source=rasterized, destination=dst_array, src_crs=crs, dst_crs=crs,
+        #     src_transform=src_transform, dst_transform=dst_transform[0]
+        # )
+        # logger.debug(dst_array)
+
+        # profile = DefaultGTiffProfile(data={
+        #     'width':width, 'height':height, 'crs':crs, 'transform':dst_transform,
+        #     'nodata':-9999, 'dtype':np.int16
+        # })
+
+        # logger.debug(profile)
+
+        # with rio.open(
+        #     fp=f'./tests/data/rasterized.tiff', mode='w', driver='GTiff', **profile
+        # ) as tif:
+        #     tif.write(dst_array)
+
+    return 
