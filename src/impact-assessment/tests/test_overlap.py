@@ -33,7 +33,10 @@ def test_pov_incidence_reclass(data):
     _, bounds, pov_inc = data
     
     result = op.poverty_incidence_reclassify(pov_data=pov_inc)
+
     
+    with open(file='./tests/data/pov_reclassed.json', mode='w') as f:
+        f.write(json.dumps(result.__geo_interface__))
     assert False
 
 def test_rasterize(overlap_bounds):
