@@ -237,21 +237,11 @@ def convert_to_raster(feature_collection, crs):
 
     offsets = []
 
-    for col in col_offsets[:-2]:
-        for row in row_offsets[:-2]:
+    for col in col_offsets:
+        for row in row_offsets:
             offsets.append((col,row))
     
     logger.debug(offsets)
-
-    windows = [
-        Window(
-        col_off=pair[0],
-        row_off=pair[1],
-        width=profile['blockxsize'],
-        height=profile['blockysize']
-        )
-        for pair in offsets
-        ]
 
     with NamedTemporaryFile() as tmp_rast:
         rasterized = np.memmap(
@@ -266,17 +256,22 @@ def convert_to_raster(feature_collection, crs):
     
         rasterized.flush()
 
-        logger.debug(len(windows))
-
         with rio.open(
             fp=f'./tests/data/rasterized.tiff', mode='w', **profile
         ) as tif:
-            for i, window in enumerate(windows, start=1):
-                if i != len(windows):
+            for pair in offsets:
+                if pair[0] == col_offsets[-1] or pair[1] == row_offsets[-1]:
+                    window = Window.from_slices(
+                        cols=(pair[0],profile['width']), rows=(pair[1],profile['height'])
+                        )
                     slice = window.toslices()
                     tif.write(rasterized[slice],window=window,indexes=1)
-                # handle last window to avoid
-                # out of bounds error
                 else:
-                    slice = windows[-1]
+                    window = Window(
+                        col_off=pair[0],row_off=pair[1],
+                        width=profile['blockxsize'], height=profile['blockysize']
+                    )
+                    slice = window.toslices()
+                    tif.write(rasterized[slice],window=window,indexes=1)
+
     return 
