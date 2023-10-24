@@ -218,48 +218,65 @@ def convert_to_raster(feature_collection, crs):
         west=bounds[0], south=bounds[1], east=bounds[2], north=bounds[3], 
         width=width, height=height
         )
-    
-    with NamedTemporaryFile() as tmp_rast, NamedTemporaryFile() as tmp_rprj:
-        logger.debug(src_transform)
+    logger.debug(src_transform)
 
+    dst_transform,dst_w,dst_h = aligned_target(
+    transform=src_transform, width=width, height=height, resolution=(30,30)
+        )
+    logger.debug(dst_transform)
+
+    profile = DefaultGTiffProfile(data={
+        'width':dst_w, 'height':dst_h, 'crs':crs, 'transform':dst_transform,
+        'nodata':-9999, 'dtype':np.int16, 'count':1
+    })
+
+    logger.debug(profile)
+
+    col_offsets = [i for i in range(0,profile['width'],profile['blockxsize'])]
+    row_offsets = [i for i in range(0,profile['height'],profile['blockysize'])]
+
+    offsets = []
+
+    for col in col_offsets[:-2]:
+        for row in row_offsets[:-2]:
+            offsets.append((col,row))
+    
+    logger.debug(offsets)
+
+    windows = [
+        Window(
+        col_off=pair[0],
+        row_off=pair[1],
+        width=profile['blockxsize'],
+        height=profile['blockysize']
+        )
+        for pair in offsets
+        ]
+
+    with NamedTemporaryFile() as tmp_rast:
         rasterized = np.memmap(
             filename=tmp_rast, dtype=np.int16,
             shape=array_shape
         )
 
         rasterize(
-            shapes=iter_pairs, out_shape=array_shape,
-            transform=src_transform, out=rasterized, dtype='int16'
+            shapes=iter_pairs, out_shape=(dst_h,dst_w),
+            transform=dst_transform, out=rasterized, dtype='int16'
             )
     
         rasterized.flush()
 
-        dst_transform = aligned_target(
-            transform=src_transform, width=width, height=height, resolution=(30,30)
-        )
+        logger.debug(len(windows))
 
-        logger.debug(dst_transform)
-
-        # dst_array = np.memmap(
-        #     filename=tmp_rprj.name, dtype=np.int16, shape=(dst_transform[2],dst_transform[1])
-        # )
-
-        # reproject(
-        #     source=rasterized, destination=dst_array, src_crs=crs, dst_crs=crs,
-        #     src_transform=src_transform, dst_transform=dst_transform[0]
-        # )
-        # logger.debug(dst_array)
-
-        # profile = DefaultGTiffProfile(data={
-        #     'width':width, 'height':height, 'crs':crs, 'transform':dst_transform,
-        #     'nodata':-9999, 'dtype':np.int16
-        # })
-
-        # logger.debug(profile)
-
-        # with rio.open(
-        #     fp=f'./tests/data/rasterized.tiff', mode='w', driver='GTiff', **profile
-        # ) as tif:
-        #     tif.write(dst_array)
-
+        with rio.open(
+            fp=f'./tests/data/rasterized.tiff', mode='w', **profile
+        ) as tif:
+            for i, window in enumerate(windows, start=1):
+                if i != len(windows):
+                    slice = window.toslices()
+                    tif.write(rasterized[slice],window=window,indexes=1)
+                # handle last window to avoid
+                # out of bounds error
+                else:
+                    slice = windows[-1]
     return 
