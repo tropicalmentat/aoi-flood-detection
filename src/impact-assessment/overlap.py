@@ -10,6 +10,8 @@ from shapely import area
 logger = logging.getLogger(__name__)
 logging.getLogger('fiona').setLevel(logging.CRITICAL)
 
+RECLASS_KEY = 'reclass'
+
 def initialize_data(flood_fpath, bounds_fpath):
 
     flood_df = None
@@ -59,7 +61,7 @@ def overlap_analysis(
         if len(clipped) > 0:
             # logger.debug(f'{flood_area} / {bound_area} = {flood_area*100/bound_area}')
             feature['properties']['perc_flooded'] = flood_area*100/bound_area
-            feature['properties']['reclassified'] = reclassify(
+            feature['properties'][RECLASS_KEY] = reclassify(
                 feature['properties']['perc_flooded'])
             geoprocessed['features'].append(feature)
     
@@ -84,6 +86,6 @@ def poverty_incidence_reclassify(pov_data):
 
     pov_inc = pov_data.Poverty_In
 
-    pov_data['reclass'] = pov_inc.apply(lambda x: reclassify(x))
+    pov_data[RECLASS_KEY] = pov_inc.apply(lambda x: reclassify(x))
 
     return pov_data
