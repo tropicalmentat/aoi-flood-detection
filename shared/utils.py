@@ -8,7 +8,7 @@ from pyproj import Transformer
 from shapely import get_coordinates, set_coordinates
 from shapely.geometry import shape, mapping, GeometryCollection
 from xrspatial.local import combine
-from xarray import merge, DataArray
+from xarray import merge, DataArray, concat, combine_nested, align
 
 import rasterio as rio
 import numpy as np
@@ -233,7 +233,7 @@ def convert_to_raster(
     # TODO: nodata as func param
     profile = DefaultGTiffProfile(data={
         'width':dst_w, 'height':dst_h, 'crs':crs, 'transform':dst_transform,
-        'nodata':-9999, 'dtype':np.int16, 'count':1
+        'nodata':0, 'dtype':np.int16, 'count':1
     })
 
     logger.debug(profile)
@@ -283,10 +283,12 @@ def convert_to_raster(
     return 
 
 def logical_combination(array_1, array_2):
+    raster_ds = merge(
+        [DataArray(data=array_1,name='flood'), DataArray(array_2,name='pov')],
+        join='exact',compat='minimal')
+    
+    logger.debug(raster_ds)
+ 
+    combined = combine(raster=raster_ds[['pov','flood']],data_vars=['pov','flood'])
 # 
-    xr_ds = merge([DataArray(
-        data=array_1,name='pov'), DataArray(array_2,name='flood')])
-# 
-    combined = combine(raster=xr_ds)
-# 
-    return combined.data
+    return combined.to_numpy()

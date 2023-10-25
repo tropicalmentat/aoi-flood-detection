@@ -2,8 +2,11 @@ import pytest
 import json
 import logging
 import rasterio as rio
+import numpy as np
 
-from rasterio.windows import from_bounds
+from rasterio.windows import Window, from_bounds
+from rasterio.transform import from_bounds as transform_from_bounds
+from rasterio.transform import xy, rowcol
 from tempfile import NamedTemporaryFile
 from .. import overlap as op
 from shared.utils import (
@@ -66,23 +69,27 @@ def test_logical_recomb(input_for_combination):
         logger.debug(src_p.profile)
 
         # create window based on bounds of smaller
-        # dataset (flooded)
+        # dataset (flooded) but with transform
+        # of larger dataset (poverty index)
         bounds = src_f.bounds
-        transform = src_f.transform
         window = from_bounds(
             left=bounds[0],bottom=bounds[1],right=bounds[2],top=bounds[3],
-            transform=transform
+            transform=src_p.transform
         )
-        pov_array = src_p.read(window=window)
-        flood_array = src_f.read()
-        logger.debug(pov_array)
-        logger.debug(pov_array.shape)
-        logger.debug(flood_array.shape)
+
+        window_transform = src_p.window_transform(window)
+        pov_array = src_p.read(window=window,indexes=1,boundless=True)
+        flood_array = src_f.read(indexes=1,boundless=True,fill_value=0)
 
         result = logical_combination(array_1=pov_array,array_2=flood_array)
+        result[flood_array==0] = 0
+        logger.debug(result)
+
+        profile = src_f.profile
+        profile['transform'] = window_transform
 
         with rio.open(
-            fp='./tests/data/logical_comb.tiff',mode='w',**src_f.profile
+            fp='./tests/data/logical_comb.tiff',mode='w',**profile
         ) as t:
             t.write(result,1)
     assert False
