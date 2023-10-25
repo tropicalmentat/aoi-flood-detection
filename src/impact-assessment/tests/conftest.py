@@ -1,7 +1,10 @@
 import pytest
 import json
 import geopandas as gpd
+import logging
 from zipfile import ZipFile
+
+logger = logging.getLogger(__name__)
 
 @pytest.fixture
 def flood_fp():
@@ -45,3 +48,24 @@ def overlap_bounds():
     with ZipFile(file=fp) as archive:
         data = json.loads(archive.read(name=f'overlapped.json'))
         return data
+
+@pytest.fixture
+def pov_inc_reclassed():
+
+    fp = f'./tests/data/pov_reclassed.json.zip'
+
+    with ZipFile(file=fp) as archive:
+        data = json.loads(archive.read(name=f'pov_reclassed.json'))
+        return data
+
+@pytest.fixture
+def input_for_combination():
+
+    fp = f'./tests/data/logical_comb_input.zip'
+
+    with ZipFile(file=fp) as archive:
+        logger.debug(archive.namelist())
+        flooded = archive.read(name='flood_overlap.tiff')
+        pov_inc = archive.read(name='pov_inc_raster.tiff')
+
+        return flooded, pov_inc

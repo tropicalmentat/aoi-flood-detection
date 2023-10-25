@@ -7,6 +7,8 @@ from rasterio.profiles import DefaultGTiffProfile
 from pyproj import Transformer
 from shapely import get_coordinates, set_coordinates
 from shapely.geometry import shape, mapping, GeometryCollection
+from xrspatial.local import combine
+from xarray import merge, DataArray
 
 import rasterio as rio
 import numpy as np
@@ -15,6 +17,8 @@ import logging
 
 logger = logging.getLogger(__name__)
 logging.getLogger('rasterio').setLevel(logging.CRITICAL)
+
+RECLASS_KEY = 'reclassified'
 
 def get_nodata_mask(array: np.ndarray, profile: dict):
 
@@ -184,10 +188,12 @@ def project_coordinates(feature_collection,src_crs,dst_crs):
         projected_fc['features'].append(projected_feature)
     return projected_fc
 
-def convert_to_raster(feature_collection, crs):
+def convert_to_raster(
+        feature_collection, crs, resolution,
+        ):
     logger.debug(crs)
     iter_pairs = [
-        (feat['geometry'],feat['properties']['reclassified']) for feat in feature_collection['features']
+        (feat['geometry'],feat['properties'][RECLASS_KEY]) for feat in feature_collection['features']
     ]
     
     mp = GeometryCollection(geoms=[
@@ -221,10 +227,10 @@ def convert_to_raster(feature_collection, crs):
     logger.debug(src_transform)
 
     dst_transform,dst_w,dst_h = aligned_target(
-    transform=src_transform, width=width, height=height, resolution=(30,30)
+    transform=src_transform, width=width, height=height, resolution=(resolution,resolution)
         )
     logger.debug(dst_transform)
-
+    # TODO: nodata as func param
     profile = DefaultGTiffProfile(data={
         'width':dst_w, 'height':dst_h, 'crs':crs, 'transform':dst_transform,
         'nodata':-9999, 'dtype':np.int16, 'count':1
@@ -255,7 +261,7 @@ def convert_to_raster(feature_collection, crs):
             )
     
         rasterized.flush()
-
+        # TODO: Put filepath as func param
         with rio.open(
             fp=f'./tests/data/rasterized.tiff', mode='w', **profile
         ) as tif:
@@ -275,3 +281,12 @@ def convert_to_raster(feature_collection, crs):
                     tif.write(rasterized[slice],window=window,indexes=1)
 
     return 
+
+def logical_combination(array_1, array_2):
+# 
+    xr_ds = merge([DataArray(
+        data=array_1,name='pov'), DataArray(array_2,name='flood')])
+# 
+    combined = combine(raster=xr_ds)
+# 
+    return combined.data

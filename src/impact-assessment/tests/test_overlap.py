@@ -1,8 +1,15 @@
 import pytest
 import json
 import logging
+import rasterio as rio
+
+from rasterio.windows import from_bounds
+from tempfile import NamedTemporaryFile
 from .. import overlap as op
-from shared.utils import convert_to_raster
+from shared.utils import (
+    convert_to_raster,
+    logical_combination
+)
 from geopandas import GeoDataFrame
 from pyproj.crs import CRS
 
@@ -41,6 +48,41 @@ def test_pov_incidence_reclass(data):
 
 def test_rasterize(overlap_bounds):
 
-    result = convert_to_raster(feature_collection=overlap_bounds, crs=CRS.from_epsg(32651))
+    result = convert_to_raster(
+        feature_collection=overlap_bounds, crs=CRS.from_epsg(32651),
+        resolution=30)
 
+    assert False
+
+def test_logical_recomb(input_for_combination):
+
+    flooded, pov_inc = input_for_combination
+
+    with rio.MemoryFile(file_or_bytes=flooded) as mem_f,\
+    rio.MemoryFile(file_or_bytes=pov_inc) as mem_p,\
+    mem_f.open() as src_f,\
+    mem_p.open() as src_p:
+        logger.debug(src_f.profile)
+        logger.debug(src_p.profile)
+
+        # create window based on bounds of smaller
+        # dataset (flooded)
+        bounds = src_f.bounds
+        transform = src_f.transform
+        window = from_bounds(
+            left=bounds[0],bottom=bounds[1],right=bounds[2],top=bounds[3],
+            transform=transform
+        )
+        pov_array = src_p.read(window=window)
+        flood_array = src_f.read()
+        logger.debug(pov_array)
+        logger.debug(pov_array.shape)
+        logger.debug(flood_array.shape)
+
+        result = logical_combination(array_1=pov_array,array_2=flood_array)
+
+        with rio.open(
+            fp='./tests/data/logical_comb.tiff',mode='w',**src_f.profile
+        ) as t:
+            t.write(result,1)
     assert False

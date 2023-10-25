@@ -10,7 +10,7 @@ from shapely import area
 logger = logging.getLogger(__name__)
 logging.getLogger('fiona').setLevel(logging.CRITICAL)
 
-RECLASS_KEY = 'reclass'
+RECLASS_KEY = 'reclassified'
 
 def initialize_data(flood_fpath, bounds_fpath):
 
