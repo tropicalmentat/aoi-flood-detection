@@ -3,6 +3,7 @@
 import json
 import geopandas as gpd
 import logging
+import osgeo.ogr as ogr
 
 from shapely.geometry import shape
 from shapely import area
@@ -12,8 +13,19 @@ logging.getLogger('fiona').setLevel(logging.CRITICAL)
 
 RECLASS_KEY = 'reclassified'
 
-def initialize_data(flood_fpath, bounds_fpath):
+def initialize_data(flood_fpath, admin_bnds_fpath, pov_inc_fpath):
 
+    pov_inc_ds = ogr.Open(pov_inc_fpath)
+    admin_bnds_ds = ogr.Open(admin_bnds_fpath)
+    flood_ds = ogr.Open(flood_fpath)
+
+    flood_bbox = flood_ds.GetLayer(0).GetExtent()
+
+    logger.debug(flood_bbox)
+
+    # this is slow for large files
+    # because of serialized reading of
+    # shp files using fiona lib
     flood_df = None
     flood_crs = None
     bounds_df = None
@@ -22,7 +34,8 @@ def initialize_data(flood_fpath, bounds_fpath):
         flood_crs = flood_fc['crs']
         flood_df = gpd.GeoDataFrame.from_features(flood_fc)
     
-    bounds_df = gpd.GeoDataFrame.from_file(bounds_fpath)
+    bounds_df = gpd.GeoDataFrame.from_file(admin_bnds_fpath)
+    bounds_bbox = bounds_df.total_bounds
     
     flood_df.set_crs(flood_crs,inplace=True)
 

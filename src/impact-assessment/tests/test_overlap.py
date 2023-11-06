@@ -18,10 +18,11 @@ from pyproj.crs import CRS
 
 logger = logging.getLogger(__name__)
 
-def test_init_data(flood_fp, ph_municity_bounds):
+def test_init_data(flood_fp, ph_municity_bounds, ph_pov_inc_2020):
 
     flood, bounds = op.initialize_data(
-        flood_fpath=flood_fp, bounds_fpath=ph_municity_bounds
+        flood_fpath=flood_fp, admin_bnds_fpath=ph_municity_bounds,
+        pov_inc_fpath=ph_pov_inc_2020
     )
 
     assert type(flood) is GeoDataFrame and type(bounds) is GeoDataFrame
@@ -80,9 +81,9 @@ def test_logical_recomb(input_for_combination):
         window_transform = src_p.window_transform(window)
         pov_array = src_p.read(window=window,indexes=1,boundless=True)
         flood_array = src_f.read(indexes=1,boundless=True,fill_value=0)
+        pov_array[flood_array==0] = 0
 
         result = logical_combination(array_1=pov_array,array_2=flood_array)
-        result[flood_array==0] = 0
         logger.debug(result)
 
         profile = src_f.profile
