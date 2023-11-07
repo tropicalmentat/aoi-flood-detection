@@ -11,6 +11,8 @@ from shapely import (
     area, box, to_wkb
 )
 
+gdal.UseExceptions()
+
 logger = logging.getLogger(__name__)
 logging.getLogger('fiona').setLevel(logging.CRITICAL)
 
@@ -23,7 +25,6 @@ def initialize_data(flood_fpath, admin_bnds_fpath, pov_inc_fpath):
     pov_inc_ds = ogr.Open(pov_inc_fpath)
     admin_bnds_ds = ogr.Open(admin_bnds_fpath)
     flood_ds = ogr.Open(flood_fpath)
-    clip_ds = mem_driver.CreateDataSource('clip_ds')
     out_ds = mem_driver.CreateDataSource('out_ds')
 
     mem_driver.Open('clip_ds',1)
@@ -42,26 +43,27 @@ def initialize_data(flood_fpath, admin_bnds_fpath, pov_inc_fpath):
     logger.debug(bbox_geom)
 
     # Create Layer in flood_ds for clip geom
+    in_layer = admin_bnds_ds.GetLayer(0)
     out_layer = out_ds.CreateLayer('out')
-    clip_layer = clip_ds.CreateLayer('clip')
-    geom_field_defn = ogr.GeomFieldDefn()
-    geom_field_defn.SetName('geom')
-    geom_field_defn.SetType(bbox_geom.GetGeometryType())
-    geom_field_defn.SetSpatialRef(flood_crs)
 
-    clip_layer.CreateGeomField(geom_field_defn)
+    logger.debug(in_layer.GetFeatureCount())
+    in_layer.SetSpatialFilterRect(flood_bbox[0],flood_bbox[2],flood_bbox[1],flood_bbox[3])
+    logger.debug(in_layer.GetFeatureCount())
 
-    clip_feat_defn = ogr.FeatureDefn()
-    clip_feat_defn.AddGeomFieldDefn(geom_field_defn)
+    fc = {
+        'type':'FeatureCollection',
+        'features':[]
+    }
 
-    clip_feature = ogr.Feature(clip_feat_defn)
-    clip_feature.SetGeometry(bbox_geom)
-
-    clip_layer.CreateFeature(clip_feature)
-
-    result = admin_bnds_ds.GetLayer(0).Clip(method_layer=clip_layer,result_layer=out_layer)
+    for i in range(in_layer.GetFeatureCount()):
+        feat = in_layer.GetFeature(i)
+        out_layer.CreateFeature(feat)
+        fc['features'].append(feat.ExportToJson(as_object=True))
 
     logger.debug(out_layer.GetFeatureCount())
+
+    with open(file='./tests/data/admin_aoi.json', mode='w') as t:
+        t.write(json.dumps(fc))
     # this is slow for large files
     # because of serialized reading of
     # shp files using fiona lib
