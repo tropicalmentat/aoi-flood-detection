@@ -20,12 +20,13 @@ logger = logging.getLogger(__name__)
 
 def test_init_data(flood_fp, ph_municity_bounds, ph_pov_inc_2020):
 
-    flood, bounds = op.initialize_data(
+    _ = op.initialize_data(
         flood_fpath=flood_fp, admin_bnds_fpath=ph_municity_bounds,
         pov_inc_fpath=ph_pov_inc_2020
     )
 
-    assert type(flood) is GeoDataFrame and type(bounds) is GeoDataFrame
+    assert False
+    # assert type(flood) is GeoDataFrame and type(bounds) is GeoDataFrame
 
 def test_overlap_analysis(data):
 

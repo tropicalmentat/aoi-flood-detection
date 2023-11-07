@@ -14,12 +14,14 @@ def flood_fp():
 @pytest.fixture
 def ph_municity_bounds():
 
-    return f'./tests/data/National_AB3_NAMRIA_2022_ncr-laguna.shp'
+    # return f'./tests/data/National_AB3_NAMRIA_2022_ncr-laguna.shp'
+    return f'./tests/data/National_AB3_NAMRIA_2022.shp'
 
 @pytest.fixture
 def ph_pov_inc_2020():
 
-    return f'./tests/data/National_PopAHS_PSA_2020_ncr-laguna.shp'
+    # return f'./tests/data/National_PopAHS_PSA_2020_ncr-laguna.shp'
+    return f'./tests/data/National_PopAHS_PSA_2020.shp'
 
 @pytest.fixture
 def data(flood_fp, ph_municity_bounds, ph_pov_inc_2020):
