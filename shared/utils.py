@@ -247,8 +247,6 @@ def convert_to_raster(
         for row in row_offsets:
             offsets.append((col,row))
     
-    logger.debug(offsets)
-
     with NamedTemporaryFile() as tmp_rast:
         rasterized = np.memmap(
             filename=tmp_rast, dtype=np.int16,
@@ -279,8 +277,9 @@ def convert_to_raster(
                     )
                     slice = window.toslices()
                     tif.write(rasterized[slice],window=window,indexes=1)
+            tif.seek(0)
 
-    return 
+    return rasterized
 
 def logical_combination(array_1, array_2):
     raster_ds = merge(

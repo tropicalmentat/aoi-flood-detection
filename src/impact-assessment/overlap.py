@@ -50,12 +50,14 @@ def initialize_data(flood_fpath, admin_bnds_fpath, pov_inc_fpath):
     admin_bnds_ds = ogr.Open(admin_bnds_fpath)
     flood_ds = ogr.Open(flood_fpath)
 
+    flood_layer = flood_ds.GetLayer(0)
     # format: minx, maxx, miny, maxy
-    flood_bbox = flood_ds.GetLayer(0).GetExtent()
-    flood_crs = flood_ds.GetLayer(0).GetSpatialRef()
+    flood_bbox = flood_layer.GetExtent()
+    # flood_crs = flood_layer.GetSpatialRef().ExportToPROJJSON()
 
-    # Create Layer in flood_ds for clip geom
     in_layer = admin_bnds_ds.GetLayer(0)
+    crs = in_layer.GetSpatialRef().ExportToPROJJSON()
+    logger.debug(crs)
 
     logger.debug(in_layer.GetFeatureCount())
     in_layer.SetSpatialFilterRect(flood_bbox[0],flood_bbox[2],flood_bbox[1],flood_bbox[3])
@@ -69,7 +71,25 @@ def initialize_data(flood_fpath, admin_bnds_fpath, pov_inc_fpath):
         in_ds=pov_inc_ds,bbox=flood_bbox
     )
 
-    return filtered_povinc, filtered_bounds
+    flood_fc = {
+        'type':'FeatureCollection',
+        'features':[]
+    }
+
+    for i in range(flood_layer.GetFeatureCount()):
+        feature = flood_layer.GetFeature(i)
+        flood_fc['features'].append(
+            feature.ExportToJson(as_object=True)
+        )
+
+    povinc_df = gpd.GeoDataFrame.from_features(filtered_povinc)
+    bounds_df = gpd.GeoDataFrame.from_features(filtered_bounds)
+    floods_df = gpd.GeoDataFrame.from_features(flood_fc)
+
+    logger.debug(povinc_df.head())
+    logger.debug(bounds_df.head())
+
+    return bounds_df, povinc_df, floods_df, crs
 
 def overlap_analysis(
         flood: gpd.GeoDataFrame, bounds: gpd.GeoDataFrame

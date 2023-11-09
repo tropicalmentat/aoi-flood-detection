@@ -9,6 +9,7 @@ from rasterio.transform import from_bounds as transform_from_bounds
 from rasterio.transform import xy, rowcol
 from tempfile import NamedTemporaryFile
 from .. import overlap as op
+from .. import app
 from shared.utils import (
     convert_to_raster,
     logical_combination
@@ -94,4 +95,16 @@ def test_logical_recomb(input_for_combination):
             fp='./tests/data/logical_comb.tiff',mode='w',**profile
         ) as t:
             t.write(result,1)
+    assert False
+
+def test_execute(
+        flood_fp, ph_municity_bounds,
+        ph_pov_inc_2020
+):
+
+    result = app.execute(
+        flood_fpath=flood_fp, bounds_fpath=ph_municity_bounds,
+        pov_inc_fpath=ph_pov_inc_2020
+    )
+
     assert False
