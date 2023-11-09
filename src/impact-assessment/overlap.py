@@ -18,71 +18,58 @@ logging.getLogger('fiona').setLevel(logging.CRITICAL)
 
 RECLASS_KEY = 'reclassified'
 
-def initialize_data(flood_fpath, admin_bnds_fpath, pov_inc_fpath):
-
-    mem_driver = ogr.GetDriverByName('MEMORY')
-
-    pov_inc_ds = ogr.Open(pov_inc_fpath)
-    admin_bnds_ds = ogr.Open(admin_bnds_fpath)
-    flood_ds = ogr.Open(flood_fpath)
-    out_ds = mem_driver.CreateDataSource('out_ds')
-
-    mem_driver.Open('clip_ds',1)
-    mem_driver.Open('out_ds',1)
-
-    # format: minx, maxx, miny, maxy
-    flood_bbox = flood_ds.GetLayer(0).GetExtent()
-
-    flood_crs = flood_ds.GetLayer(0).GetSpatialRef()
-
-    logger.debug(flood_bbox)
-    bbox_geom = ogr.CreateGeometryFromWkb(to_wkb(box(
-        xmin=flood_bbox[0], ymin=flood_bbox[2], xmax=flood_bbox[1], ymax=flood_bbox[3]
-        ), include_srid=True))
+def get_filtered_data(in_ds, bbox):
 
     # Create Layer in flood_ds for clip geom
-    in_layer = admin_bnds_ds.GetLayer(0)
-    out_layer = out_ds.CreateLayer('out')
+    in_layer = in_ds.GetLayer(0)
 
     logger.debug(in_layer.GetFeatureCount())
-    in_layer.SetSpatialFilterRect(flood_bbox[0],flood_bbox[2],flood_bbox[1],flood_bbox[3])
+    in_layer.SetSpatialFilterRect(bbox[0],bbox[2],bbox[1],bbox[3])
     logger.debug(in_layer.GetFeatureCount())
 
+    # initialize feature collection
     fc = {
         'type':'FeatureCollection',
         'features':[]
     }
 
+    # we use getnextfeature to select filtered
+    # features. getfeature only works with
+    # indexes and we don't have any way of getting
+    # filtered features directly by index
     for i in range(in_layer.GetFeatureCount()):
         feat = in_layer.GetNextFeature()
         if feat is not None:
-            out_layer.CreateFeature(feat)
             fc['features'].append(feat.ExportToJson(as_object=True))
+        
+    return fc
 
-    # logger.debug(out_layer.GetFeatureCount())
+def initialize_data(flood_fpath, admin_bnds_fpath, pov_inc_fpath):
 
-    with open(file='./tests/data/admin_aoi.json', mode='w') as t:
-        t.write(json.dumps(fc))
-    # this is slow for large files
-    # because of serialized reading of
-    # shp files using fiona lib
-    # flood_df = None
-    # flood_crs = None
-    # bounds_df = None
-    # with open(flood_fpath,mode='r') as flood_src:
-    #     flood_fc = json.loads(flood_src.read())
-    #     flood_crs = flood_fc['crs']
-    #     flood_df = gpd.GeoDataFrame.from_features(flood_fc)
-    
-    # bounds_df = gpd.GeoDataFrame.from_file(admin_bnds_fpath)
-    # bounds_bbox = bounds_df.total_bounds
-    
-    # flood_df.set_crs(flood_crs,inplace=True)
+    pov_inc_ds = ogr.Open(pov_inc_fpath)
+    admin_bnds_ds = ogr.Open(admin_bnds_fpath)
+    flood_ds = ogr.Open(flood_fpath)
 
-    # logger.debug(bounds_df.crs)
-    # logger.debug(flood_df.crs)
+    # format: minx, maxx, miny, maxy
+    flood_bbox = flood_ds.GetLayer(0).GetExtent()
+    flood_crs = flood_ds.GetLayer(0).GetSpatialRef()
 
-    # return flood_df, bounds_df
+    # Create Layer in flood_ds for clip geom
+    in_layer = admin_bnds_ds.GetLayer(0)
+
+    logger.debug(in_layer.GetFeatureCount())
+    in_layer.SetSpatialFilterRect(flood_bbox[0],flood_bbox[2],flood_bbox[1],flood_bbox[3])
+    logger.debug(in_layer.GetFeatureCount())
+
+    filtered_bounds = get_filtered_data(
+        in_ds=admin_bnds_ds,bbox=flood_bbox
+    )
+
+    filtered_povinc = get_filtered_data(
+        in_ds=pov_inc_ds,bbox=flood_bbox
+    )
+
+    return filtered_povinc, filtered_bounds
 
 def overlap_analysis(
         flood: gpd.GeoDataFrame, bounds: gpd.GeoDataFrame
