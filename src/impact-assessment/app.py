@@ -5,6 +5,7 @@ from shared.utils import(
 )
 import logging
 import json
+import rasterio as rio
 
 logger = logging.getLogger(__name__)
 
@@ -33,17 +34,25 @@ def execute(flood_fpath, bounds_fpath, pov_inc_fpath):
     overlap_fc = json.loads(overlap.to_json())
 
     # rasterize reclassified pov inc and overlap results
-    rasterized_povinc = convert_to_raster(
+    rasterized_povinc, pi_profile = convert_to_raster(
         feature_collection=reclassed_pi_fc, resolution=30,
         crs=crs
     )
-    rasterized_bounds = convert_to_raster(
+    rasterized_bounds, bnds_profile = convert_to_raster(
         feature_collection=overlap_fc, resolution=30,
         crs=crs
     )
+
+    logger.debug(bnds_profile)
+    # TODO: align rasterized bounds
+
+
     # run logical combination of rasterized overlap results and pov inc
-    log_com = logical_combination(array_1=rasterized_povinc,array_2=rasterized_bounds)
-
-    logger.debug(log_com)
-
+    # log_com = logical_combination(array_1=rasterized_povinc,array_2=rasterized_bounds)
+# 
+    # with rio.open(
+        # fp='./tests/data/flood-impact.tiff',mode='w', **bnds_profile
+    # ) as src:
+        # src.write(log_com,1)
+# 
     return

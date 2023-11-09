@@ -7,9 +7,8 @@ import osgeo.ogr as ogr
 import osgeo.gdal as gdal
 
 from shapely.geometry import shape
-from shapely import (
-    area, box, to_wkb
-)
+from shapely import area
+from pyproj.crs import CRS
 
 gdal.UseExceptions()
 
@@ -23,9 +22,7 @@ def get_filtered_data(in_ds, bbox):
     # Create Layer in flood_ds for clip geom
     in_layer = in_ds.GetLayer(0)
 
-    logger.debug(in_layer.GetFeatureCount())
     in_layer.SetSpatialFilterRect(bbox[0],bbox[2],bbox[1],bbox[3])
-    logger.debug(in_layer.GetFeatureCount())
 
     # initialize feature collection
     fc = {
@@ -56,12 +53,11 @@ def initialize_data(flood_fpath, admin_bnds_fpath, pov_inc_fpath):
     # flood_crs = flood_layer.GetSpatialRef().ExportToPROJJSON()
 
     in_layer = admin_bnds_ds.GetLayer(0)
-    crs = in_layer.GetSpatialRef().ExportToPROJJSON()
-    logger.debug(crs)
+    crs = CRS.from_json(in_layer.GetSpatialRef().ExportToPROJJSON())
 
-    logger.debug(in_layer.GetFeatureCount())
+    logger.debug(crs.to_epsg())
+
     in_layer.SetSpatialFilterRect(flood_bbox[0],flood_bbox[2],flood_bbox[1],flood_bbox[3])
-    logger.debug(in_layer.GetFeatureCount())
 
     filtered_bounds = get_filtered_data(
         in_ds=admin_bnds_ds,bbox=flood_bbox
