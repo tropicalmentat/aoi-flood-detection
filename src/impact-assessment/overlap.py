@@ -40,8 +40,6 @@ def initialize_data(flood_fpath, admin_bnds_fpath, pov_inc_fpath):
         xmin=flood_bbox[0], ymin=flood_bbox[2], xmax=flood_bbox[1], ymax=flood_bbox[3]
         ), include_srid=True))
 
-    logger.debug(bbox_geom)
-
     # Create Layer in flood_ds for clip geom
     in_layer = admin_bnds_ds.GetLayer(0)
     out_layer = out_ds.CreateLayer('out')
@@ -56,11 +54,12 @@ def initialize_data(flood_fpath, admin_bnds_fpath, pov_inc_fpath):
     }
 
     for i in range(in_layer.GetFeatureCount()):
-        feat = in_layer.GetFeature(i)
-        out_layer.CreateFeature(feat)
-        fc['features'].append(feat.ExportToJson(as_object=True))
+        feat = in_layer.GetNextFeature()
+        if feat is not None:
+            out_layer.CreateFeature(feat)
+            fc['features'].append(feat.ExportToJson(as_object=True))
 
-    logger.debug(out_layer.GetFeatureCount())
+    # logger.debug(out_layer.GetFeatureCount())
 
     with open(file='./tests/data/admin_aoi.json', mode='w') as t:
         t.write(json.dumps(fc))
