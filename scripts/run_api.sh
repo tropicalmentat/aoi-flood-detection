@@ -6,4 +6,4 @@ docker run \
     -v ./tests/data:/function/src/tests/data \
     -w /function/src \
     --entrypoint "gunicorn" \
-    -i msgeo-aoi-api:latest app:app -b 0.0.0.0:8000
+    -i msgeo-aoi-api:latest --log-level DEBUG app:app -b 0.0.0.0:8000
