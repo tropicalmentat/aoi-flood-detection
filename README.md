@@ -17,6 +17,11 @@ Containerized data processing workflows to extract flood hazards for Synthetic A
 - Docker 
 
 ### Usage
+
+#### Build modules
+- Assuming docker is installed correctly, run the `./scripts/build_all.sh`
+
+#### Running modules
 - To execute a workflow for a sensor, use the `./scripts/run.sh` command in bash
 - Use the -h options for instructions on how to run the scripts with optional arguments
 
