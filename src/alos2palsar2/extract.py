@@ -22,11 +22,15 @@ def get_preprocessed(img_fp,cols=None,rows=None):
 
     with NamedTemporaryFile() as tmp:
         img = utils.load_image(fpath=img_fp) 
+        # TODO: Need to determine windows from image height and width
     
+        # TODO: Perform windowed read, calibration
+        # and despeckle
         array, profile, bounds = utils.image_to_array(img=img,band_idx=1,cols=cols,rows=rows)
     
         calibrated = calibrate_backscatter(band=array)
     
+        # TODO: despeckle needs buffered windows
         despeckled = despeckle(band=calibrated)
         calibrated = None
         masked = np.ma.masked_outside(x=despeckled,v1=round(despeckled.max(),2),v2=-99.0)
