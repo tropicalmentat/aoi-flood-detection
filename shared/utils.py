@@ -256,26 +256,29 @@ def convert_to_raster(
             )
     
         rasterized.flush()
+        
+        raster = None
         # TODO: Put filepath as func param
-        # with rio.open(
-        #     fp=f'./tests/data/rasterized.tiff', mode='w', **profile
-        # ) as tif:
-        #     for pair in offsets:
-        #         if pair[0] == col_offsets[-1] or pair[1] == row_offsets[-1]:
-        #             window = Window.from_slices(
-        #                 cols=(pair[0],profile['width']), rows=(pair[1],profile['height'])
-        #                 )
-        #             slice = window.toslices()
-        #             tif.write(rasterized[slice],window=window,indexes=1)
-        #         else:
-        #             window = Window(
-        #                 col_off=pair[0],row_off=pair[1],
-        #                 width=profile['blockxsize'], height=profile['blockysize']
-        #             )
-        #             slice = window.toslices()
-        #             tif.write(rasterized[slice],window=window,indexes=1)
+        with NamedTemporaryFile(suffix='.tif') as tmp:
+            with rio.MemoryFile(file_or_bytes=tmp.name) as memfile, \
+                memfile.open(**profile) as tif:
 
-    return rasterized, profile
+                for pair in offsets:
+                    if pair[0] == col_offsets[-1] or pair[1] == row_offsets[-1]:
+                        window = Window.from_slices(
+                            cols=(pair[0],profile['width']), rows=(pair[1],profile['height'])
+                            )
+                        slice = window.toslices()
+                        tif.write(rasterized[slice],window=window,indexes=1)
+                    else:
+                        window = Window(
+                            col_off=pair[0],row_off=pair[1],
+                            width=profile['blockxsize'], height=profile['blockysize']
+                        )
+                        slice = window.toslices()
+                        tif.write(rasterized[slice],window=window,indexes=1)
+            raster = open(file=tmp.name)
+    return raster, profile
 
 def logical_combination(array_1, array_2):
     raster_ds = merge(
@@ -287,3 +290,38 @@ def logical_combination(array_1, array_2):
     combined = combine(raster=raster_ds[['pov','flood']],data_vars=['pov','flood'])
 # 
     return combined.to_numpy()
+
+def get_window_offsets(img):
+    # Get profile from image bin
+
+    offsets = []
+
+    with rio.MemoryFile(
+        file_or_bytes=img
+    ) as mem_img,\
+         mem_img.open() as src:
+        
+        profile = src.profile
+
+        logger.debug(profile)
+
+        blockxsize = 0
+        blockysize = 0
+
+        try:
+            blockxsize = profile['blockxsize']
+            blockysize = profile['blockysize']
+        except KeyError as e:
+            logger.warning(e, exc_info=1)
+            blockxsize = 1024
+            blockysize = 1024
+
+        col_offsets = [i for i in range(0,profile['width'],blockxsize)]
+        row_offsets = [i for i in range(0,profile['height'],blockysize)]
+
+
+        for col in col_offsets:
+            for row in row_offsets:
+                offsets.append((col,row))
+
+    return offsets
