@@ -7,6 +7,14 @@ from shared.utils import project_coordinates
 
 logger = logging.getLogger(__name__)
 
+def test_preprocessing(alos2palsar2_pre_fp):
+
+    preprocessed = ex.get_preprocessed(
+        img_fp=alos2palsar2_pre_fp
+    )
+
+    assert False
+
 def test_extract_flood(alos2palsar2_pre_fp,alos2palsar2_post_fp):
 
     result = ex.extract(

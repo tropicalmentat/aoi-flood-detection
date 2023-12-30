@@ -16,20 +16,40 @@ import os
 
 logger = logging.getLogger(__name__)
 
-def get_preprocessed(img_fp,cols=None,rows=None):
+def get_preprocessed(img_fp):
 
     preprocessed = None
 
     with NamedTemporaryFile() as tmp:
         img = utils.load_image(fpath=img_fp) 
         # TODO: Need to determine windows from image height and width
+        logger.debug(type(img))
+
+        offsets, col_offs, row_offs = utils.get_window_offsets(
+            img=img, block_size=2048
+        )
     
         # TODO: Perform windowed read, calibration
         # and despeckle
-        array, profile, bounds = utils.image_to_array(img=img,band_idx=1,cols=cols,rows=rows)
-    
-        calibrated = calibrate_backscatter(band=array)
-    
+        for i,pair in enumerate(offsets,start=1):
+            logger.info(f'Calibrate and despeckle window {i}')
+            array = None
+            transform = None
+            calibrated = None
+            despeckled = None
+            if pair[0] == col_offs[-1] or pair[1] == row_offs[-1]:
+                array, transform = utils.window_to_array(
+                    img=img, offset_pair=pair
+                )
+                calibrated = calibrate_backscatter(band=array)
+                despeckled = despeckle(band=calibrated)
+            else:
+                array, transform = utils.window_to_array(
+                    img=img, offset_pair=pair
+                )
+                calibrated = calibrate_backscatter(band=array)
+                despeckled = despeckle(band=calibrated)
+    """
         # TODO: despeckle needs buffered windows
         despeckled = despeckle(band=calibrated)
         calibrated = None
@@ -46,8 +66,9 @@ def get_preprocessed(img_fp,cols=None,rows=None):
         filled.flush()
         tmp.seek(0)
         preprocessed = tmp.read()
+    """
     
-    return preprocessed, profile, bounds 
+    # return preprocessed, profile, bounds 
 
 def extract(pre_fp:str, post_fp:str, cols=None, rows=None):
 
