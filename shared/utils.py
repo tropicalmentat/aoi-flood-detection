@@ -33,8 +33,9 @@ def load_image(fpath):
     return img
 
 def window_to_array(
-        img: bytes, masked: bool = True, band_idx: int=1,
-        offset_pair: tuple=None
+        img: bytes, masked: bool=True, band_idx: int=1,
+        offset_pair: tuple=None, edge: bool=True,
+        block_size: int=1024
         ):
     
     array = None
@@ -44,11 +45,19 @@ def window_to_array(
         
         profile = src.profile
 
-        window = Window.from_slices(
-            cols=(offset_pair[0],profile['width']), rows=(offset_pair[1],profile['height'])
+        if edge:
+            window = Window.from_slices(
+                cols=(offset_pair[0],profile['width']), rows=(offset_pair[1],profile['height'])
+                )
+            array = src.read(window=window, indexes=band_idx)
+            transform = src.window_transform(window)       
+        else:
+            window = Window(
+                col_off=offset_pair[0],row_off=offset_pair[1],
+                width=block_size, height=block_size
             )
-        array = src.read(window=window, indexes=band_idx)
-        transform = src.window_transform(window)       
+            array = src.read(window=window, indexes=band_idx)
+            transform = src.window_transform(window)
 
     return array, transform
 

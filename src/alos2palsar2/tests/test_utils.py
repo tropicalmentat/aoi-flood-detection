@@ -40,9 +40,9 @@ def test_window_img_read(alos2palsar2_pre_img):
             count+=1
         else:
             array, transform = window_to_array(
-                img=alos2palsar2_pre_img, offset_pair=pair
+                img=alos2palsar2_pre_img, offset_pair=pair,edge=False
             )
             count+=1
-    
+        # logger.debug(array.shape) 
     logger.debug(count)
     assert count == len(offsets)
