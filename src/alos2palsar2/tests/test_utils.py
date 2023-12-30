@@ -27,6 +27,8 @@ def test_window_img_read(alos2palsar2_pre_img):
 
     offsets, cols, rows = get_window_offsets(img=alos2palsar2_pre_img)
 
+    assert len(offsets)==len(cols)*len(rows)
+
     count = 0
     for pair in offsets:
         
