@@ -32,8 +32,6 @@ def test_window_img_read(alos2palsar2_pre_img):
     count = 0
     for pair in offsets:
         
-        array = None
-        transform = None
         if pair[0] == cols[-1] or pair[1] == rows[-1]:
             array, transform = window_to_array(
                 img=alos2palsar2_pre_img, offset_pair=pair)
