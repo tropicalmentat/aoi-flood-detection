@@ -32,6 +32,26 @@ def load_image(fpath):
         img = tif.read()
     return img
 
+def window_to_array(
+        img: bytes, masked: bool = True, band_idx: int=1,
+        offset_pair: tuple=None
+        ):
+    
+    array = None
+
+    with rio.MemoryFile(file_or_bytes=img) as mem, \
+         mem.open() as src:
+        
+        profile = src.profile
+
+        window = Window.from_slices(
+            cols=(offset_pair[0],profile['width']), rows=(offset_pair[1],profile['height'])
+            )
+        array = src.read(window=window, indexes=band_idx)
+        transform = src.window_transform(window)       
+
+    return array, transform
+
 def image_to_array(
         img: bytes, masked: bool = True, band_idx: int=1,
         cols: tuple=None, rows:tuple=None):
@@ -291,7 +311,7 @@ def logical_combination(array_1, array_2):
 # 
     return combined.to_numpy()
 
-def get_window_offsets(img):
+def get_window_offsets(img:bytes, block_size:int=1024):
     # Get profile from image bin
 
     offsets = []
@@ -313,15 +333,15 @@ def get_window_offsets(img):
             blockysize = profile['blockysize']
         except KeyError as e:
             logger.warning(e, exc_info=1)
-            blockxsize = 1024
-            blockysize = 1024
+            blockxsize = block_size
+            blockysize = block_size
 
         col_offsets = [i for i in range(0,profile['width'],blockxsize)]
         row_offsets = [i for i in range(0,profile['height'],blockysize)]
-
 
         for col in col_offsets:
             for row in row_offsets:
                 offsets.append((col,row))
 
-    return offsets
+    logger.info(f'Image will be split to {len(offsets)} windows')
+    return offsets, col_offsets, row_offsets
