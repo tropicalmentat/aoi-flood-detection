@@ -16,39 +16,53 @@ import os
 
 logger = logging.getLogger(__name__)
 
-def get_preprocessed(img_fp):
+def get_preprocessed(img_fp, block_size:int=1024):
 
-    preprocessed = None
+    img = utils.load_image(fpath=img_fp) 
+    # TODO: Create memory mapped output array
 
-    with NamedTemporaryFile() as tmp:
-        img = utils.load_image(fpath=img_fp) 
-        # TODO: Need to determine windows from image height and width
-        logger.debug(type(img))
+    with NamedTemporaryFile() as tmp_bs, \
+         NamedTemporaryFile() as tmp_ds, \
+         rio.MemoryFile(file_or_bytes=img) as mem, \
+         mem.open() as src:
+
+        profile = src.profile
+
+        calibrated = np.memmap(
+            filename=tmp_bs.name, dtype=np.float16,
+            shape=(profile.get('height'),profile.get('width'))
+        )
+
+        despeckled = np.memmap(
+            filename=tmp_ds.name, dtype=np.float16,
+            shape=(profile.get('height'),profile.get('width'))
+        )
 
         offsets, col_offs, row_offs = utils.get_window_offsets(
-            img=img, block_size=2048
+            img=img, block_size=block_size
         )
     
-        # TODO: Perform windowed read, calibration
-        # and despeckle
+        slices = []
         for i,pair in enumerate(offsets,start=1):
-            logger.info(f'Calibrate and despeckle window {i}')
+            logger.info(f'Calibrate window {i}')
             array = None
             transform = None
-            calibrated = None
-            despeckled = None
             if pair[0] == col_offs[-1] or pair[1] == row_offs[-1]:
-                array, transform = utils.window_to_array(
-                    img=img, offset_pair=pair
+                array, transform, slice = utils.window_to_array(
+                    src=src, offset_pair=pair,block_size=block_size
                 )
-                calibrated = calibrate_backscatter(band=array)
-                despeckled = despeckle(band=calibrated)
+                calibrated[slice] = 20 * np.log10(array) - 83.0
+                slices.append(slice)
             else:
-                array, transform = utils.window_to_array(
-                    img=img, offset_pair=pair
+                array, transform, slice = utils.window_to_array(
+                    src=src, offset_pair=pair,block_size=block_size
                 )
-                calibrated = calibrate_backscatter(band=array)
-                despeckled = despeckle(band=calibrated)
+                calibrated[slice] = 20 * np.log10(array) - 83.0
+                slices.append(slice)
+
+        for i,slice in enumerate(slices,start=1):
+            logger.info(f'Despeckle window {i}')
+            despeckled[slice] = despeckle(band=calibrated[slice])
     """
         # TODO: despeckle needs buffered windows
         despeckled = despeckle(band=calibrated)

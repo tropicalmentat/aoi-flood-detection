@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 def test_preprocessing(alos2palsar2_pre_fp):
 
     preprocessed = ex.get_preprocessed(
-        img_fp=alos2palsar2_pre_fp
+        img_fp=alos2palsar2_pre_fp,block_size=2048
     )
 
     assert False
