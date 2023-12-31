@@ -55,14 +55,18 @@ def get_preprocessed(img_fp, block_size:int=1024):
                 slices.append(slice)
             else:
                 array, transform, slice = utils.window_to_array(
-                    src=src, offset_pair=pair,block_size=block_size
+                    src=src, offset_pair=pair,block_size=block_size,
+                    edge=False
                 )
                 calibrated[slice] = 20 * np.log10(array) - 83.0
                 slices.append(slice)
 
         for i,slice in enumerate(slices,start=1):
             logger.info(f'Despeckle window {i}')
+            # TODO: Despeckle with buffered slice
             despeckled[slice] = despeckle(band=calibrated[slice])
+            masked = np.ma.masked_outside(x=despeckled[slice],v1=round(despeckled[slice].max(),2),v2=-99.0)
+            logger.debug(masked.compressed())
     """
         # TODO: despeckle needs buffered windows
         despeckled = despeckle(band=calibrated)
