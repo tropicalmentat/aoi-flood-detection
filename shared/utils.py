@@ -257,23 +257,25 @@ def convert_to_raster(
     
         rasterized.flush()
         # TODO: Put filepath as func param
-        # with rio.open(
-        #     fp=f'./tests/data/rasterized.tiff', mode='w', **profile
-        # ) as tif:
-        #     for pair in offsets:
-        #         if pair[0] == col_offsets[-1] or pair[1] == row_offsets[-1]:
-        #             window = Window.from_slices(
-        #                 cols=(pair[0],profile['width']), rows=(pair[1],profile['height'])
-        #                 )
-        #             slice = window.toslices()
-        #             tif.write(rasterized[slice],window=window,indexes=1)
-        #         else:
-        #             window = Window(
-        #                 col_off=pair[0],row_off=pair[1],
-        #                 width=profile['blockxsize'], height=profile['blockysize']
-        #             )
-        #             slice = window.toslices()
-        #             tif.write(rasterized[slice],window=window,indexes=1)
+        with rio.open(
+            fp=f'./tests/data/rasterized.tiff', mode='w', **profile
+        ) as tif:
+            for pair in offsets:
+                if pair[0] == col_offsets[-1] or pair[1] == row_offsets[-1]:
+                    window = Window.from_slices(
+                        cols=(pair[0],profile['width']), rows=(pair[1],profile['height'])
+                        )
+                    slice = window.toslices()
+                    logger.debug(slice)
+                    tif.write(rasterized[slice],window=window,indexes=1)
+                else:
+                    window = Window(
+                        col_off=pair[0],row_off=pair[1],
+                        width=profile['blockxsize'], height=profile['blockysize']
+                    )
+                    slice = window.toslices()
+                    logger.debug(slice)
+                    tif.write(rasterized[slice],window=window,indexes=1)
 
     return rasterized, profile
 

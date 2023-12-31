@@ -30,4 +30,4 @@ docker run \
         -v ./data:/function/src/tests/data \
         -w /function/src \
         --entrypoint pytest \
-        -i msgeo-impact -k test_overlap --log-cli-level=DEBUG
+        -i aoi-impact -k test_rasterize --log-cli-level=DEBUG
