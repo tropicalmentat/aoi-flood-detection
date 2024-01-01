@@ -20,6 +20,8 @@ def get_preprocessed(img_fp, block_size:int=1024):
 
     img = utils.load_image(fpath=img_fp) 
     # TODO: Create memory mapped output array
+    calibrated = None
+    profile = None
 
     with NamedTemporaryFile() as tmp_bs, \
          NamedTemporaryFile() as tmp_ds, \
@@ -32,6 +34,7 @@ def get_preprocessed(img_fp, block_size:int=1024):
             filename=tmp_bs.name, dtype=np.float16,
             shape=(profile.get('height'),profile.get('width'))
         )
+        profile.update(dtype=calibrated.dtype)
 
         despeckled = np.memmap(
             filename=tmp_ds.name, dtype=np.float16,
@@ -65,8 +68,9 @@ def get_preprocessed(img_fp, block_size:int=1024):
             logger.info(f'Despeckle window {i}')
             # TODO: Despeckle with buffered slice
             despeckled[slice] = despeckle(band=calibrated[slice])
-            masked = np.ma.masked_outside(x=despeckled[slice],v1=round(despeckled[slice].max(),2),v2=-99.0)
-            logger.debug(masked.compressed())
+            # masked = np.ma.masked_outside(x=despeckled[slice],v1=round(despeckled[slice].max(),2),v2=-99.0)
+            calibrated[slice] = np.nan_to_num(despeckled[slice],nan=-9999.0,posinf=-9999.0,neginf=-9999.0)
+        
     """
         # TODO: despeckle needs buffered windows
         despeckled = despeckle(band=calibrated)
@@ -85,15 +89,15 @@ def get_preprocessed(img_fp, block_size:int=1024):
         tmp.seek(0)
         preprocessed = tmp.read()
     """
-    
-    # return preprocessed, profile, bounds 
+    # TODO: remove 3rd tuple value 
+    return calibrated, profile, None 
 
 def extract(pre_fp:str, post_fp:str, cols=None, rows=None):
 
     with NamedTemporaryFile() as pre_tmp, NamedTemporaryFile() as post_tmp:
-        pre,pre_profile,pre_bounds = get_preprocessed(pre_fp, cols=cols, rows=rows)
+        pre,pre_profile,pre_bounds = get_preprocessed(pre_fp, block_size=2048)
 
-        post,post_profile,post_bounds = get_preprocessed(post_fp, cols=cols, rows=rows)
+        post,post_profile,post_bounds = get_preprocessed(post_fp, block_size=2048)
         logger.debug(len(pre))
         logger.debug(len(post))
         pre_tmp.write(pre)
@@ -102,15 +106,15 @@ def extract(pre_fp:str, post_fp:str, cols=None, rows=None):
         pre_tmp.seek(0)
         post_tmp.seek(0)
 
-        pre_mem = np.memmap(
-            filename=pre_tmp.name,dtype='float32',mode='r',shape=(pre_profile['height'],pre_profile['width'])
-        )
-        post_mem = np.memmap(
-            filename=post_tmp.name,dtype='float32',mode='r',shape=(pre_profile['height'],pre_profile['width'])
-        )
+        # pre_mem = np.memmap(
+            # filename=pre_tmp.name,dtype='float32',mode='r',shape=(pre_profile['height'],pre_profile['width'])
+        # )
+        # post_mem = np.memmap(
+            # filename=post_tmp.name,dtype='float32',mode='r',shape=(pre_profile['height'],pre_profile['width'])
+        # )
 
         diff = np.ma.masked_equal(
-            post_mem,value=pre_profile['nodata']) - np.ma.masked_equal(pre_mem,value=pre_profile['nodata'])
+            post,value=pre_profile['nodata']) - np.ma.masked_equal(pre,value=pre_profile['nodata'])
 
         logger.info(f'Applying threshold')
 
