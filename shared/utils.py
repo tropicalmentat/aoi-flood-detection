@@ -1,6 +1,6 @@
 from tempfile import NamedTemporaryFile
 from rasterio.warp import calculate_default_transform, reproject, aligned_target
-from rasterio.windows import Window
+from rasterio.coords import disjoint_bounds
 from rasterio.features import rasterize
 from rasterio.transform import from_bounds
 from rasterio.profiles import DefaultGTiffProfile
@@ -11,6 +11,7 @@ from xrspatial.local import combine
 from xarray import merge, DataArray
 
 import rasterio as rio
+import rasterio.windows as win
 import numpy as np
 import numpy.ma as ma
 import logging
@@ -43,13 +44,59 @@ def get_raster_profile(img: bytes):
 
     return profile
 
+def sort_image_sequence(pre_fp, post_fp):
+
+    return
+
+def get_bounds_intersect(pre_img: bytes, post_img: bytes):
+
+    with rio.MemoryFile(file_or_bytes=pre_img) as tmp_pre,\
+         rio.MemoryFile(file_or_bytes=post_img) as tmp_post,\
+         tmp_pre.open() as src_pre,\
+         tmp_post.open() as src_post:
+        
+        pre_bounds = src_pre.bounds
+        pre_transform = src_pre.transform
+        post_bounds = src_post.bounds
+        post_transform = src_post.transform
+        logger.debug(pre_bounds)
+        logger.debug(post_bounds)
+
+        # check if bounds overlap
+        # stop process if bounds are disjoint
+        if disjoint_bounds(pre_bounds,post_bounds):
+            logger.error(f'Image bounds are disjoint!')
+            raise Exception
+        else:
+            logger.info(f'Image bounds overlap!')
+
+        # create windows from bounds
+        pre_window = win.from_bounds(
+            left=pre_bounds[0],bottom=pre_bounds[1],
+            right=pre_bounds[2],top=pre_bounds[3],
+            transform=pre_transform
+        )
+
+        post_window = win.from_bounds(
+            left=post_bounds[0],bottom=post_bounds[1],
+            right=post_bounds[2],top=post_bounds[3],
+            transform=post_transform
+        )
+        logger.debug(pre_window)
+        logger.debug(post_window)
+
+        intersection = win.intersection([pre_window,post_window])
+
+        logger.debug(intersection)
+    return intersection
+
 def window_to_array(
         src: rio.DatasetReader,
         masked: bool=True, band_idx: int=1,
         offset_pair: tuple=None, edge: bool=True,
         block_size: int=1024
         ):
-    
+   
     array = None
     transform = None,
     slice = None
@@ -57,14 +104,14 @@ def window_to_array(
     profile = src.profile
 
     if edge:
-        window = Window.from_slices(
+        window = win.Window.from_slices(
             cols=(offset_pair[0],profile['width']), rows=(offset_pair[1],profile['height'])
             )
         array = src.read(window=window, indexes=band_idx)
         transform = src.window_transform(window)       
         slice = window.toslices()
     else:
-        window = Window(
+        window = win.Window(
             col_off=offset_pair[0],row_off=offset_pair[1],
             width=block_size, height=block_size
         )
@@ -86,7 +133,7 @@ def image_to_array(
                 logger.debug(profile)
                 bounds = src.bounds
                 if cols is not None and rows is not None:
-                    window = Window.from_slices(rows=rows,cols=cols)
+                    window = win.Window.from_slices(rows=rows,cols=cols)
                     win_bounds = src.window_bounds(window)
                     win_transform = src.window_transform(window)
                     profile['transform'] = win_transform
@@ -307,17 +354,19 @@ def convert_to_raster(
 
                 for pair in offsets:
                     if pair[0] == col_offsets[-1] or pair[1] == row_offsets[-1]:
-                        window = Window.from_slices(
+                        window = win.Window.from_slices(
                             cols=(pair[0],profile['width']), rows=(pair[1],profile['height'])
                             )
                         slice = window.toslices()
+                        logger.debug(slice)
                         tif.write(rasterized[slice],window=window,indexes=1)
                     else:
-                        window = Window(
+                        window = win.Window(
                             col_off=pair[0],row_off=pair[1],
                             width=profile['blockxsize'], height=profile['blockysize']
                         )
                         slice = window.toslices()
+                        logger.debug(slice)
                         tif.write(rasterized[slice],window=window,indexes=1)
             raster = open(file=tmp.name)
     return raster, profile

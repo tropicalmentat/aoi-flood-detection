@@ -18,8 +18,9 @@ logger = logging.getLogger(__name__)
 
 def get_preprocessed(img_fp, block_size:int=1024):
 
+    # TODO: Get intersection of windows
+    # TODO: Pass intersection of windows downstream
     img = utils.load_image(fpath=img_fp) 
-    # TODO: Create memory mapped output array
     calibrated = None
     profile = None
 
@@ -71,24 +72,6 @@ def get_preprocessed(img_fp, block_size:int=1024):
             # masked = np.ma.masked_outside(x=despeckled[slice],v1=round(despeckled[slice].max(),2),v2=-99.0)
             calibrated[slice] = np.nan_to_num(despeckled[slice],nan=-9999.0,posinf=-9999.0,neginf=-9999.0)
         
-    """
-        # TODO: despeckle needs buffered windows
-        despeckled = despeckle(band=calibrated)
-        calibrated = None
-        masked = np.ma.masked_outside(x=despeckled,v1=round(despeckled.max(),2),v2=-99.0)
-        despeckled = None
-        logger.debug(masked.compressed())
-        casted = masked.astype(dtype='float32', casting='same_kind', copy=False)
-        filled = np.memmap(
-            filename=tmp.name,dtype=casted.dtype,shape=casted.shape
-        )
-        filled[:] = (np.ma.filled(a=casted,fill_value=-9999.0))[:]
-        casted = None
-        profile.update({'dtype':filled.dtype})
-        filled.flush()
-        tmp.seek(0)
-        preprocessed = tmp.read()
-    """
     # TODO: remove 3rd tuple value 
     return calibrated, profile, None 
 

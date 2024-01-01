@@ -1,8 +1,10 @@
+import rasterio as rio
 from shared.utils import (
     build_alos2palsar2_metadata, 
     derive_minmax_coords,
     get_window_offsets,
-    window_to_array
+    window_to_array,
+    get_bounds_intersect
 )
 import logging
 
@@ -23,6 +25,16 @@ def test_derive_minmax_coords(alos2palsar2_band):
 
     assert False
 
+def test_img_bounds_intersection(
+        alos2palsar2_pre_img, alos2palsar2_post_img
+        ):
+    
+    result =  get_bounds_intersect(
+        pre_img=alos2palsar2_pre_img, post_img=alos2palsar2_post_img
+    )
+
+    assert False
+
 def test_window_img_read(alos2palsar2_pre_img):
 
     offsets, cols, rows = get_window_offsets(img=alos2palsar2_pre_img)
@@ -33,11 +45,11 @@ def test_window_img_read(alos2palsar2_pre_img):
     for pair in offsets:
         
         if pair[0] == cols[-1] or pair[1] == rows[-1]:
-            array, transform = window_to_array(
+            array, transform, slice = window_to_array(
                 img=alos2palsar2_pre_img, offset_pair=pair)
             count+=1
         else:
-            array, transform = window_to_array(
+            array, transform, slice = window_to_array(
                 img=alos2palsar2_pre_img, offset_pair=pair,edge=False
             )
             count+=1

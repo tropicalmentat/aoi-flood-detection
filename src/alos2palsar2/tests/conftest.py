@@ -12,8 +12,8 @@ logger = logging.getLogger(__name__)
 @pytest.fixture
 def alos2palsar2_post_fp():
 
-    fp = f'./tests/data/ALOS2-PALSAR2/20201115/IMG-HH-ALOS2350060270-201115-FBDR2.1GUA.tiff'
-    # fp = f'./tests/data/579365d3-2b8b-4dac-a37b-d1996c890a76/IMG-HH-ALOS2456220150-221103-WBDR2.1GUA.tif'
+    # fp = f'./tests/data/ALOS2-PALSAR2/20201115/IMG-HH-ALOS2350060270-201115-FBDR2.1GUA.tiff'
+    fp = f'./tests/data/ALOS2-PALSAR2/20201115/IMG-HH-ALOS2350060280-201115-FBDR2.1GUA.tiff'
     return fp
 
 @pytest.fixture
@@ -45,8 +45,8 @@ def alos2palsar2_post_band(alos2palsar2_post_img):
 @pytest.fixture
 def alos2palsar2_pre_fp():
 
-    fp = f'./tests/data/ALOS2-PALSAR2/20191117/IMG-HV-ALOS2296240270-191117-FBDR2.1GUA.tiff'
-    # fp = f'./tests/data/a0fc7a16-768b-4c93-8c44-eb1564a1c051/IMG-HH-ALOS2425170150-220407-WBDR2.1GUA.tif'
+    # fp = f'./tests/data/ALOS2-PALSAR2/20191117/IMG-HV-ALOS2296240270-191117-FBDR2.1GUA.tiff'
+    fp = f'./tests/data/ALOS2-PALSAR2/20191117/IMG-HH-ALOS2296240290-191117-FBDR2.1GUA.tiff'
     return fp
 
 @pytest.fixture
