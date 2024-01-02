@@ -31,6 +31,7 @@ def get_preprocessed(img_fp, block_size:int=1024):
 
         profile = src.profile
 
+        # TODO: Get intersection 
         calibrated = np.memmap(
             filename=tmp_bs.name, dtype=np.float16,
             shape=(profile.get('height'),profile.get('width'))
@@ -75,67 +76,54 @@ def get_preprocessed(img_fp, block_size:int=1024):
     # TODO: remove 3rd tuple value 
     return calibrated, profile, None 
 
-def extract(pre_fp:str, post_fp:str, cols=None, rows=None):
+def extract(pre_fp:str, post_fp:str):
 
-    with NamedTemporaryFile() as pre_tmp, NamedTemporaryFile() as post_tmp:
-        pre,pre_profile,pre_bounds = get_preprocessed(pre_fp, block_size=2048)
+    pre,pre_profile,pre_bounds = get_preprocessed(pre_fp, block_size=2048)
 
-        post,post_profile,post_bounds = get_preprocessed(post_fp, block_size=2048)
-        logger.debug(len(pre))
-        logger.debug(len(post))
-        pre_tmp.write(pre)
-        post_tmp.write(post)
+    post,post_profile,post_bounds = get_preprocessed(post_fp, block_size=2048)
+    logger.debug(len(pre))
+    logger.debug(len(post))
 
-        pre_tmp.seek(0)
-        post_tmp.seek(0)
+    diff = np.ma.masked_equal(
+        post,value=pre_profile['nodata']) - np.ma.masked_equal(pre,value=pre_profile['nodata'])
 
-        # pre_mem = np.memmap(
-            # filename=pre_tmp.name,dtype='float32',mode='r',shape=(pre_profile['height'],pre_profile['width'])
-        # )
-        # post_mem = np.memmap(
-            # filename=post_tmp.name,dtype='float32',mode='r',shape=(pre_profile['height'],pre_profile['width'])
-        # )
+    logger.info(f'Applying threshold')
 
-        diff = np.ma.masked_equal(
-            post,value=pre_profile['nodata']) - np.ma.masked_equal(pre,value=pre_profile['nodata'])
+    threshold = np.ma.where(diff<-3,1,0)
 
-        logger.info(f'Applying threshold')
+    logger.info(f'Applying majority filter')
 
-        threshold = np.ma.where(diff<-3,1,0)
+    filtered = majority(image=threshold,footprint=square(width=5))
 
-        logger.info(f'Applying majority filter')
+    logger.info(f'Extracting flood pixels as vector features')
 
-        filtered = majority(image=threshold,footprint=square(width=5))
+    features = shapes(source=filtered,transform=pre_profile['transform'])
 
-        logger.info(f'Extracting flood pixels as vector features')
+    logger.info(f'Converting to FeatureCollection')
 
-        features = shapes(source=filtered,transform=pre_profile['transform'])
+    flood = {'type':'FeatureCollection',
+                'features':[]}
 
-        logger.info(f'Converting to FeatureCollection')
+    for feat in features:
+        if feat[1] == 1.0:
+            feature = {'type':'Feature', 
+                        'geometry':feat[0],
+                        'properties':{
+                            'value':1.0
+                        }
+                        }
+            flood['features'].append(feature)
 
-        flood = {'type':'FeatureCollection',
-                 'features':[]}
+    # projected = utils.project_image(
+    #     band=filtered,src_bounds=pre_bounds,src_profile=pre_profile,src_crs=pre_profile['crs'],dst_crs=rio.CRS.from_epsg(32651)
+    #     )
+    # logger.debug(projected)
+    # logger.debug(projected.dtype)
 
-        for feat in features:
-            if feat[1] == 1.0:
-                feature = {'type':'Feature', 
-                           'geometry':feat[0],
-                           'properties':{
-                                'value':1.0
-                            }
-                            }
-                flood['features'].append(feature)
-
-        # projected = utils.project_image(
-        #     band=filtered,src_bounds=pre_bounds,src_profile=pre_profile,src_crs=pre_profile['crs'],dst_crs=rio.CRS.from_epsg(32651)
-        #     )
-        # logger.debug(projected)
-        # logger.debug(projected.dtype)
-
-        # with rio.open(
-        #     fp=f'./tests/data/filtered.tiff',mode='w',
-        #     width=pre_profile['width'],height=pre_profile['height'],count=1,dtype='int16',
-        #     transform=pre_profile['transform'],crs=pre_profile['crs'],compress='lzw'
-        # ) as tmp:
-        #     tmp.write(projected,1)
+    # with rio.open(
+    #     fp=f'./tests/data/filtered.tiff',mode='w',
+    #     width=pre_profile['width'],height=pre_profile['height'],count=1,dtype='int16',
+    #     transform=pre_profile['transform'],crs=pre_profile['crs'],compress='lzw'
+    # ) as tmp:
+    #     tmp.write(projected,1)
     return flood
