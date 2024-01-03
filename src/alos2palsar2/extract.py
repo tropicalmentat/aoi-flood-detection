@@ -6,6 +6,7 @@ from tempfile import NamedTemporaryFile
 from skimage.morphology import square
 from skimage.filters.rank import majority
 from rasterio.features import shapes
+from rasterio.profiles import DefaultGTiffProfile
 # from osgeo.gdal import Polygonize
 from json import dumps
 import numpy as np
@@ -16,10 +17,11 @@ import os
 
 logger = logging.getLogger(__name__)
 
-def get_preprocessed(img_fp, block_size:int=1024):
+def get_preprocessed(img_fp, 
+                     block_size:int=1024,
+                     intersect_window = None
+                     ):
 
-    # TODO: Get intersection of windows
-    # TODO: Pass intersection of windows downstream
     img = utils.load_image(fpath=img_fp) 
     calibrated = None
     profile = None
@@ -31,10 +33,9 @@ def get_preprocessed(img_fp, block_size:int=1024):
 
         profile = src.profile
 
-        # TODO: Get intersection 
         calibrated = np.memmap(
             filename=tmp_bs.name, dtype=np.float16,
-            shape=(profile.get('height'),profile.get('width'))
+            shape=(int(intersect_window.height),int(intersect_window.width))
         )
         profile.update(dtype=calibrated.dtype)
 
@@ -54,14 +55,15 @@ def get_preprocessed(img_fp, block_size:int=1024):
             transform = None
             if pair[0] == col_offs[-1] or pair[1] == row_offs[-1]:
                 array, transform, slice = utils.window_to_array(
-                    src=src, offset_pair=pair,block_size=block_size
+                    src=src, offset_pair=pair,block_size=block_size,
+                    intersect_window=intersect_window
                 )
                 calibrated[slice] = 20 * np.log10(array) - 83.0
                 slices.append(slice)
             else:
                 array, transform, slice = utils.window_to_array(
                     src=src, offset_pair=pair,block_size=block_size,
-                    edge=False
+                    edge=False, intersect_window=intersect_window
                 )
                 calibrated[slice] = 20 * np.log10(array) - 83.0
                 slices.append(slice)
@@ -78,15 +80,24 @@ def get_preprocessed(img_fp, block_size:int=1024):
 
 def extract(pre_fp:str, post_fp:str):
 
-    # TODO generate output raster profile using default gtiff profile
+    # prepare output raster profile
+    out_profile = DefaultGTiffProfile()
+
+    pre_img_bin = utils.load_image(fpath=pre_fp)
+    post_img_bin = utils.load_image(fpath=post_fp)
+
     # TODO modify profile using new parameters from processed data (include compression, block and projection)
-    # TODO check if pre and post numpy arrays are off equal size
-    # TODO align bounds of pre and post images to extract intersecting data
-    intersect_window = utils.get_bounds_intersect()
+    # align bounds of pre and post-disaster
+    # images using intersecting window
+    intersect_window = utils.get_bounds_intersect(
+        pre_img=pre_img_bin, post_img=post_img_bin
+        )
 
-    pre,pre_profile,pre_bounds = get_preprocessed(pre_fp, block_size=2048)
+    pre,pre_profile,pre_bounds = get_preprocessed(
+        pre_fp, block_size=2048, intersect_window=intersect_window)
 
-    post,post_profile,post_bounds = get_preprocessed(post_fp, block_size=2048)
+    post,post_profile,post_bounds = get_preprocessed(
+        post_fp, block_size=2048, intersect_window=intersect_window)
 
     logger.debug(pre.shape)
     logger.debug(post.shape)
@@ -120,6 +131,9 @@ def extract(pre_fp:str, post_fp:str):
                         }
                         }
             flood['features'].append(feature)
+    
+    with open(file=f'./tests/data/window_test.json',mode='w') as tmp:
+        tmp.write(dumps(flood))
 
     # projected = utils.project_image(
     #     band=filtered,src_bounds=pre_bounds,src_profile=pre_profile,src_crs=pre_profile['crs'],dst_crs=rio.CRS.from_epsg(32651)
@@ -133,4 +147,4 @@ def extract(pre_fp:str, post_fp:str):
     #     transform=pre_profile['transform'],crs=pre_profile['crs'],compress='lzw'
     # ) as tmp:
     #     tmp.write(projected,1)
-    return flood
+    

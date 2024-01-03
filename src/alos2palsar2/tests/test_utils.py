@@ -58,6 +58,8 @@ def test_img_bounds_intersection(
     intersect_window =  get_bounds_intersect(
         pre_img=alos2palsar2_pre_img, post_img=alos2palsar2_post_img
     )
+    logger.debug(intersect_window.height)
+    logger.debug(intersect_window.width)
     
     offsets, cols, rows = get_window_offsets(img=alos2palsar2_pre_img)
 
