@@ -25,21 +25,41 @@ def test_derive_minmax_coords(alos2palsar2_band):
 
     assert False
 
-def test_img_bounds_intersection(
-        alos2palsar2_pre_img, alos2palsar2_post_img
-        ):
-    
-    result =  get_bounds_intersect(
-        pre_img=alos2palsar2_pre_img, post_img=alos2palsar2_post_img
-    )
-
-    assert False
-
 def test_window_img_read(alos2palsar2_pre_img):
+
+    src = rio.MemoryFile(alos2palsar2_pre_img).open()
 
     offsets, cols, rows = get_window_offsets(img=alos2palsar2_pre_img)
 
     assert len(offsets)==len(cols)*len(rows)
+
+    count = 0
+    for pair in offsets:
+        
+        if pair[0] == cols[-1] or pair[1] == rows[-1]:
+            array, transform, slice = window_to_array(
+                src=src, offset_pair=pair)
+            count+=1
+            logger.debug(array.shape)
+        else:
+            array, transform, slice = window_to_array(
+                src=src, offset_pair=pair,edge=False
+            )
+            logger.debug(array.shape)
+            count+=1
+        # logger.debug(array.shape) 
+    logger.debug(count)
+    assert count == len(offsets)
+    
+def test_img_bounds_intersection(
+        alos2palsar2_pre_img, alos2palsar2_post_img
+        ):
+    
+    intersect_window =  get_bounds_intersect(
+        pre_img=alos2palsar2_pre_img, post_img=alos2palsar2_post_img
+    )
+    
+    offsets, cols, rows = get_window_offsets(img=alos2palsar2_pre_img)
 
     count = 0
     for pair in offsets:
@@ -53,6 +73,5 @@ def test_window_img_read(alos2palsar2_pre_img):
                 img=alos2palsar2_pre_img, offset_pair=pair,edge=False
             )
             count+=1
-        # logger.debug(array.shape) 
-    logger.debug(count)
-    assert count == len(offsets)
+
+    assert False

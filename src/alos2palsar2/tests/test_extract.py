@@ -18,8 +18,7 @@ def test_preprocessing(alos2palsar2_pre_fp):
 def test_extract_flood(alos2palsar2_pre_fp,alos2palsar2_post_fp):
 
     result = ex.extract(
-        pre_fp=alos2palsar2_pre_fp, post_fp=alos2palsar2_post_fp,
-        cols=(0,2000), rows=(0,2000)
+        pre_fp=alos2palsar2_pre_fp, post_fp=alos2palsar2_post_fp
         )
 
     assert False

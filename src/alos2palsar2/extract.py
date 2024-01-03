@@ -78,11 +78,18 @@ def get_preprocessed(img_fp, block_size:int=1024):
 
 def extract(pre_fp:str, post_fp:str):
 
+    # TODO generate output raster profile using default gtiff profile
+    # TODO modify profile using new parameters from processed data (include compression, block and projection)
+    # TODO check if pre and post numpy arrays are off equal size
+    # TODO align bounds of pre and post images to extract intersecting data
+    intersect_window = utils.get_bounds_intersect()
+
     pre,pre_profile,pre_bounds = get_preprocessed(pre_fp, block_size=2048)
 
     post,post_profile,post_bounds = get_preprocessed(post_fp, block_size=2048)
-    logger.debug(len(pre))
-    logger.debug(len(post))
+
+    logger.debug(pre.shape)
+    logger.debug(post.shape)
 
     diff = np.ma.masked_equal(
         post,value=pre_profile['nodata']) - np.ma.masked_equal(pre,value=pre_profile['nodata'])

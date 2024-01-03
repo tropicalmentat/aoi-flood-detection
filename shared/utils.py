@@ -92,10 +92,19 @@ def get_bounds_intersect(pre_img: bytes, post_img: bytes):
 
 def window_to_array(
         src: rio.DatasetReader,
-        masked: bool=True, band_idx: int=1,
-        offset_pair: tuple=None, edge: bool=True,
-        block_size: int=1024
+        masked: bool=True, 
+        band_idx: int=1,
+        offset_pair: tuple=None, 
+        edge: bool=True,
+        block_size: int=1024,
+        intersect_window: win.Window=None
         ):
+    """
+    Read a subset raster image using rasterio windows
+    and return a corresponding numpy array the same size as
+    the window. 
+    """
+    # TODO: use native mask of raster
    
     array = None
     transform = None,
@@ -107,17 +116,30 @@ def window_to_array(
         window = win.Window.from_slices(
             cols=(offset_pair[0],profile['width']), rows=(offset_pair[1],profile['height'])
             )
-        array = src.read(window=window, indexes=band_idx)
-        transform = src.window_transform(window)       
-        slice = window.toslices()
+        
+        if intersect_window is not None:
+            intersect = window.intersection(intersect_window)
+            array = src.read(window=intersect, indexes=band_idx)
+            transform = src.window_transform(intersect)       
+            slice = intersect.toslices()
+        else:
+            array = src.read(window=window, indexes=band_idx)
+            transform = src.window_transform(window)       
+            slice = window.toslices()
     else:
         window = win.Window(
             col_off=offset_pair[0],row_off=offset_pair[1],
             width=block_size, height=block_size
         )
-        array = src.read(window=window, indexes=band_idx)
-        transform = src.window_transform(window)
-        slice = window.toslices()
+        if intersect_window is not None:
+            intersect = window.intersection(intersect_window)
+            array = src.read(window=intersect, indexes=band_idx)
+            transform = src.window_transform(intersect)       
+            slice = intersect.toslices()
+        else:
+            array = src.read(window=window, indexes=band_idx)
+            transform = src.window_transform(window)       
+            slice = window.toslices()
 
     return array, transform, slice
 
@@ -383,7 +405,9 @@ def logical_combination(array_1, array_2):
     return combined.to_numpy()
 
 def get_window_offsets(img:bytes, block_size:int=1024):
-    # Get profile from image bin
+    """
+    Prepare image offsets from defined block size.
+    """
 
     offsets = []
 
