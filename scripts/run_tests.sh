@@ -15,7 +15,7 @@ docker run \
         -v ./tests/data:/function/src/tests/data \
         -w /function/src \
         --entrypoint pytest \
-        -i aoi-alos2palsar2 -k test_img_bounds_intersection --log-cli-level=DEBUG
+        -i aoi-alos2palsar2 -k test_project_img --log-cli-level=DEBUG
 
 # docker run \
 #         -v ./src/landsat/:/function/src \

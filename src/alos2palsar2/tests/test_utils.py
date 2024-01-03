@@ -4,7 +4,8 @@ from shared.utils import (
     derive_minmax_coords,
     get_window_offsets,
     window_to_array,
-    get_bounds_intersect
+    get_bounds_intersect,
+    project_image
 )
 import logging
 
@@ -76,4 +77,17 @@ def test_img_bounds_intersection(
             )
             count+=1
 
+    assert False
+
+def test_project_img(alos2palsar2_pre_band):
+
+    band, profile, bounds = alos2palsar2_pre_band
+    logger.debug(band.shape)
+    logger.debug(profile)
+    logger.debug(bounds)
+
+    projected = project_image(
+        band=band,bounds=bounds,src_profile=profile,src_crs=profile.get('crs'),
+        dst_crs=rio.CRS.from_epsg(32651)
+    )
     assert False

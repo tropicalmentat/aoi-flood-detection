@@ -259,6 +259,7 @@ def project_image(band: np.ndarray, src_bounds, src_profile, src_crs, dst_crs):
                                                 right=src_bounds.right,
                                                 top=src_bounds.top)
     logger.debug((h,w))
+    # TODO window write of projected image
     with NamedTemporaryFile() as tmp:
         output = np.memmap(
             filename=tmp.name,dtype=band.dtype,shape=(h,w))
