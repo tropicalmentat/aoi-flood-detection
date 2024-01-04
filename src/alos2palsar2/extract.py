@@ -17,25 +17,26 @@ import os
 
 logger = logging.getLogger(__name__)
 
-def get_preprocessed(img_fp, 
+def get_preprocessed(
+                     img_bin: bytes = None,
                      block_size:int=1024,
                      intersect_window = None
                      ):
 
-    img = utils.load_image(fpath=img_fp) 
     calibrated = None
     profile = None
 
     with NamedTemporaryFile() as tmp_bs, \
          NamedTemporaryFile() as tmp_ds, \
-         rio.MemoryFile(file_or_bytes=img) as mem, \
+         rio.MemoryFile(file_or_bytes=img_bin) as mem, \
          mem.open() as src:
 
         profile = src.profile
 
         calibrated = np.memmap(
             filename=tmp_bs.name, dtype=np.float16,
-            shape=(int(intersect_window.height),int(intersect_window.width))
+            shape=(int(profile['height'] if intersect_window is None else intersect_window.height),
+                   int(profile['width'] if intersect_window is None else intersect_window.width))
         )
         profile.update(dtype=calibrated.dtype)
 
@@ -45,7 +46,7 @@ def get_preprocessed(img_fp,
         )
 
         offsets, col_offs, row_offs = utils.get_window_offsets(
-            img=img, block_size=block_size
+            img=img_bin, block_size=block_size
         )
     
         slices = []
@@ -72,7 +73,6 @@ def get_preprocessed(img_fp,
             logger.info(f'Despeckle window {i}')
             # TODO: Despeckle with buffered slice
             despeckled[slice] = despeckle(band=calibrated[slice])
-            # masked = np.ma.masked_outside(x=despeckled[slice],v1=round(despeckled[slice].max(),2),v2=-99.0)
             calibrated[slice] = np.nan_to_num(despeckled[slice],nan=-9999.0,posinf=-9999.0,neginf=-9999.0)
         
     # TODO: remove 3rd tuple value 
@@ -80,6 +80,7 @@ def get_preprocessed(img_fp,
 
 def extract(pre_fp:str, post_fp:str):
 
+    # TODO add image sorter
     # prepare output raster profile
     out_profile = DefaultGTiffProfile()
 
@@ -94,10 +95,10 @@ def extract(pre_fp:str, post_fp:str):
         )
 
     pre,pre_profile,pre_bounds = get_preprocessed(
-        pre_fp, block_size=2048, intersect_window=intersect_window)
+        img_bin=pre_img_bin, block_size=2048, intersect_window=intersect_window)
 
     post,post_profile,post_bounds = get_preprocessed(
-        post_fp, block_size=2048, intersect_window=intersect_window)
+        img_bin=post_img_bin, block_size=2048, intersect_window=intersect_window)
 
     logger.debug(pre.shape)
     logger.debug(post.shape)
@@ -135,9 +136,9 @@ def extract(pre_fp:str, post_fp:str):
     with open(file=f'./tests/data/window_test.json',mode='w') as tmp:
         tmp.write(dumps(flood))
 
-    # projected = utils.project_image(
-    #     band=filtered,src_bounds=pre_bounds,src_profile=pre_profile,src_crs=pre_profile['crs'],dst_crs=rio.CRS.from_epsg(32651)
-    #     )
+    projected = utils.project_image(
+        band=filtered,src_bounds=pre_bounds,src_profile=pre_profile,src_crs=pre_profile['crs'],dst_crs=rio.CRS.from_epsg(32651)
+        )
     # logger.debug(projected)
     # logger.debug(projected.dtype)
 

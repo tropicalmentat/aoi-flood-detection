@@ -7,10 +7,10 @@ from shared.utils import project_coordinates
 
 logger = logging.getLogger(__name__)
 
-def test_preprocessing(alos2palsar2_pre_fp):
+def test_preprocessing(alos2palsar2_pre_fp,alos2palsar2_pre_img):
 
     preprocessed = ex.get_preprocessed(
-        img_fp=alos2palsar2_pre_fp,block_size=2048
+        img_fp=alos2palsar2_pre_fp,img_bin=alos2palsar2_pre_img,block_size=2048
     )
 
     assert False
