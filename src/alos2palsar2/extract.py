@@ -84,6 +84,8 @@ def extract(pre_fp:str, post_fp:str):
     # prepare output raster profile
     out_profile = DefaultGTiffProfile()
 
+    # TODO user WarpedVRT at the preprocessing stage to automatically reproject
+    # image data into the destination projection
     pre_img_bin = utils.load_image(fpath=pre_fp)
     post_img_bin = utils.load_image(fpath=post_fp)
 
@@ -133,8 +135,8 @@ def extract(pre_fp:str, post_fp:str):
                         }
             flood['features'].append(feature)
     
-    with open(file=f'./tests/data/window_test.json',mode='w') as tmp:
-        tmp.write(dumps(flood))
+    # with open(file=f'./tests/data/window_test.json',mode='w') as tmp:
+    #     tmp.write(dumps(flood))
 
     projected = utils.project_image(
         band=filtered,src_bounds=pre_bounds,src_profile=pre_profile,src_crs=pre_profile['crs'],dst_crs=rio.CRS.from_epsg(32651)
