@@ -103,10 +103,14 @@ def extract(pre_fp:str, post_fp:str):
         )
 
     pre,pre_profile,pre_bounds = get_preprocessed(
-        img_bin=pre_img_bin, block_size=2048, intersect_window=intersect_window)
+        img_bin=pre_img_bin, block_size=2048, intersect_window=intersect_window,
+        dst_crs=rio.CRS.from_epsg(32651)
+        )
 
     post,post_profile,post_bounds = get_preprocessed(
-        img_bin=post_img_bin, block_size=2048, intersect_window=intersect_window)
+        img_bin=post_img_bin, block_size=2048, intersect_window=intersect_window,
+        dst_crs=rio.CRS.from_epsg(32651)
+        )
 
     logger.debug(pre.shape)
     logger.debug(post.shape)
@@ -122,38 +126,35 @@ def extract(pre_fp:str, post_fp:str):
 
     filtered = majority(image=threshold,footprint=square(width=5))
 
-    logger.info(f'Extracting flood pixels as vector features')
-
-    features = shapes(source=filtered,transform=pre_profile['transform'])
-
-    logger.info(f'Converting to FeatureCollection')
-
-    flood = {'type':'FeatureCollection',
-                'features':[]}
-
-    for feat in features:
-        if feat[1] == 1.0:
-            feature = {'type':'Feature', 
-                        'geometry':feat[0],
-                        'properties':{
-                            'value':1.0
-                        }
-                        }
-            flood['features'].append(feature)
+    # logger.info(f'Extracting flood pixels as vector features')
+# 
+    # features = shapes(source=filtered,transform=pre_profile['transform'])
+# 
+    # logger.info(f'Converting to FeatureCollection')
+# 
+    # flood = {'type':'FeatureCollection',
+                # 'features':[]}
+# 
+    # for feat in features:
+        # if feat[1] == 1.0:
+            # feature = {'type':'Feature', 
+                        # 'geometry':feat[0],
+                        # 'properties':{
+                            # 'value':1.0
+                        # }
+                        # }
+            # flood['features'].append(feature)
     
     # with open(file=f'./tests/data/window_test.json',mode='w') as tmp:
     #     tmp.write(dumps(flood))
 
-    projected = utils.project_image(
-        band=filtered,src_bounds=pre_bounds,src_profile=pre_profile,src_crs=pre_profile['crs'],dst_crs=rio.CRS.from_epsg(32651)
-        )
     # logger.debug(projected)
     # logger.debug(projected.dtype)
 
-    # with rio.open(
-    #     fp=f'./tests/data/filtered.tiff',mode='w',
-    #     width=pre_profile['width'],height=pre_profile['height'],count=1,dtype='int16',
-    #     transform=pre_profile['transform'],crs=pre_profile['crs'],compress='lzw'
-    # ) as tmp:
-    #     tmp.write(projected,1)
+    with rio.open(
+        fp=f'./tests/data/filtered.tiff',mode='w',
+        width=pre_profile['width'],height=pre_profile['height'],count=1,dtype='int16',
+        transform=pre_profile['transform'],crs=rio.CRS.from_epsg(32651),compress='lzw'
+    ) as tmp:
+        tmp.write(filtered,1)
     

@@ -1,4 +1,5 @@
 import rasterio as rio
+from rasterio.vrt import WarpedVRT
 from shared.utils import (
     build_alos2palsar2_metadata, 
     derive_minmax_coords,
@@ -57,7 +58,8 @@ def test_img_bounds_intersection(
         ):
     
     intersect_window =  get_bounds_intersect(
-        pre_img=alos2palsar2_pre_img, post_img=alos2palsar2_post_img
+        pre_img=alos2palsar2_pre_img, post_img=alos2palsar2_post_img,
+        dst_crs=rio.CRS.from_epsg(32651)
     )
     logger.debug(intersect_window.height)
     logger.debug(intersect_window.width)
@@ -90,4 +92,14 @@ def test_project_img(alos2palsar2_pre_band):
         band=band,bounds=bounds,src_profile=profile,src_crs=profile.get('crs'),
         dst_crs=rio.CRS.from_epsg(32651)
     )
+    assert False
+
+def test_warpedvrt(alos2palsar2_post_fp):
+
+    with rio.open(
+        fp=alos2palsar2_post_fp
+    ) as src,\
+         WarpedVRT(src_dataset=src,src_crs=rio.CRS.from_epsg(32651),crs=rio.CRS.from_epsg(4326)) as wrp:
+        logger.debug(wrp.profile) 
+
     assert False
