@@ -1,9 +1,13 @@
 from tempfile import NamedTemporaryFile
-from rasterio.warp import calculate_default_transform, reproject, aligned_target
+from rasterio.warp import (
+    calculate_default_transform, 
+    reproject, aligned_target
+)
 from rasterio.coords import disjoint_bounds
 from rasterio.features import rasterize
 from rasterio.transform import from_bounds
 from rasterio.profiles import DefaultGTiffProfile
+from rasterio.vrt import WarpedVRT
 from pyproj import Transformer
 from shapely import get_coordinates, set_coordinates
 from shapely.geometry import shape, mapping, GeometryCollection
@@ -48,12 +52,15 @@ def sort_image_sequence(pre_fp, post_fp):
 
     return
 
-def get_bounds_intersect(pre_img: bytes, post_img: bytes):
+def get_bounds_intersect(pre_img: bytes, post_img: bytes, dst_crs):
 
     with rio.MemoryFile(file_or_bytes=pre_img) as tmp_pre,\
          rio.MemoryFile(file_or_bytes=post_img) as tmp_post,\
          tmp_pre.open() as src_pre,\
          tmp_post.open() as src_post:
+        
+        warped = WarpedVRT(src_dataset=src_pre,src_crs=dst_crs)
+        logger.debug(warped.profile)
         
         pre_bounds = src_pre.bounds
         pre_transform = src_pre.transform

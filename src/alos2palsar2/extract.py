@@ -7,6 +7,7 @@ from skimage.morphology import square
 from skimage.filters.rank import majority
 from rasterio.features import shapes
 from rasterio.profiles import DefaultGTiffProfile
+from rasterio.vrt import WarpedVRT
 # from osgeo.gdal import Polygonize
 from json import dumps
 import numpy as np
@@ -20,7 +21,8 @@ logger = logging.getLogger(__name__)
 def get_preprocessed(
                      img_bin: bytes = None,
                      block_size:int=1024,
-                     intersect_window = None
+                     intersect_window = None,
+                     dst_crs = None
                      ):
 
     calibrated = None
@@ -29,9 +31,11 @@ def get_preprocessed(
     with NamedTemporaryFile() as tmp_bs, \
          NamedTemporaryFile() as tmp_ds, \
          rio.MemoryFile(file_or_bytes=img_bin) as mem, \
-         mem.open() as src:
+         mem.open() as src, \
+         WarpedVRT(src_dataset=src,src_crs=dst_crs) as wrp:
 
-        profile = src.profile
+        profile = wrp.profile
+        logger.debug(profile)
 
         calibrated = np.memmap(
             filename=tmp_bs.name, dtype=np.float16,
@@ -56,14 +60,14 @@ def get_preprocessed(
             transform = None
             if pair[0] == col_offs[-1] or pair[1] == row_offs[-1]:
                 array, transform, slice = utils.window_to_array(
-                    src=src, offset_pair=pair,block_size=block_size,
+                    src=wrp, offset_pair=pair,block_size=block_size,
                     intersect_window=intersect_window
                 )
                 calibrated[slice] = 20 * np.log10(array) - 83.0
                 slices.append(slice)
             else:
                 array, transform, slice = utils.window_to_array(
-                    src=src, offset_pair=pair,block_size=block_size,
+                    src=wrp, offset_pair=pair,block_size=block_size,
                     edge=False, intersect_window=intersect_window
                 )
                 calibrated[slice] = 20 * np.log10(array) - 83.0
@@ -92,8 +96,10 @@ def extract(pre_fp:str, post_fp:str):
     # TODO modify profile using new parameters from processed data (include compression, block and projection)
     # align bounds of pre and post-disaster
     # images using intersecting window
+    # NOTE FORCE USE OF EPSG 32651 FOR ALOS2 PALSAR2
+    # IMAGES
     intersect_window = utils.get_bounds_intersect(
-        pre_img=pre_img_bin, post_img=post_img_bin
+        pre_img=pre_img_bin, post_img=post_img_bin, dst_crs=rio.CRS.from_epsg(32651)
         )
 
     pre,pre_profile,pre_bounds = get_preprocessed(
