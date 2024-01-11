@@ -5,7 +5,7 @@ RUN apt update && \
 
 RUN mkdir function
 
-COPY requirements.txt /function/
+COPY ./src/alos2palsar2/requirements.txt /function/
 
 WORKDIR /function
 
