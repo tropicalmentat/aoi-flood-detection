@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 def flood_fp():
 
     return f'./tests/data/mnl_flood.json'
+    # return f'./tests/data/filtered.tiff'
 
 @pytest.fixture
 def ph_municity_bounds():

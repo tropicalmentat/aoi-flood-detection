@@ -60,6 +60,10 @@ def test_rasterize(overlap_bounds):
 
     assert False
 
+def test_vectorize():
+
+    assert False
+
 def test_logical_recomb(input_for_combination):
 
     flooded, pov_inc = input_for_combination

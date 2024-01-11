@@ -8,6 +8,7 @@ from rasterio.features import rasterize
 from rasterio.transform import from_bounds
 from rasterio.profiles import DefaultGTiffProfile
 from rasterio.vrt import WarpedVRT
+from rasterio.features import shapes
 from pyproj import Transformer
 from shapely import get_coordinates, set_coordinates
 from shapely.geometry import shape, mapping, GeometryCollection
@@ -448,3 +449,11 @@ def get_window_offsets(img:bytes, block_size:int=1024):
 
     logger.info(f'Image will be split to {len(offsets)} windows')
     return offsets, col_offsets, row_offsets
+
+def raster_to_features(src_ds):
+
+    features = shapes(
+        source=src_ds
+    )
+
+    return
