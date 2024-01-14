@@ -5,6 +5,7 @@ import geopandas as gpd
 import logging
 import osgeo.ogr as ogr
 import osgeo.gdal as gdal
+import shared.utils as utils
 
 from shapely.geometry import shape
 from shapely import area
@@ -43,6 +44,15 @@ def get_filtered_data(in_ds, bbox):
 
 def initialize_data(flood_fpath, admin_bnds_fpath, pov_inc_fpath):
 
+    img_bin = utils.load_image(fpath=flood_fpath)
+
+    array, profile, bounds = utils.image_to_array(
+        img=img_bin
+    )
+
+    vectorized = utils.raster_to_features(
+        src_ds=array, transform=profile['transform']
+    )
     pov_inc_ds = ogr.Open(pov_inc_fpath)
     admin_bnds_ds = ogr.Open(admin_bnds_fpath)
     flood_ds = ogr.Open(flood_fpath)
@@ -51,7 +61,7 @@ def initialize_data(flood_fpath, admin_bnds_fpath, pov_inc_fpath):
     # format: minx, maxx, miny, maxy
     flood_bbox = flood_layer.GetExtent()
     # flood_crs = flood_layer.GetSpatialRef().ExportToPROJJSON()
-
+    # TODO: switch to bounds derived from flood img raster
     in_layer = admin_bnds_ds.GetLayer(0)
     crs = CRS.from_json(in_layer.GetSpatialRef().ExportToPROJJSON())
 
