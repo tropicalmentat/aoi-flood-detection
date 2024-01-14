@@ -10,7 +10,11 @@ from rasterio.profiles import DefaultGTiffProfile
 from rasterio.vrt import WarpedVRT
 from rasterio.features import shapes
 from pyproj import Transformer
-from shapely import get_coordinates, set_coordinates
+from shapely import (
+    get_coordinates, 
+    set_coordinates,
+    simplify
+)
 from shapely.geometry import shape, mapping, GeometryCollection
 from xrspatial.local import combine
 from xarray import merge, DataArray
@@ -450,10 +454,34 @@ def get_window_offsets(img:bytes, block_size:int=1024):
     logger.info(f'Image will be split to {len(offsets)} windows')
     return offsets, col_offsets, row_offsets
 
-def raster_to_features(src_ds):
+def raster_to_features(src_ds, transform):
 
-    features = shapes(
-        source=src_ds
+    feature_collection = {
+        'type':'FeatureCollection',
+        'features':[]
+    }
+
+    converted = shapes(
+        source=src_ds,transform=transform
     )
 
-    return
+    for geom,value in converted:
+        if value == 1.0:
+            feature = {
+                'type':'Feature',
+                'geometry':'',
+                'properties':{
+                    'value':1.0
+                }
+            }
+            # convert to shapely geom
+            # then convert back to json repr
+            simplified = simplify(
+                geometry=shape(geom),tolerance=0.7,preserve_topology=True
+                )
+            feature['geometry'] = mapping(simplified)
+            # feature['geometry'] = geom
+            feature['properties']['value'] = value
+            feature_collection['features'].append(feature)
+
+    return feature_collection

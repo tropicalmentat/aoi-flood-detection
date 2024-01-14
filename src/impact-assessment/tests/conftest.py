@@ -2,6 +2,7 @@ import pytest
 import json
 import geopandas as gpd
 import logging
+import rasterio as rio
 from zipfile import ZipFile
 
 logger = logging.getLogger(__name__)
@@ -9,8 +10,23 @@ logger = logging.getLogger(__name__)
 @pytest.fixture
 def flood_fp():
 
-    return f'./tests/data/mnl_flood.json'
-    # return f'./tests/data/filtered.tiff'
+    # return f'./tests/data/overlapped.json.zip'
+    # return f'./tests/data/mnl_flood.json'
+    return f'./tests/data/filtered.tiff.zip'
+
+@pytest.fixture
+def flood_ds(flood_fp):
+
+    flood_array = None
+    profile = None
+    with ZipFile(file=flood_fp,mode='r') as archive:
+        logger.debug(archive.namelist())
+        img_bin = archive.read(name='filtered.tiff')
+        with rio.MemoryFile(file_or_bytes=img_bin) as mem_src:
+            flood_ds = mem_src.open()
+            profile = flood_ds.profile
+            flood_array = flood_ds.read()
+    return flood_array, profile
 
 @pytest.fixture
 def ph_municity_bounds():

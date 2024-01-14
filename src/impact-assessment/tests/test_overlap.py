@@ -12,7 +12,8 @@ from .. import overlap as op
 from .. import app
 from shared.utils import (
     convert_to_raster,
-    logical_combination
+    logical_combination,
+    raster_to_features
 )
 from geopandas import GeoDataFrame
 from pyproj.crs import CRS
@@ -110,5 +111,17 @@ def test_execute(
         flood_fpath=flood_fp, bounds_fpath=ph_municity_bounds,
         pov_inc_fpath=ph_pov_inc_2020
     )
+
+    assert False
+
+def test_vectorize(flood_ds):
+    ds, profile = flood_ds
+
+    vectorized = raster_to_features(
+        src_ds=ds,transform=profile['transform']
+        )
+
+    with open(file=f'./tests/data/vectorized.json',mode='w') as ds:
+        ds.write(json.dumps(vectorized))
 
     assert False
