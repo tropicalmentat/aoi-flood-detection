@@ -126,31 +126,6 @@ def extract(pre_fp:str, post_fp:str):
 
     filtered = majority(image=threshold,footprint=square(width=5))
 
-    # logger.info(f'Extracting flood pixels as vector features')
-# 
-    # features = shapes(source=filtered,transform=pre_profile['transform'])
-# 
-    # logger.info(f'Converting to FeatureCollection')
-# 
-    # flood = {'type':'FeatureCollection',
-                # 'features':[]}
-# 
-    # for feat in features:
-        # if feat[1] == 1.0:
-            # feature = {'type':'Feature', 
-                        # 'geometry':feat[0],
-                        # 'properties':{
-                            # 'value':1.0
-                        # }
-                        # }
-            # flood['features'].append(feature)
-    
-    # with open(file=f'./tests/data/window_test.json',mode='w') as tmp:
-    #     tmp.write(dumps(flood))
-
-    # logger.debug(projected)
-    # logger.debug(projected.dtype)
-
     # TODO SAVE THIS TO A FOLDER WHERE THE NEXT STAGE CAN PICK UP
     with rio.open(
         fp=f'./tests/data/filtered.tiff',mode='w',
