@@ -23,7 +23,7 @@ def get_filtered_data(in_ds, bbox):
     # Create Layer in flood_ds for clip geom
     in_layer = in_ds.GetLayer(0)
 
-    in_layer.SetSpatialFilterRect(bbox[0],bbox[2],bbox[1],bbox[3])
+    in_layer.SetSpatialFilterRect(bbox[0],bbox[1],bbox[2],bbox[3])
 
     # initialize feature collection
     fc = {

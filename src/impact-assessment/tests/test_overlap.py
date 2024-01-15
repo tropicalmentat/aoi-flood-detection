@@ -29,10 +29,16 @@ def test_init_data(flood_fp, ph_municity_bounds, ph_pov_inc_2020):
          TemporaryDirectory() as tmp_dir:
         logger.debug(os.getcwd())
         extract_fp = archive.extract(member='filtered.tiff',path=tmp_dir)
-        _ = op.initialize_data(
+        bounds, pi, floods, crs = op.initialize_data(
             flood_fpath=extract_fp, admin_bnds_fpath=ph_municity_bounds,
             pov_inc_fpath=ph_pov_inc_2020
         )
+        with open(file=f'./tests/data/admin.json',mode='w') as bnds,\
+             open(file=f'./tests/data/pi.json',mode='w') as pinc,\
+             open(file=f'tests/data/floods-cntral-luzon.json',mode='w') as flood:
+            bnds.write(bounds.to_json())
+            pinc.write(pi.to_json()) 
+            flood.write(floods.to_json())
     
         assert False
         # assert type(flood) is GeoDataFrame and type(bounds) is GeoDataFrame
@@ -110,10 +116,14 @@ def test_execute(
         ph_pov_inc_2020
 ):
 
-    result = app.execute(
-        flood_fpath=flood_fp, bounds_fpath=ph_municity_bounds,
-        pov_inc_fpath=ph_pov_inc_2020
-    )
+    with ZipFile(file=flood_fp) as archive,\
+         TemporaryDirectory() as tmp_dir:
+        logger.debug(os.getcwd())
+        extract_fp = archive.extract(member='filtered.tiff',path=tmp_dir)
+        result = app.execute(
+            flood_fpath=extract_fp, bounds_fpath=ph_municity_bounds,
+            pov_inc_fpath=ph_pov_inc_2020
+        )
 
     assert False
 
