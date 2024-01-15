@@ -1,9 +1,12 @@
+import os
 import pytest
 import json
 import logging
 import rasterio as rio
 import numpy as np
 
+from zipfile import ZipFile
+from tempfile import TemporaryDirectory
 from rasterio.windows import Window, from_bounds
 from rasterio.transform import from_bounds as transform_from_bounds
 from rasterio.transform import xy, rowcol
@@ -22,13 +25,17 @@ logger = logging.getLogger(__name__)
 
 def test_init_data(flood_fp, ph_municity_bounds, ph_pov_inc_2020):
 
-    _ = op.initialize_data(
-        flood_fpath=flood_fp, admin_bnds_fpath=ph_municity_bounds,
-        pov_inc_fpath=ph_pov_inc_2020
-    )
-
-    assert False
-    # assert type(flood) is GeoDataFrame and type(bounds) is GeoDataFrame
+    with ZipFile(file=flood_fp) as archive,\
+         TemporaryDirectory() as tmp_dir:
+        logger.debug(os.getcwd())
+        extract_fp = archive.extract(member='filtered.tiff',path=tmp_dir)
+        _ = op.initialize_data(
+            flood_fpath=extract_fp, admin_bnds_fpath=ph_municity_bounds,
+            pov_inc_fpath=ph_pov_inc_2020
+        )
+    
+        assert False
+        # assert type(flood) is GeoDataFrame and type(bounds) is GeoDataFrame
 
 def test_overlap_analysis(data):
 
@@ -58,10 +65,6 @@ def test_rasterize(overlap_bounds):
     result = convert_to_raster(
         feature_collection=overlap_bounds, crs=CRS.from_epsg(32651),
         resolution=30)
-
-    assert False
-
-def test_vectorize():
 
     assert False
 

@@ -50,24 +50,20 @@ def initialize_data(flood_fpath, admin_bnds_fpath, pov_inc_fpath):
         img=img_bin
     )
 
-    vectorized = utils.raster_to_features(
+    flood_fc = utils.raster_to_features(
         src_ds=array, transform=profile['transform']
     )
     pov_inc_ds = ogr.Open(pov_inc_fpath)
     admin_bnds_ds = ogr.Open(admin_bnds_fpath)
-    flood_ds = ogr.Open(flood_fpath)
 
-    flood_layer = flood_ds.GetLayer(0)
-    # format: minx, maxx, miny, maxy
-    flood_bbox = flood_layer.GetExtent()
-    # flood_crs = flood_layer.GetSpatialRef().ExportToPROJJSON()
-    # TODO: switch to bounds derived from flood img raster
+    # format: minx, miny, maxx, maxy
+    flood_bbox = bounds
     in_layer = admin_bnds_ds.GetLayer(0)
     crs = CRS.from_json(in_layer.GetSpatialRef().ExportToPROJJSON())
 
     logger.debug(crs.to_epsg())
 
-    in_layer.SetSpatialFilterRect(flood_bbox[0],flood_bbox[2],flood_bbox[1],flood_bbox[3])
+    in_layer.SetSpatialFilterRect(flood_bbox[0],flood_bbox[1],flood_bbox[1],flood_bbox[3])
 
     filtered_bounds = get_filtered_data(
         in_ds=admin_bnds_ds,bbox=flood_bbox
@@ -76,17 +72,6 @@ def initialize_data(flood_fpath, admin_bnds_fpath, pov_inc_fpath):
     filtered_povinc = get_filtered_data(
         in_ds=pov_inc_ds,bbox=flood_bbox
     )
-
-    flood_fc = {
-        'type':'FeatureCollection',
-        'features':[]
-    }
-
-    for i in range(flood_layer.GetFeatureCount()):
-        feature = flood_layer.GetFeature(i)
-        flood_fc['features'].append(
-            feature.ExportToJson(as_object=True)
-        )
 
     povinc_df = gpd.GeoDataFrame.from_features(filtered_povinc)
     bounds_df = gpd.GeoDataFrame.from_features(filtered_bounds)

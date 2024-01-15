@@ -30,4 +30,4 @@ docker run \
         -v ./data:/function/src/tests/data \
         -w /function/src \
         --entrypoint pytest \
-        -i aoi-impact -k test_vectorize --log-cli-level=DEBUG
+        -i aoi-impact -k test_init_data --log-cli-level=DEBUG
