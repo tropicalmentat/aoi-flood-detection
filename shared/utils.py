@@ -368,9 +368,9 @@ def convert_to_raster(
         for row in row_offsets:
             offsets.append((col,row))
     
-    with NamedTemporaryFile() as tmp_rast:
+    with NamedTemporaryFile() as tmp_array:
         rasterized = np.memmap(
-            filename=tmp_rast, dtype=np.int16,
+            filename=tmp_array, dtype=np.int16,
             shape=array_shape
         )
 
@@ -384,7 +384,7 @@ def convert_to_raster(
         raster = None
         # TODO: Put filepath as func param
         with NamedTemporaryFile(suffix='.tif') as tmp:
-            with rio.MemoryFile(file_or_bytes=tmp.name) as memfile, \
+            with rio.MemoryFile(file_or_bytes=tmp) as memfile, \
                 memfile.open(**profile) as tif:
 
                 for pair in offsets:
@@ -393,7 +393,6 @@ def convert_to_raster(
                             cols=(pair[0],profile['width']), rows=(pair[1],profile['height'])
                             )
                         slice = window.toslices()
-                        logger.debug(slice)
                         tif.write(rasterized[slice],window=window,indexes=1)
                     else:
                         window = win.Window(
@@ -401,7 +400,6 @@ def convert_to_raster(
                             width=profile['blockxsize'], height=profile['blockysize']
                         )
                         slice = window.toslices()
-                        logger.debug(slice)
                         tif.write(rasterized[slice],window=window,indexes=1)
             raster = open(file=tmp.name)
     return raster, profile
@@ -413,7 +411,7 @@ def logical_combination(array_1, array_2):
     
     logger.debug(raster_ds)
  
-    combined = combine(raster=raster_ds[['pov','flood']],data_vars=['pov','flood'])
+    combined = combine(raster=raster_ds)
 # 
     return combined.to_numpy()
 
