@@ -1,10 +1,12 @@
 from . import overlap as op
 from rasterio.vrt import WarpedVRT
+from tempfile import NamedTemporaryFile
 
 import rasterio.windows as win
 import shared.utils as utils
 import logging
 import json
+import numpy as np
 import rasterio as rio
 
 logger = logging.getLogger(__name__)
@@ -58,7 +60,11 @@ def execute(flood_fpath, bounds_fpath, pov_inc_fpath):
          pi_mem.open(**pi_profile) as pi_src,\
          bnds_mem.open(**bnds_profile) as bnds_src,\
          WarpedVRT(src_dataset=pi_src, **flood_profile) as pi_vrt,\
-         WarpedVRT(src_dataset=bnds_src, **flood_profile) as bnds_vrt:
+         WarpedVRT(src_dataset=bnds_src, **flood_profile) as bnds_vrt,\
+         NamedTemporaryFile() as tmp:
+            log_com_array = np.memmap(
+                filename=tmp.name,shape=(flood_profile['height'],flood_profile['width'])
+            )
             logger.debug(pi_vrt.profile)
             logger.debug(bnds_vrt.profile)
 
@@ -67,29 +73,28 @@ def execute(flood_fpath, bounds_fpath, pov_inc_fpath):
                     window = win.Window.from_slices(
                         cols=(pair[0],flood_profile['width']), rows=(pair[1],flood_profile['height'])
                         )
+                    slice = window.toslices()
                     pi_array = pi_vrt.read(window=window)
                     overlap_array = bnds_vrt.read(window=window)
                     log_com = utils.logical_combination(
                          array_1=pi_array,array_2=overlap_array
                          )
-                    logger.debug(log_com)
+                    log_com_array[slice] = log_com
                 else:
                     window = win.Window(
                         col_off=pair[0],row_off=pair[1],
-                        width=1024, height=1024
+                        width=2048, height=2048
                     )
+                    slice = window.toslices()
                     pi_array = pi_vrt.read(window=window)
                     overlap_array = bnds_vrt.read(window=window)
                     log_com = utils.logical_combination(
                          array_1=pi_array,array_2=overlap_array
                          )
-    # TODO window logical combination
-    # run logical combination of rasterized overlap results and pov inc
-    # log_com = logical_combination(array_1=pi_array,array_2=overlap_array)
-# 
-    # with rio.open(
-        # fp='./tests/data/flood-impact.tiff',mode='w', **bnds_profile
-    # ) as src:
-        # src.write(log_com,1)
-# 
+                    log_com_array[slice] = log_com
+
+            with rio.open(
+                fp='./tests/data/flood-impact.tiff',mode='w', **bnds_profile
+            ) as src:
+                src.write(log_com_array,1)
     return
