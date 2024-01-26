@@ -401,7 +401,7 @@ def convert_to_raster(
                         )
                         slice = window.toslices()
                         tif.write(rasterized[slice],window=window,indexes=1)
-            raster = open(file=tmp.name)
+            raster = open(file=tmp.name, mode='rb')
     return raster, profile
 
 def logical_combination(array_1, array_2):

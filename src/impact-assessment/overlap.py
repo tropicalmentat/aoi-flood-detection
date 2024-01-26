@@ -80,7 +80,7 @@ def initialize_data(flood_fpath, admin_bnds_fpath, pov_inc_fpath):
     logger.debug(povinc_df.head())
     logger.debug(bounds_df.head())
 
-    return bounds_df, povinc_df, floods_df, crs
+    return bounds_df, povinc_df, floods_df, profile
 
 def overlap_analysis(
         flood: gpd.GeoDataFrame, bounds: gpd.GeoDataFrame
