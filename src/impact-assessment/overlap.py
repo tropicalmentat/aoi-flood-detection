@@ -43,6 +43,7 @@ def get_filtered_data(in_ds, bbox):
     return fc
 
 def initialize_data(flood_fpath, admin_bnds_fpath, pov_inc_fpath):
+    logger.info(f'Initializing data')
 
     img_bin = utils.load_image(fpath=flood_fpath)
 
@@ -85,7 +86,7 @@ def initialize_data(flood_fpath, admin_bnds_fpath, pov_inc_fpath):
 def overlap_analysis(
         flood: gpd.GeoDataFrame, bounds: gpd.GeoDataFrame
 ):
-    
+    logger.info(f'Starting overlap analysis') 
     def reclassify(flooded):
 
         if flooded > 80:
@@ -121,6 +122,7 @@ def overlap_analysis(
     return analyzed
 
 def poverty_incidence_reclassify(pov_data):
+    logger.info(f'Starting reclassification of poverty incidence data')
 
     def reclassify(pov_inc):
 
