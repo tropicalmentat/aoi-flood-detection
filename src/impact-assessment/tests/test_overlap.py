@@ -71,6 +71,8 @@ def test_rasterize(overlap_bounds):
     result = convert_to_raster(
         feature_collection=overlap_bounds, crs=CRS.from_epsg(32651),
         resolution=30)
+    
+    logger.debug(type(result[0]))
 
     assert False
 
@@ -122,7 +124,7 @@ def test_execute(
         extract_fp = archive.extract(member='filtered.tiff',path=tmp_dir)
         result = app.execute(
             flood_fpath=extract_fp, bounds_fpath=ph_municity_bounds,
-            pov_inc_fpath=ph_pov_inc_2020
+            pov_inc_fpath=ph_pov_inc_2020, block_size=4096
         )
 
     assert False

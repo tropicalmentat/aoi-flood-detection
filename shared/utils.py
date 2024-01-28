@@ -1,4 +1,7 @@
-from tempfile import NamedTemporaryFile
+from tempfile import (
+    NamedTemporaryFile,
+    TemporaryDirectory
+) 
 from rasterio.warp import (
     calculate_default_transform, 
     reproject, aligned_target
@@ -19,10 +22,10 @@ from shapely.geometry import shape, mapping, GeometryCollection
 from xrspatial.local import combine
 from xarray import merge, DataArray
 
+import os
 import rasterio as rio
 import rasterio.windows as win
 import numpy as np
-import numpy.ma as ma
 import logging
 
 logger = logging.getLogger(__name__)
@@ -369,7 +372,9 @@ def convert_to_raster(
         for row in row_offsets:
             offsets.append((col,row))
     
-    with NamedTemporaryFile() as tmp_array:
+    raster = None
+    with TemporaryDirectory() as tmpdir,\
+         NamedTemporaryFile() as tmp_array:
         rasterized = np.memmap(
             filename=tmp_array, dtype=np.int16,
             shape=array_shape
@@ -381,28 +386,31 @@ def convert_to_raster(
             )
     
         rasterized.flush()
-        
-        raster = None
-        # TODO: Put filepath as func param
-        with NamedTemporaryFile(suffix='.tif') as tmp:
-            with rio.MemoryFile(file_or_bytes=tmp) as memfile, \
-                memfile.open(**profile) as tif:
 
-                for pair in offsets:
-                    if pair[0] == col_offsets[-1] or pair[1] == row_offsets[-1]:
-                        window = win.Window.from_slices(
-                            cols=(pair[0],profile['width']), rows=(pair[1],profile['height'])
-                            )
-                        slice = window.toslices()
-                        tif.write(rasterized[slice],window=window,indexes=1)
-                    else:
-                        window = win.Window(
-                            col_off=pair[0],row_off=pair[1],
-                            width=profile['blockxsize'], height=profile['blockysize']
+        src_name = None 
+        with rio.open(fp=os.path.join(tmpdir,'rasterized.tif'),mode='w',**profile) as src:
+            # src.write(rasterized,indexes=1)
+            src_name = src.name
+            logger.info('Windowed writing to file')
+
+            for pair in offsets:
+                if pair[0] == col_offsets[-1] or pair[1] == row_offsets[-1]:
+                    window = win.Window.from_slices(
+                        cols=(pair[0],profile['width']), rows=(pair[1],profile['height'])
                         )
-                        slice = window.toslices()
-                        tif.write(rasterized[slice],window=window,indexes=1)
-            raster = open(file=tmp.name, mode='rb')
+                    slice = window.toslices()
+                    src.write(rasterized[slice],window=window,indexes=1)
+                else:
+                    window = win.Window(
+                        col_off=pair[0],row_off=pair[1],
+                        width=profile['blockxsize'], height=profile['blockysize']
+                    )
+                    slice = window.toslices()
+                    src.write(rasterized[slice],window=window,indexes=1)
+        
+        src_data = open(file=src_name,mode='rb')
+        raster = src_data.read()
+        
     return raster, profile
 
 def logical_combination(array_1, array_2):
