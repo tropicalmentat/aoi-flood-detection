@@ -1,8 +1,10 @@
 from . import overlap as op
-from rasterio.vrt import WarpedVRT
+from rasterio.transform import from_bounds
 from rasterio.profiles import DefaultGTiffProfile
+from rasterio.windows import from_bounds as window_from_bounds
 from tempfile import NamedTemporaryFile
 
+import affine
 import rasterio.windows as win
 import shared.utils as utils
 import logging
@@ -14,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 def execute(
           flood_fpath, bounds_fpath, pov_inc_fpath, 
-          resolution=500)
+          resolution=500):
 
     # DATA INITIALIZATION
     # check if coordinate systems are the same
@@ -25,6 +27,7 @@ def execute(
         flood_fpath=flood_fpath, admin_bnds_fpath=bounds_fpath,
         pov_inc_fpath= pov_inc_fpath
     )
+    logger.debug(flood.total_bounds)
     logger.debug(flood_profile)
 
     # run overlap analysis of flood and admin bounds
@@ -45,8 +48,7 @@ def execute(
         tmp_rov.write(json.dumps(overlap_fc))
 
     # rasterize reclassified pov inc and overlap results
-    # with a resolution of 30 x 30 meters
-    # and crs of that of the flood raster
+    # use crs of that of the flood raster
     rasterized_povinc, pi_profile = utils.convert_to_raster(
         feature_collection=reclassed_pi_fc, resolution=resolution,
         crs=flood_profile['crs']
@@ -61,28 +63,46 @@ def execute(
     with open(file=f'./tests/data/rasterized-overlap.tiff',mode='wb') as tmpov:
         tmpov.write(rasterized_bounds)
     
-    # Form profile that has the bounds of the input flood data
+    # Init raster profile that has the 
+    # bounds of the input flood data
     # and the resolution of the rasterized data
-    out_transform = 
+    left, bottom, right, top = bounds.total_bounds
+    out_width = right - left
+    out_height = top - bottom
+    logger.debug(out_width)
+    logger.debug(out_height)
+    out_cols = round(out_width/resolution)
+    out_rows = round(out_height/resolution)
+    out_shape = (out_rows, out_cols)
+    out_transform = from_bounds(
+        west=left,south=bottom,east=right,north=top,
+        width=out_cols,height=out_rows
+    )
+    out_profile = DefaultGTiffProfile(
+        crs=flood_profile['crs'], transform=out_transform,
+        height=round(out_rows), width=round(out_cols), count=1
+    )
+    window = window_from_bounds(
+        left=left, bottom=bottom,right=right,top=top,
+        transform=out_transform
+    )
+
+    logger.debug(out_profile)
 
     logger.info('Starting logical combination')
     with rio.MemoryFile(file_or_bytes=rasterized_povinc) as pi_mem,\
          rio.MemoryFile(file_or_bytes=rasterized_bounds) as bnds_mem,\
-         pi_mem.open(**pi_profile) as pi_src,\
-         bnds_mem.open(**bnds_profile) as bnds_src,\
-         WarpedVRT(src_dataset=pi_src, **pi_profile) as pi_vrt,\
-         WarpedVRT(src_dataset=bnds_src, **pi_profile) as bnds_vrt,\
+         pi_mem.open() as pi_src,\
+         bnds_mem.open() as bnds_src,\
          NamedTemporaryFile() as tmp:
             log_com_array = np.memmap(
-                filename=tmp.name,shape=(pi_profile['height'],pi_profile['width'])
+                filename=tmp.name,shape=out_shape
             )
-            logger.debug(pi_vrt.profile)
-            logger.debug(bnds_vrt.profile)
-
-            pi_array = pi_vrt.read()
-            overlap_array = bnds_vrt.read()
+            pi_array = pi_src.read(window=window,indexes=1,boundless=True)
+            overlap_array = bnds_src.read(window=window,indexes=1,boundless=True,fill_value=0)
+            pi_array[overlap_array==0] = 0
             combined = utils.logical_combination(
-                array_1=pi_array,array_2=overlap_array
+                array_1=overlap_array,array_2=pi_array
             )
             try:
                 log_com_array[:] = combined[:]
@@ -92,8 +112,17 @@ def execute(
                 transposed = np.transpose(combined) 
                 log_com_array[:] = transposed[:]
                 log_com_array.flush()
+
             with rio.open(
-                fp='./tests/data/flood-impact.tiff',mode='w', **pi_profile
+                fp=f'./tests/data/windowed-pi.tiff',mode='w', **out_profile
+            ) as win_pi:
+                win_pi.write(pi_array,1)
+            with rio.open(
+                fp=f'./tests/data/windowed-overlap.tiff',mode='w', **out_profile
+            ) as win_ov:
+                win_ov.write(overlap_array,1)
+            with rio.open(
+                fp='./tests/data/flood-impact.tiff',mode='w', **out_profile
             ) as src:
                 src.write(log_com_array,1)
 

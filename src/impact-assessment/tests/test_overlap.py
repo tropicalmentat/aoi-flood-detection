@@ -122,9 +122,11 @@ def test_execute(
          TemporaryDirectory() as tmp_dir:
         logger.debug(os.getcwd())
         extract_fp = archive.extract(member='filtered.tiff',path=tmp_dir)
+        # poverty incidence dataset uses same admin bounds
+        # as bounds dataset
         result = app.execute(
-            flood_fpath=extract_fp, bounds_fpath=ph_municity_bounds,
-            pov_inc_fpath=ph_pov_inc_2020, resolution=1000
+            flood_fpath=extract_fp, bounds_fpath=ph_pov_inc_2020,
+            pov_inc_fpath=ph_pov_inc_2020, resolution=100
         )
 
     assert False

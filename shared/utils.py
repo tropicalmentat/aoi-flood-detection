@@ -420,8 +420,8 @@ def logical_combination(array_1, array_2):
     
     logger.debug(raster_ds)
  
-    combined = combine(raster=raster_ds[['flood','pov']])
-# 
+    combined = combine(raster=raster_ds)
+
     return combined.to_numpy()
 
 def get_window_offsets(img:bytes, block_size:int=1024):
