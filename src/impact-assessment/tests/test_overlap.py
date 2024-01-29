@@ -126,7 +126,7 @@ def test_execute(
         # as bounds dataset
         result = app.execute(
             flood_fpath=extract_fp, bounds_fpath=ph_pov_inc_2020,
-            pov_inc_fpath=ph_pov_inc_2020, resolution=100
+            pov_inc_fpath=ph_pov_inc_2020, resolution=500
         )
 
     assert False

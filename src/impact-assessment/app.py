@@ -2,11 +2,8 @@ from . import overlap as op
 from rasterio.vrt import WarpedVRT
 from rasterio.transform import from_bounds
 from rasterio.profiles import DefaultGTiffProfile
-from rasterio.windows import from_bounds as window_from_bounds
 from tempfile import NamedTemporaryFile
 
-import affine
-import rasterio.windows as win
 import shared.utils as utils
 import logging
 import json
@@ -83,11 +80,6 @@ def execute(
         crs=flood_profile['crs'], transform=out_transform,
         height=round(out_rows), width=round(out_cols), count=1
     )
-    window = window_from_bounds(
-        left=left, bottom=bottom,right=right,top=top,
-        transform=out_transform
-    )
-
     logger.debug(out_profile)
 
     logger.info('Starting logical combination')
