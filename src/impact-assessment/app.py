@@ -1,4 +1,5 @@
 from . import overlap as op
+from rasterio.vrt import WarpedVRT
 from rasterio.transform import from_bounds
 from rasterio.profiles import DefaultGTiffProfile
 from rasterio.windows import from_bounds as window_from_bounds
@@ -66,7 +67,7 @@ def execute(
     # Init raster profile that has the 
     # bounds of the input flood data
     # and the resolution of the rasterized data
-    left, bottom, right, top = bounds.total_bounds
+    left, bottom, right, top = flood.total_bounds
     out_width = right - left
     out_height = top - bottom
     logger.debug(out_width)
@@ -90,17 +91,21 @@ def execute(
     logger.debug(out_profile)
 
     logger.info('Starting logical combination')
+    # TODO Fix normalization of datasets within common bounding box
     with rio.MemoryFile(file_or_bytes=rasterized_povinc) as pi_mem,\
          rio.MemoryFile(file_or_bytes=rasterized_bounds) as bnds_mem,\
          pi_mem.open() as pi_src,\
          bnds_mem.open() as bnds_src,\
+         WarpedVRT(pi_src,**out_profile) as pi_vrt,\
+         WarpedVRT(bnds_src,**out_profile) as ov_vrt,\
          NamedTemporaryFile() as tmp:
+            logging.debug(pi_vrt.profile)
+            logging.debug(ov_vrt.profile)
             log_com_array = np.memmap(
                 filename=tmp.name,shape=out_shape
             )
-            pi_array = pi_src.read(window=window,indexes=1,boundless=True)
-            overlap_array = bnds_src.read(window=window,indexes=1,boundless=True,fill_value=0)
-            pi_array[overlap_array==0] = 0
+            pi_array = pi_vrt.read(indexes=1)
+            overlap_array = ov_vrt.read(indexes=1)
             combined = utils.logical_combination(
                 array_1=overlap_array,array_2=pi_array
             )
