@@ -360,7 +360,7 @@ def convert_to_raster(
     # TODO: nodata as func param
     profile = DefaultGTiffProfile(data={
         'width':dst_w, 'height':dst_h, 'crs':crs, 'transform':dst_transform,
-        'nodata':0, 'dtype':np.int16, 'count':1
+        'nodata':0, 'dtype':'int16', 'count':1
     })
 
     col_offsets = [i for i in range(0,profile['width'],profile['blockxsize'])]
@@ -420,7 +420,7 @@ def logical_combination(array_1, array_2):
     
     logger.debug(raster_ds)
  
-    combined = combine(raster=raster_ds)
+    combined = combine(raster=raster_ds[['flood','pov']])
 # 
     return combined.to_numpy()
 

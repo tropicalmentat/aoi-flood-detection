@@ -1,5 +1,6 @@
 from . import overlap as op
 from rasterio.vrt import WarpedVRT
+from rasterio.profiles import DefaultGTiffProfile
 from tempfile import NamedTemporaryFile
 
 import rasterio.windows as win
@@ -11,14 +12,9 @@ import rasterio as rio
 
 logger = logging.getLogger(__name__)
 
-def execute(flood_fpath, bounds_fpath, pov_inc_fpath, block_size=1024): 
-
-    # Retrieve window offsets that will be used
-    # for windowed logical recombination
-    flood_img = utils.load_image(fpath=flood_fpath)
-    offsets, col_offsets, row_offsets = utils.get_window_offsets(
-          img=flood_img, block_size=block_size
-    )
+def execute(
+          flood_fpath, bounds_fpath, pov_inc_fpath, 
+          resolution=500)
 
     # DATA INITIALIZATION
     # check if coordinate systems are the same
@@ -52,11 +48,11 @@ def execute(flood_fpath, bounds_fpath, pov_inc_fpath, block_size=1024):
     # with a resolution of 30 x 30 meters
     # and crs of that of the flood raster
     rasterized_povinc, pi_profile = utils.convert_to_raster(
-        feature_collection=reclassed_pi_fc, resolution=30,
+        feature_collection=reclassed_pi_fc, resolution=resolution,
         crs=flood_profile['crs']
     )
     rasterized_bounds, bnds_profile = utils.convert_to_raster(
-        feature_collection=overlap_fc, resolution=30,
+        feature_collection=overlap_fc, resolution=resolution,
         crs=flood_profile['crs']
     )
     with open(file=f'./tests/data/rasterized-pi.tiff',mode='wb') as tmppi:
@@ -64,57 +60,41 @@ def execute(flood_fpath, bounds_fpath, pov_inc_fpath, block_size=1024):
 
     with open(file=f'./tests/data/rasterized-overlap.tiff',mode='wb') as tmpov:
         tmpov.write(rasterized_bounds)
+    
+    # Form profile that has the bounds of the input flood data
+    # and the resolution of the rasterized data
+    out_transform = 
 
     logger.info('Starting logical combination')
     with rio.MemoryFile(file_or_bytes=rasterized_povinc) as pi_mem,\
          rio.MemoryFile(file_or_bytes=rasterized_bounds) as bnds_mem,\
          pi_mem.open(**pi_profile) as pi_src,\
          bnds_mem.open(**bnds_profile) as bnds_src,\
-         WarpedVRT(src_dataset=pi_src, **flood_profile) as pi_vrt,\
-         WarpedVRT(src_dataset=bnds_src, **flood_profile) as bnds_vrt,\
+         WarpedVRT(src_dataset=pi_src, **pi_profile) as pi_vrt,\
+         WarpedVRT(src_dataset=bnds_src, **pi_profile) as bnds_vrt,\
          NamedTemporaryFile() as tmp:
             log_com_array = np.memmap(
-                filename=tmp.name,shape=(flood_profile['height'],flood_profile['width'])
+                filename=tmp.name,shape=(pi_profile['height'],pi_profile['width'])
             )
             logger.debug(pi_vrt.profile)
             logger.debug(bnds_vrt.profile)
 
-            for pair in offsets:
-                if pair[0] == col_offsets[-1] or pair[1] == row_offsets[-1]:
-                    window = win.Window.from_slices(
-                        cols=(pair[0],flood_profile['width']), rows=(pair[1],flood_profile['height'])
-                        )
-                    slice = window.toslices()
-                    pi_array = pi_vrt.read(window=window)
-                    overlap_array = bnds_vrt.read(window=window)
-                    try:
-                        log_com = utils.logical_combination(
-                             array_1=pi_array,array_2=overlap_array
-                             )
-                        log_com_array[slice] = log_com
-                    except ValueError as e:
-                        logger.warning(f'Axes switched!')
-                        log_com_array[slice] = np.transpose(log_com)
-                else:
-                    window = win.Window(
-                        col_off=pair[0],row_off=pair[1],
-                        width=block_size, height=block_size
-                    )
-                    slice = window.toslices()
-                    pi_array = pi_vrt.read(window=window)
-                    overlap_array = bnds_vrt.read(window=window)
-                    logger.debug(pi_array.shape)
-                    logger.debug(overlap_array.shape)
-                    try:
-                        log_com = utils.logical_combination(
-                             array_1=pi_array,array_2=overlap_array
-                             )
-                        log_com_array[slice] = log_com
-                    except ValueError as e:
-                        logger.warning(f'Axes switched!')
-                        log_com_array[slice] = np.transpose(log_com)
+            pi_array = pi_vrt.read()
+            overlap_array = bnds_vrt.read()
+            combined = utils.logical_combination(
+                array_1=pi_array,array_2=overlap_array
+            )
+            try:
+                log_com_array[:] = combined[:]
+                log_com_array.flush()
+            except ValueError as e:
+                logger.warning(f'Axis are swapped')
+                transposed = np.transpose(combined) 
+                log_com_array[:] = transposed[:]
+                log_com_array.flush()
             with rio.open(
-                fp='./tests/data/flood-impact.tiff',mode='w', **bnds_profile
+                fp='./tests/data/flood-impact.tiff',mode='w', **pi_profile
             ) as src:
                 src.write(log_com_array,1)
+
     return

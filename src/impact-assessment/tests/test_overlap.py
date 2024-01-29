@@ -124,7 +124,7 @@ def test_execute(
         extract_fp = archive.extract(member='filtered.tiff',path=tmp_dir)
         result = app.execute(
             flood_fpath=extract_fp, bounds_fpath=ph_municity_bounds,
-            pov_inc_fpath=ph_pov_inc_2020, block_size=4096
+            pov_inc_fpath=ph_pov_inc_2020, resolution=1000
         )
 
     assert False
