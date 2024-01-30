@@ -19,8 +19,6 @@ from shapely import (
     simplify
 )
 from shapely.geometry import shape, mapping, GeometryCollection
-from xrspatial.local import combine
-from xarray import merge, DataArray
 
 import os
 import rasterio as rio
@@ -413,16 +411,6 @@ def convert_to_raster(
         
     return raster, profile
 
-def logical_combination(array_1, array_2):
-    raster_ds = merge(
-        [DataArray(data=array_1,name='flood'), DataArray(array_2,name='pov')],
-        join='exact',compat='minimal')
-    
-    logger.debug(raster_ds)
- 
-    combined = combine(raster=raster_ds)
-
-    return combined.to_numpy()
 
 def get_window_offsets(img:bytes, block_size:int=1024):
     """

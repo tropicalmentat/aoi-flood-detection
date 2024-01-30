@@ -10,6 +10,8 @@ import shared.utils as utils
 from shapely.geometry import shape
 from shapely import area
 from pyproj.crs import CRS
+from xrspatial.local import combine
+from xarray import merge, DataArray
 
 gdal.UseExceptions()
 
@@ -142,3 +144,14 @@ def poverty_incidence_reclassify(pov_data):
     pov_data[RECLASS_KEY] = pov_inc.apply(lambda x: reclassify(x))
 
     return pov_data
+
+def logical_combination(array_1, array_2):
+    raster_ds = merge(
+        [DataArray(data=array_1,name='flood'), DataArray(array_2,name='pov')],
+        join='exact',compat='minimal')
+    
+    logger.debug(raster_ds)
+ 
+    combined = combine(raster=raster_ds)
+
+    return combined.to_numpy()

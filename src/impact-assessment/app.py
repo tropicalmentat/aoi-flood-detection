@@ -98,7 +98,7 @@ def execute(
             )
             pi_array = pi_vrt.read(indexes=1)
             overlap_array = ov_vrt.read(indexes=1)
-            combined = utils.logical_combination(
+            combined = op.logical_combination(
                 array_1=overlap_array,array_2=pi_array
             )
             try:

@@ -7,15 +7,11 @@ import numpy as np
 
 from zipfile import ZipFile
 from tempfile import TemporaryDirectory
-from rasterio.windows import Window, from_bounds
-from rasterio.transform import from_bounds as transform_from_bounds
-from rasterio.transform import xy, rowcol
-from tempfile import NamedTemporaryFile
+from rasterio.windows import from_bounds
 from .. import overlap as op
 from .. import app
 from shared.utils import (
     convert_to_raster,
-    logical_combination,
     raster_to_features
 )
 from geopandas import GeoDataFrame
@@ -101,7 +97,7 @@ def test_logical_recomb(input_for_combination):
         flood_array = src_f.read(indexes=1,boundless=True,fill_value=0)
         pov_array[flood_array==0] = 0
 
-        result = logical_combination(array_1=pov_array,array_2=flood_array)
+        result = op.logical_combination(array_1=pov_array,array_2=flood_array)
         logger.debug(result)
 
         profile = src_f.profile
