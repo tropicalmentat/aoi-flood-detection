@@ -108,7 +108,7 @@ def init_datasets(safe_fp,bounds_fp):
             feature = feat.ExportToJson(as_object=True)
             polygons.append(shape(feature['geometry']))
     
-    geom_clxn = GeometryCollection(polygons)
+    geom_clxn = GeometryCollection(polygons[30])
 
     geom_clxn_bounds = total_bounds(geom_clxn).tolist()
 
@@ -121,9 +121,15 @@ def init_datasets(safe_fp,bounds_fp):
     )
 
     intersect_box = intersection(aoi_box,utm_box)
-    intersect_bounds = total_bounds(intersect_box)
+    intersect_bounds = total_bounds(intersect_box).tolist()
 
     logger.debug(intersect_bounds)
+    # TODO convert coordinates back to wgs
+    wgs_transformer = Transformer.from_crs(bounds_crs.to_epsg(),4326,always_xy=True)
+    wgs_minx,wgs_miny = wgs_transformer.transform(intersect_bounds[0],intersect_bounds[1])
+    wgs_maxx,wgs_maxy = wgs_transformer.transform(intersect_bounds[2],intersect_bounds[3])
+
+    logger.debug([wgs_minx,wgs_miny,wgs_maxx,wgs_maxy])
     # fc = {
     #     'type':'FeatureCollection',
     #     'features':[
@@ -140,7 +146,8 @@ def init_datasets(safe_fp,bounds_fp):
         intersect_bounds[0],intersect_bounds[1],
         intersect_bounds[2],intersect_bounds[3]
     ),
-        product='SRTM3'.
+        product='SRTM1',
         output=f'./tests/dem.tif'
     )
+    elevation.clear()
     return
