@@ -19,3 +19,10 @@ def sentinel1b_post_fp_measurement(sentinel1b_post_fp):
     fp = os.path.join(sentinel1b_post_fp,'measurement/s1b-iw-grd-vh-20201113t095857-20201113t095922-024245-02e184-002.tiff')
 
     return fp
+
+@pytest.fixture
+def sentinel1b_post_fp_manifest(sentinel1b_post_fp):
+
+    fp = os.path.join(sentinel1b_post_fp,'manifest.safe')
+
+    return fp
