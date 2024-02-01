@@ -26,3 +26,8 @@ def sentinel1b_post_fp_manifest(sentinel1b_post_fp):
     fp = os.path.join(sentinel1b_post_fp,'manifest.safe')
 
     return fp
+
+@pytest.fixture
+def ph_pov_inc_2020():
+
+    return f'./tests/data/National_PopAHS_PSA_2020.shp'

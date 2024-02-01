@@ -1,4 +1,5 @@
 FROM orfeotoolbox/otb:latest
+FROM osgeo/gdal:ubuntu-small-3.6.3
 
 RUN apt update && \
     apt install -y python3-pip
