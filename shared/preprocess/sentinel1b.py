@@ -8,22 +8,21 @@ import xml.etree.ElementTree as ET
 import rasterio as rio
 import affine
 
-from sarsen import apps, scene
+from sarsen import (
+    apps, 
+    scene, 
+    Sentinel1SarProduct,
+    terrain_correction
+)
 from tempfile import NamedTemporaryFile
 from rasterio import shutil as rio_shutil
 from rasterio.vrt import WarpedVRT
-from sarsen import apps
 from shapely.geometry import (
-    MultiPolygon,
     GeometryCollection,
     box, 
     shape, 
-    mapping
 )
 from shapely import (
-    get_coordinates,
-    set_coordinates,
-    bounds,
     intersection,
     total_bounds
 )
@@ -58,7 +57,7 @@ def geocode_img(fp):
     logger.debug(calibration)
     logger.debug(orbit_ecef)
     logger.debug(position_ecef)
-    return
+    return measurement, calibration, orbit_ecef, position_ecef
 
 def init_datasets(
         safe_fp,bounds_fp,dem_fp):
@@ -149,7 +148,7 @@ def init_datasets(
         0.0,-target_res,top
     )
 
-    vr_params = {
+    vrt_params = {
         'src_crs':src_crs,
         'crs':bounds_crs,
         'transform':target_transform,
@@ -160,7 +159,7 @@ def init_datasets(
     # Open DEM file with UTM CRS using a warped vrt
     with NamedTemporaryFile() as tmp_dem,\
          rio.open(fp=dem_fp) as dem_src,\
-         WarpedVRT(src_dataset=dem_src,**vr_params) as dem_vrt:
+         WarpedVRT(src_dataset=dem_src,**vrt_params) as dem_vrt:
         logger.debug(dem_src.profile)
         logger.debug(dem_vrt.profile)
 
@@ -168,11 +167,23 @@ def init_datasets(
          
         tmp_dem.seek(0)
 
-        dem_kwargs = {"chunks":{}}
-        dem_raster = scene.open_dem_raster(tmp_dem.name)
+        dem_kwargs = {"chunks":128}
+        dem_raster = scene.open_dem_raster(tmp_dem.name,**dem_kwargs)
         convert_kwargs = {"source_crs":dem_vrt.profile.get('crs')}
         dem_ecef = scene.convert_to_dem_ecef(dem_raster,**convert_kwargs)
         logger.debug(dem_ecef)
+        
+        product = Sentinel1SarProduct(
+            safe_fp,
+            measurement_group="IW/VV"
+        )
+        logger.debug(product)
 
+        gtc = terrain_correction(
+            product,
+            dem_urlpath=tmp_dem.name,
+            output_urlpath=f'./tests/data/gtc.tiff'
+        )
+        logger.debug(gtc)
 
     return
