@@ -8,6 +8,7 @@ import xml.etree.ElementTree as ET
 import rasterio as rio
 import affine
 
+from sarsen import apps, scene
 from tempfile import NamedTemporaryFile
 from rasterio import shutil as rio_shutil
 from rasterio.vrt import WarpedVRT
@@ -160,29 +161,18 @@ def init_datasets(
     with NamedTemporaryFile() as tmp_dem,\
          rio.open(fp=dem_fp) as dem_src,\
          WarpedVRT(src_dataset=dem_src,**vr_params) as dem_vrt:
-         logger.debug(dem_src.profile)
-         logger.debug(dem_vrt.profile)
+        logger.debug(dem_src.profile)
+        logger.debug(dem_vrt.profile)
 
-         rio_shutil.copy(dem_vrt,tmp_dem.name,driver='GTiff')
+        rio_shutil.copy(dem_vrt,tmp_dem.name,driver='GTiff')
+         
+        tmp_dem.seek(0)
 
-    # fc = {
-    #     'type':'FeatureCollection',
-    #     'features':[
-    #         {
-    #             'type':'Feature',
-    #             'geometry':mapping(intersect_box)
-    #         }
-    #     ]
-    # }
-    # with open(file=f'./tests/data/intersect_box.json',mode='w') as tmp:
-    #     tmp.write(json.dumps(fc))
-    
-    # elevation.clip(bounds=(
-    #     intersect_bounds[0],intersect_bounds[1],
-    #     intersect_bounds[2],intersect_bounds[3]
-    # ),
-    #     product='SRTM3',
-    #     output=f'./tests/dem.tif'
-    # )
-    # elevation.clear()
+        dem_kwargs = {"chunks":{}}
+        dem_raster = scene.open_dem_raster(tmp_dem.name)
+        convert_kwargs = {"source_crs":dem_vrt.profile.get('crs')}
+        dem_ecef = scene.convert_to_dem_ecef(dem_raster,**convert_kwargs)
+        logger.debug(dem_ecef)
+
+
     return
