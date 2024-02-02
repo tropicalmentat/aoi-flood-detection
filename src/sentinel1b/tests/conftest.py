@@ -31,3 +31,8 @@ def sentinel1b_post_fp_manifest(sentinel1b_post_fp):
 def ph_pov_inc_2020():
 
     return f'./tests/data/National_PopAHS_PSA_2020.shp'
+
+@pytest.fixture
+def ph_90m_dem():
+
+    return f'zip+file://./tests/data/N00E120.zip'

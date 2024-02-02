@@ -20,10 +20,11 @@ def test_geocode(sentinel1b_post_fp):
     assert False
 
 
-def test_init_ds(sentinel1b_post_fp,ph_pov_inc_2020):
+def test_init_ds(sentinel1b_post_fp,ph_pov_inc_2020,ph_90m_dem):
 
     datasets = init_datasets(
-        safe_fp=sentinel1b_post_fp, bounds_fp=ph_pov_inc_2020
+        safe_fp=sentinel1b_post_fp, bounds_fp=ph_pov_inc_2020,
+        dem_fp=ph_90m_dem
     )
 
     assert False

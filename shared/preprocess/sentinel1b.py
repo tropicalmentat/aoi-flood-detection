@@ -5,6 +5,12 @@ import logging
 import elevation
 import osgeo.ogr as ogr
 import xml.etree.ElementTree as ET
+import rasterio as rio
+import affine
+
+from tempfile import NamedTemporaryFile
+from rasterio import shutil as rio_shutil
+from rasterio.vrt import WarpedVRT
 from sarsen import apps
 from shapely.geometry import (
     MultiPolygon,
@@ -53,7 +59,8 @@ def geocode_img(fp):
     logger.debug(position_ecef)
     return
 
-def init_datasets(safe_fp,bounds_fp):
+def init_datasets(
+        safe_fp,bounds_fp,dem_fp):
 
     # CRS of raw sentinel1b image
     src_crs = CRS.from_epsg(4326)
@@ -108,7 +115,7 @@ def init_datasets(safe_fp,bounds_fp):
             feature = feat.ExportToJson(as_object=True)
             polygons.append(shape(feature['geometry']))
     
-    geom_clxn = GeometryCollection(polygons[30])
+    geom_clxn = GeometryCollection(polygons)
 
     geom_clxn_bounds = total_bounds(geom_clxn).tolist()
 
@@ -121,15 +128,43 @@ def init_datasets(safe_fp,bounds_fp):
     )
 
     intersect_box = intersection(aoi_box,utm_box)
-    intersect_bounds = total_bounds(intersect_box).tolist()
+    left,bottom,right,top = total_bounds(intersect_box).tolist()
 
-    logger.debug(intersect_bounds)
+    logger.debug([left,bottom,right,top])
     # TODO convert coordinates back to wgs
     wgs_transformer = Transformer.from_crs(bounds_crs.to_epsg(),4326,always_xy=True)
-    wgs_minx,wgs_miny = wgs_transformer.transform(intersect_bounds[0],intersect_bounds[1])
-    wgs_maxx,wgs_maxy = wgs_transformer.transform(intersect_bounds[2],intersect_bounds[3])
+    wgs_minx,wgs_miny = wgs_transformer.transform(left,bottom)
+    wgs_maxx,wgs_maxy = wgs_transformer.transform(right,top)
 
     logger.debug([wgs_minx,wgs_miny,wgs_maxx,wgs_maxy])
+
+    target_res = 90 # 90x90m
+    utm_w = right - left
+    utm_h = top - bottom
+    pix_w = utm_w/target_res
+    pix_h = utm_h/target_res
+    target_transform = affine.Affine(
+        target_res,0.0,left,
+        0.0,-target_res,top
+    )
+
+    vr_params = {
+        'src_crs':src_crs,
+        'crs':bounds_crs,
+        'transform':target_transform,
+        'height':pix_h,
+        'width':pix_w
+    }
+
+    # Open DEM file with UTM CRS using a warped vrt
+    with NamedTemporaryFile() as tmp_dem,\
+         rio.open(fp=dem_fp) as dem_src,\
+         WarpedVRT(src_dataset=dem_src,**vr_params) as dem_vrt:
+         logger.debug(dem_src.profile)
+         logger.debug(dem_vrt.profile)
+
+         rio_shutil.copy(dem_vrt,tmp_dem.name,driver='GTiff')
+
     # fc = {
     #     'type':'FeatureCollection',
     #     'features':[
@@ -142,12 +177,12 @@ def init_datasets(safe_fp,bounds_fp):
     # with open(file=f'./tests/data/intersect_box.json',mode='w') as tmp:
     #     tmp.write(json.dumps(fc))
     
-    elevation.clip(bounds=(
-        intersect_bounds[0],intersect_bounds[1],
-        intersect_bounds[2],intersect_bounds[3]
-    ),
-        product='SRTM1',
-        output=f'./tests/dem.tif'
-    )
-    elevation.clear()
+    # elevation.clip(bounds=(
+    #     intersect_bounds[0],intersect_bounds[1],
+    #     intersect_bounds[2],intersect_bounds[3]
+    # ),
+    #     product='SRTM3',
+    #     output=f'./tests/dem.tif'
+    # )
+    # elevation.clear()
     return
