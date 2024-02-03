@@ -53,10 +53,6 @@ def geocode_img(fp):
     )
     position_ecef = orbit_ecef.position
 
-    logger.debug(measurement)
-    logger.debug(calibration)
-    logger.debug(orbit_ecef)
-    logger.debug(position_ecef)
     return measurement, calibration, orbit_ecef, position_ecef
 
 def init_datasets(
