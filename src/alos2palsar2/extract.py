@@ -1,4 +1,4 @@
-from shared.preprocess.alos2palsar2 import (
+from shared.preprocess.radar import (
     calibrate_backscatter,
     despeckle
 )

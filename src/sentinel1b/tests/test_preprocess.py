@@ -1,4 +1,4 @@
-from shared.preprocess.sentinel1b import (
+from ..preprocess import (
     geocode_img,
     init_datasets
 )
