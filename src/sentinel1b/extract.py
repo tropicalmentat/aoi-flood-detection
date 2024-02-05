@@ -1,4 +1,5 @@
 import logging
+from . preprocess import init_datasets
 
 from tempfile import NamedTemporaryFile
 
