@@ -1,6 +1,6 @@
 import os
-import json
 import xarray as xr
+import numpy as np
 import logging
 import elevation
 import osgeo.ogr as ogr
@@ -8,8 +8,8 @@ import xml.etree.ElementTree as ET
 import rasterio as rio
 import affine
 
+from rasterio.profiles import DefaultGTiffProfile
 from sarsen import (
-    apps, 
     scene, 
     Sentinel1SarProduct,
     terrain_correction
@@ -56,7 +56,7 @@ def geocode_img(fp):
     return measurement, calibration, orbit_ecef, position_ecef
 
 def init_datasets(
-        safe_fp,bounds_fp,dem_fp):
+        safe_fp,bounds_fp,dem_fp,memmap_fn):
 
     # CRS of raw sentinel1b image
     src_crs = CRS.from_epsg(4326)
@@ -145,7 +145,7 @@ def init_datasets(
     )
 
     vrt_params = {
-        'src_crs':src_crs,
+        'src_crs':src_crs, # force CGIAR DEM CRS
         'crs':bounds_crs,
         'transform':target_transform,
         'height':pix_h,
@@ -175,11 +175,31 @@ def init_datasets(
         )
         logger.debug(product)
 
+        # params borrowed from sarsen.apps.terrain_correction
+        gtc_profile = DefaultGTiffProfile(
+            height=dem_vrt.profile.get('height'),
+            width=dem_vrt.profile.get('width'),
+            dtype=np.float32,
+            compress='ZSTD',
+            crs=bounds_crs,
+            nodata=-99.0
+        )
+
+        gtc_mmp = np.memmap(
+            filename=memmap_fn,
+            dtype=gtc_profile.get('dtype'),
+            shape=(gtc_profile.get('height'),gtc_profile.get('width'))
+        )
+
         gtc = terrain_correction(
             product,
             dem_urlpath=tmp_dem.name,
-            output_urlpath=f'./tests/data/gtc.tiff'
+            # correct_radiometry='gamma_bilinear',
+            # radiometry_chunks=512,
+            # grouping_area_factor=(1.0,2.0),
+            # output_urlpath=f'./tests/data/gtc.tiff'
         )
-        logger.debug(gtc)
+        gtc_mmp[:] = gtc[:]
+        gtc = None
 
-    return
+    return gtc, gtc_profile

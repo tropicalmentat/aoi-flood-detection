@@ -2,6 +2,7 @@ from ..preprocess import (
     geocode_img,
     init_datasets
 )
+from ..extract import extract
 import os
 import pytest
 import logging
@@ -25,6 +26,15 @@ def test_init_ds(sentinel1b_post_fp,ph_pov_inc_2020,ph_90m_dem):
     datasets = init_datasets(
         safe_fp=sentinel1b_post_fp, bounds_fp=ph_pov_inc_2020,
         dem_fp=ph_90m_dem
+    )
+
+    assert False
+
+def test_extract(sentinel1b_pre_fp,sentinel1b_post_fp,ph_pov_inc_2020,ph_90m_dem):
+
+    result = extract(
+        pre_safe_fp=sentinel1b_pre_fp,post_safe_fp=sentinel1b_post_fp,
+        bounds_fp=ph_pov_inc_2020,dem_fp=ph_90m_dem
     )
 
     assert False

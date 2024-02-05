@@ -8,7 +8,7 @@ docker run \
         -v ./tests/data:/function/src/tests/data \
         -w /function/src \
         --entrypoint pytest \
-        -i aoi-sentinel1b -k test_init_ds --log-cli-level=DEBUG
+        -i aoi-sentinel1b -k test_extract --log-cli-level=DEBUG
 # docker run \
         # -v ./src/alos2palsar2/:/function/src \
         # -v ./shared/:/function/shared \
