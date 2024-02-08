@@ -177,6 +177,7 @@ def init_datasets(
 
         # params borrowed from sarsen.apps.terrain_correction
         gtc_profile = DefaultGTiffProfile(
+            transform=dem_vrt.profile.get('transform'),
             height=dem_vrt.profile.get('height'),
             width=dem_vrt.profile.get('width'),
             count=1,

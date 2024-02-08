@@ -40,14 +40,68 @@ def extract(
             array=post_array,profile=post_profile
         )
 
+    vrt_profile = {
+        'transform':post_profile['transform'],
+        'height':post_profile['height'],
+        'width':post_profile['width']
+    }
     # TODO need common vrt profile
     with rio.MemoryFile(file_or_bytes=pre_img) as pre_memf,\
          rio.MemoryFile(file_or_bytes=post_img) as post_memf,\
          pre_memf.open() as pre_src,\
          post_memf.open() as pst_src,\
-         WarpedVRT(src_dataset=pre_src,**pre_src.profile) as pre_vrt,\
-         WarpedVRT(src_dataset=pst_src,**pst_src.profile) as pst_vrt:
+         WarpedVRT(src_dataset=pre_src,**vrt_profile) as pre_vrt,\
+         WarpedVRT(src_dataset=pst_src,**vrt_profile) as pst_vrt:
+
         logger.debug(pre_vrt.profile)
         logger.debug(pst_vrt.profile)
+
+        with NamedTemporaryFile() as pre_memp,\
+             NamedTemporaryFile() as pst_memp,\
+             NamedTemporaryFile() as msk_memp,\
+             NamedTemporaryFile() as dif_memp:
+            
+            pre_arr = pre_vrt.read()
+            pst_arr = pst_vrt.read()
+
+            mask_memp = np.memmap(
+                filename=msk_memp.name,dtype=pst_vrt.profile['dtype'],
+                shape=pst_arr.shape
+            )
+
+            mask_memp[:] = pst_vrt.dataset_mask()
+            mask_memp.flush()
+
+            pre_memp_arr = np.memmap(
+                filename=pre_memp.name,dtype=pre_vrt.profile['dtype'],
+                shape=pre_arr.shape
+            )
+            pre_memp_arr[:] = pre_arr[:]
+            pre_memp_arr.flush()
+            pre_arr = None 
+
+            pst_memp_arr = np.memmap(
+                filename=pst_memp.name,dtype=pst_vrt.profile['dtype'],
+                shape=pst_arr.shape
+            )
+            pst_memp_arr[:] = pst_arr[:]
+            pst_memp_arr.flush()
+            pst_arr = None
+
+            diff_memp_arr = np.memmap(
+                filename=dif_memp.name,dtype=pst_vrt.profile['dtype'],
+                shape=pst_memp_arr.shape
+            )
+
+            diff_memp_arr[:] = pst_memp_arr - pre_memp_arr
+            diff_memp_arr.flush()
+
+            threshold = np.where(diff_memp_arr<-3,1,0)
+
+            with rio.open(
+                fp=f'./tests/data/sentinel1b-threshold.tiff',mode='w',
+                **post_profile
+            ) as tmp_src:
+                tmp_src.write(threshold,1)
 
     return
