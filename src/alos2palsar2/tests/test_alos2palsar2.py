@@ -1,6 +1,6 @@
 import rasterio as rio
 import logging
-import shared.preprocess.alos2palsar2 as ap 
+import shared.preprocess.radar as ap 
 
 logger = logging.getLogger(__name__)
 logging.getLogger('rasterio').setLevel(logging.CRITICAL)

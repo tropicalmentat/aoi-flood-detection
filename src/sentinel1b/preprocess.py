@@ -179,6 +179,7 @@ def init_datasets(
         gtc_profile = DefaultGTiffProfile(
             height=dem_vrt.profile.get('height'),
             width=dem_vrt.profile.get('width'),
+            count=1,
             dtype=np.float32,
             compress='ZSTD',
             crs=bounds_crs,
@@ -200,6 +201,8 @@ def init_datasets(
             # output_urlpath=f'./tests/data/gtc.tiff'
         )
         gtc_mmp[:] = gtc[:]
+
+        gtc_mmp.flush()
         gtc = None
 
-    return gtc, gtc_profile
+    return gtc_mmp, gtc_profile

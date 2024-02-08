@@ -103,6 +103,19 @@ def get_bounds_intersect(pre_img: bytes, post_img: bytes, dst_crs):
         logger.debug(intersection)
     return intersection
 
+def array_to_image(array:np.ndarray,profile:dict):
+
+    img = None
+    with NamedTemporaryFile() as tmp,\
+         rio.open(fp=tmp,mode='w',**profile) as src:
+        
+        src.write(array,indexes=1)
+        src.close()
+        tmp.seek(0)
+        img = tmp.read()
+
+    return img
+
 def window_to_array(
         src: rio.DatasetReader,
         masked: bool=True, 
