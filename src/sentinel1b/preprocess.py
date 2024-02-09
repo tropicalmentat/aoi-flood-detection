@@ -28,6 +28,7 @@ from shapely import (
 )
 from pyproj.crs import CRS
 from pyproj import Transformer
+from scipy import ndimage
 
 logger = logging.getLogger(__name__)
 logging.getLogger("xmlschema").setLevel(logging.CRITICAL)
@@ -206,4 +207,6 @@ def init_datasets(
         gtc_mmp.flush()
         gtc = None
 
-    return gtc_mmp, gtc_profile
+        filtered = ndimage.median_filter(gtc_mmp, size=3)
+
+    return filtered, gtc_profile

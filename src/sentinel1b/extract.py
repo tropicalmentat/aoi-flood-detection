@@ -96,12 +96,12 @@ def extract(
             diff_memp_arr[:] = pst_memp_arr - pre_memp_arr
             diff_memp_arr.flush()
 
-            threshold = np.where(diff_memp_arr<-3,1,0)
+            threshold = np.where(diff_memp_arr<0,1,0)
 
             with rio.open(
                 fp=f'./tests/data/sentinel1b-threshold.tiff',mode='w',
                 **post_profile
             ) as tmp_src:
-                tmp_src.write(threshold,1)
+                tmp_src.write(threshold)
 
     return
