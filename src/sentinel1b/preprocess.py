@@ -207,6 +207,12 @@ def init_datasets(
         gtc_mmp.flush()
         gtc = None
 
+        with rio.open(
+            fp=f'./tests/data/cagayan-post-geocoded.tiff',mode='w',
+            **gtc_profile
+        ) as tmp_gtc:
+            tmp_gtc.write(gtc_mmp,1)
+
         filtered = ndimage.median_filter(gtc_mmp, size=3)
 
-    return filtered, gtc_profile
+    return filtered[::-1], gtc_profile

@@ -3,11 +3,14 @@ import numpy as np
 import rasterio as rio
 
 from rasterio.vrt import WarpedVRT
+from rasterio import shutil as rio_shutil
 from . preprocess import init_datasets
 from tempfile import NamedTemporaryFile
 from shared.utils import (
     array_to_image
 )
+from skimage.morphology import square
+from skimage.filters.rank import majority
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +34,12 @@ def extract(
             memmap_fn=post_mem.name
         )
 
+        with rio.open(
+            fp=f'./tests/data/cagayan-post-post-processed.tiff',mode='w',
+            **post_profile
+        ) as tmp_src:
+            tmp_src.write(post_array,1)
+
         logger.info('Performing image differencing')
 
         pre_img = array_to_image(
@@ -39,6 +48,9 @@ def extract(
         post_img = array_to_image(
             array=post_array,profile=post_profile
         )
+        
+        with open(file=f'./tests/data/cagayan-post-array2image.tiff',mode='wb') as tmp_post:
+            tmp_post.write(post_img)
 
     vrt_profile = {
         'transform':post_profile['transform'],
@@ -56,6 +68,8 @@ def extract(
         logger.debug(pre_vrt.profile)
         logger.debug(pst_vrt.profile)
 
+        rio_shutil.copy(pst_vrt,f'./tests/data/cagayan-post-vrt.tiff',driver='GTiff')
+
         with NamedTemporaryFile() as pre_memp,\
              NamedTemporaryFile() as pst_memp,\
              NamedTemporaryFile() as msk_memp,\
@@ -63,6 +77,7 @@ def extract(
             
             pre_arr = pre_vrt.read()
             pst_arr = pst_vrt.read()
+            logger.debug(pst_arr.shape)
 
             mask_memp = np.memmap(
                 filename=msk_memp.name,dtype=pst_vrt.profile['dtype'],
@@ -87,6 +102,7 @@ def extract(
             pst_memp_arr[:] = pst_arr[:]
             pst_memp_arr.flush()
             pst_arr = None
+            logger.debug(pst_memp_arr.shape)
 
             diff_memp_arr = np.memmap(
                 filename=dif_memp.name,dtype=pst_vrt.profile['dtype'],
@@ -96,12 +112,20 @@ def extract(
             diff_memp_arr[:] = pst_memp_arr - pre_memp_arr
             diff_memp_arr.flush()
 
-            threshold = np.where(diff_memp_arr<0,1,0)
+            with rio.open(
+                fp=f'./tests/data/cagayan-diff.tiff',mode='w',
+                **post_profile
+            ) as tmp_dif:
+                tmp_dif.write(diff_memp_arr)
+
+            threshold = np.where(diff_memp_arr<-0.1,1,0)
+
+            maj_arr = majority(image=threshold[0],footprint=square(width=5))
 
             with rio.open(
-                fp=f'./tests/data/sentinel1b-threshold.tiff',mode='w',
+                fp=f'./tests/data/cagayan-maj-filtered.tiff',mode='w',
                 **post_profile
             ) as tmp_src:
-                tmp_src.write(threshold)
+                tmp_src.write(maj_arr,1)
 
     return
