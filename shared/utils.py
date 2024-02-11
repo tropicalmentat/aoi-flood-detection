@@ -373,6 +373,7 @@ def convert_to_raster(
         'width':dst_w, 'height':dst_h, 'crs':crs, 'transform':dst_transform,
         'nodata':0, 'dtype':'int16', 'count':1
     })
+    logger.debug(profile)
 
     col_offsets = [i for i in range(0,profile['width'],profile['blockxsize'])]
     row_offsets = [i for i in range(0,profile['height'],profile['blockysize'])]
@@ -388,7 +389,7 @@ def convert_to_raster(
          NamedTemporaryFile() as tmp_array:
         rasterized = np.memmap(
             filename=tmp_array, dtype=np.int16,
-            shape=array_shape
+            shape=(dst_h,dst_w)
         )
 
         rasterize(
