@@ -213,6 +213,8 @@ def init_datasets(
         ) as tmp_gtc:
             tmp_gtc.write(gtc_mmp,1)
 
-        filtered = ndimage.median_filter(gtc_mmp, size=3)
+        # use median filter because of dependency hell
+        # between otb and osgeo docker containers
+        despeckled = ndimage.median_filter(gtc_mmp, size=3)
 
-    return filtered[::-1], gtc_profile
+    return despeckled[::-1], gtc_profile
