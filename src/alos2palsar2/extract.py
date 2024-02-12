@@ -1,20 +1,15 @@
 from shared.preprocess.radar import (
-    calibrate_backscatter,
     despeckle
 )
 from tempfile import NamedTemporaryFile
 from skimage.morphology import square
 from skimage.filters.rank import majority
-from rasterio.features import shapes
 from rasterio.profiles import DefaultGTiffProfile
 from rasterio.vrt import WarpedVRT
-# from osgeo.gdal import Polygonize
-from json import dumps
 import numpy as np
 import shared.utils as utils
 import rasterio as rio
 import logging
-import os
 
 logger = logging.getLogger(__name__)
 
@@ -85,15 +80,11 @@ def get_preprocessed(
 def extract(pre_fp:str, post_fp:str):
 
     # TODO add image sorter
-    # prepare output raster profile
-    out_profile = DefaultGTiffProfile()
-
     # TODO user WarpedVRT at the preprocessing stage to automatically reproject
     # image data into the destination projection
     pre_img_bin = utils.load_image(fpath=pre_fp)
     post_img_bin = utils.load_image(fpath=post_fp)
 
-    # TODO modify profile using new parameters from processed data (include compression, block and projection)
     # align bounds of pre and post-disaster
     # images using intersecting window
     # NOTE FORCE USE OF EPSG 32651 FOR ALOS2 PALSAR2
@@ -117,6 +108,9 @@ def extract(pre_fp:str, post_fp:str):
 
     diff = np.ma.masked_equal(
         post,value=pre_profile['nodata']) - np.ma.masked_equal(pre,value=pre_profile['nodata'])
+    
+    with rio.open(fp=f'./tests/data/pampanga-diff.tiff',mode='w',**post_profile) as tmp_dif:
+        tmp_dif.write(diff,1)
 
     logger.info(f'Applying threshold')
 
@@ -124,13 +118,20 @@ def extract(pre_fp:str, post_fp:str):
 
     logger.info(f'Applying majority filter')
 
-    filtered = majority(image=threshold,footprint=square(width=5))
+    # use post img profile and set nodata to 0
+    maj_filt_profile = DefaultGTiffProfile(
+        **post_profile
+    )
+    maj_filt_profile.update(nodata=0)
+    maj_filt_profile.update(dtype='uint8')
+    maj_filt_profile.update(compress='DEFLATE')
+
+    maj_filt_arr = majority(image=threshold[0],footprint=square(width=5))
 
     # TODO SAVE THIS TO A FOLDER WHERE THE NEXT STAGE CAN PICK UP
     with rio.open(
         fp=f'./tests/data/filtered.tiff',mode='w',
-        width=pre_profile['width'],height=pre_profile['height'],count=1,dtype='int16',
-        transform=pre_profile['transform'],crs=rio.CRS.from_epsg(32651),compress='lzw'
+        **maj_filt_profile
     ) as tmp:
-        tmp.write(filtered,1)
+        tmp.write(maj_filt_arr,1)
     

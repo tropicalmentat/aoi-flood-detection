@@ -129,6 +129,8 @@ def extract(
                 **post_profile
             )
             maj_filt_profile.update(nodata=0)
+            maj_filt_profile.update(compress='DEFLATE')
+            maj_filt_profile.update(dtype='uint8')
 
             with rio.open(
                 fp=f'./tests/data/cagayan-maj-filtered.tiff',mode='w',
