@@ -12,7 +12,8 @@ def flood_fp():
 
     # return f'./tests/data/overlapped.json.zip'
     # return f'./tests/data/mnl_flood.json'
-    return f'./tests/data/filtered.tiff.zip'
+    # return f'./tests/data/filtered.tiff.zip'
+    return f'./tests/data/cagayan-maj-filtered.tiff.zip'
 
 @pytest.fixture
 def flood_ds(flood_fp):

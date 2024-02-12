@@ -145,9 +145,11 @@ def poverty_incidence_reclassify(pov_data):
 
     return pov_data
 
-def logical_combination(array_1, array_2):
+def logical_combination(array_1, array_2, nodata):
+    flood_darray = DataArray(data=array_1,name='flood') 
+    pover_darray = DataArray(array_2,name='pov')
     raster_ds = merge(
-        [DataArray(data=array_1,name='flood'), DataArray(array_2,name='pov')],
+        [flood_darray.where(flood_darray!=nodata),pover_darray.where(pover_darray!=nodata)],
         join='exact',compat='minimal')
     
     logger.debug(raster_ds)

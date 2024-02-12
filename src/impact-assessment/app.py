@@ -99,7 +99,7 @@ def execute(
             pi_array = pi_vrt.read(indexes=1)
             overlap_array = ov_vrt.read(indexes=1)
             combined = op.logical_combination(
-                array_1=overlap_array,array_2=pi_array
+                array_1=overlap_array,array_2=pi_array,nodata=pi_vrt.profile['nodata']
             )
             try:
                 log_com_array[:] = combined[:]

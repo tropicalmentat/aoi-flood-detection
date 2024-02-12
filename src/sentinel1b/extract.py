@@ -2,6 +2,7 @@ import logging
 import numpy as np
 import rasterio as rio
 
+from rasterio.profiles import DefaultGTiffProfile
 from rasterio.vrt import WarpedVRT
 from rasterio import shutil as rio_shutil
 from . preprocess import init_datasets
@@ -122,9 +123,16 @@ def extract(
 
             maj_arr = majority(image=threshold[0],footprint=square(width=5))
 
+            # derive most variables from post img
+            # profile, but change nodata to 0
+            maj_filt_profile = DefaultGTiffProfile(
+                **post_profile
+            )
+            maj_filt_profile.update(nodata=0)
+
             with rio.open(
                 fp=f'./tests/data/cagayan-maj-filtered.tiff',mode='w',
-                **post_profile
+                **maj_filt_profile
             ) as tmp_src:
                 tmp_src.write(maj_arr,1)
 
