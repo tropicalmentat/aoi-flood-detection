@@ -22,7 +22,15 @@ Containerized data processing workflows to extract flood hazards for Synthetic A
 - Assuming docker is installed correctly, run the `./scripts/build_all.sh`
 
 #### Running modules
-- To execute a workflow for a sensor, use the `./scripts/run.sh` command in bash
+
+##### Required inputs
+
+###### Radar platforms (Sentinel1b and Alos2 Palsar2)
+
+1. Philippines DEM
+2. Poverty Incidence Dataset (as of 2020)
+
+- To execute a workflow for a sensor, use the `./run.sh` command (the run.sh script is found at the root of the repository)
 - Use the -h options for instructions on how to run the scripts with optional arguments
 
 ### References
