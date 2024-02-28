@@ -54,7 +54,8 @@ def get_raster_profile(img: bytes):
 
     return profile
 
-def sort_image_sequence(pre_fp, post_fp):
+def sort_image_sequence(sensor, pre_fp, post_fp):
+    # Determine the pre and post impact image
 
     return
 

@@ -1,3 +1,4 @@
+import os
 import logging
 import numpy as np
 import rasterio as rio
@@ -8,12 +9,14 @@ from rasterio import shutil as rio_shutil
 from . preprocess import init_datasets
 from tempfile import NamedTemporaryFile
 from shared.utils import (
-    array_to_image
+    array_to_image,
+    sort_image_sequence
 )
 from skimage.morphology import square
 from skimage.filters.rank import majority
 
 logger = logging.getLogger(__name__)
+sensor = os.environ.get('SENSOR')
 
 def extract(
         pre_safe_fp,post_safe_fp,bounds_fp,dem_fp
@@ -36,7 +39,7 @@ def extract(
         )
 
         with rio.open(
-            fp=f'./tests/data/cagayan-post-post-processed.tiff',mode='w',
+            fp=f'./tests/data/naga-post-post-processed.tiff',mode='w',
             **post_profile
         ) as tmp_src:
             tmp_src.write(post_array,1)
@@ -50,7 +53,7 @@ def extract(
             array=post_array,profile=post_profile
         )
         
-        with open(file=f'./tests/data/cagayan-post-array2image.tiff',mode='wb') as tmp_post:
+        with open(file=f'./tests/data/naga-post-array2image.tiff',mode='wb') as tmp_post:
             tmp_post.write(post_img)
 
     vrt_profile = {
@@ -69,7 +72,7 @@ def extract(
         logger.debug(pre_vrt.profile)
         logger.debug(pst_vrt.profile)
 
-        rio_shutil.copy(pst_vrt,f'./tests/data/cagayan-post-vrt.tiff',driver='GTiff')
+        rio_shutil.copy(pst_vrt,f'./tests/data/naga-post-vrt.tiff',driver='GTiff')
 
         with NamedTemporaryFile() as pre_memp,\
              NamedTemporaryFile() as pst_memp,\
@@ -114,7 +117,7 @@ def extract(
             diff_memp_arr.flush()
 
             with rio.open(
-                fp=f'./tests/data/cagayan-diff.tiff',mode='w',
+                fp=f'./tests/data/naga-diff.tiff',mode='w',
                 **post_profile
             ) as tmp_dif:
                 tmp_dif.write(diff_memp_arr)
@@ -133,7 +136,7 @@ def extract(
             maj_filt_profile.update(dtype='uint8')
 
             with rio.open(
-                fp=f'./tests/data/cagayan-maj-filtered.tiff',mode='w',
+                fp=f'./tests/data/naga-maj-filtered.tiff',mode='w',
                 **maj_filt_profile
             ) as tmp_src:
                 tmp_src.write(maj_arr,1)

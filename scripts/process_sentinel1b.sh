@@ -6,4 +6,5 @@ docker run \
         -v ./tests/data:/function/src/tests/data \
         -w /function/src \
         --entrypoint pytest \
+        --env SENSOR=sentinel1b \
         -i aoi-sentinel1b -k test_flood_extract --log-cli-level=DEBUG
