@@ -7,4 +7,10 @@ do
     esac
 done
 
-echo "Processing sensor: $sensor";
+if [[ $sensor == 'sentinel1b' ]]
+then
+    echo "Processing sensor: $sensor";
+    source ./scripts/run_tests.sh
+else
+    echo "Argument not understood"
+fi
