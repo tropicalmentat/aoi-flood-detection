@@ -2,6 +2,7 @@ import os
 import logging
 import numpy as np
 import rasterio as rio
+import datetime as dt
 
 from rasterio.profiles import DefaultGTiffProfile
 from rasterio.vrt import WarpedVRT
@@ -20,10 +21,17 @@ def get_pre_post_imgs(indir):
 
     pre_fn = None
     post_fn = None
+    img_idx = {}
     for fn in os.listdir(indir):
-        logger.info(fn)
+        logger.debug(fn)
+        start_capture = fn.split('_')[4].split('T')[0]
+        img_idx[dt.datetime.strptime(start_capture,"%Y%m%d")] = fn
+    
+    sorted_keys = sorted(img_idx)
+    pre_fn = img_idx[sorted_keys[0]]
+    post_fn = img_idx[sorted_keys[1]]
 
-    return pre_fn, post_fn
+    return os.path.join(indir,pre_fn), os.path.join(post_fn)
 
 def extract(
         pre_safe_fp,post_safe_fp,bounds_fp,dem_fp

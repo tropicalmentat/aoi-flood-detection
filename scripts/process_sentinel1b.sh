@@ -8,5 +8,7 @@ docker run \
         -w /function/src \
         --env SENSOR=sentinel1b \
         --env INPUT_DIR="$1" \
+        --env BOUNDS="$2" \
+        --env DEM="$3" \
         --env PYTHONUNBUFFERED=0 \
         -it aoi-sentinel1b python -u main.py

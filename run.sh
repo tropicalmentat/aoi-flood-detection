@@ -7,11 +7,13 @@ do
     esac
 done
 
-INPUT="./data/SENTINEL1B"
 if [[ $sensor == 'sentinel1b' ]]
 then
+    INPUT="./data/SENTINEL1B"
+    BOUNDS="./data/National_PopAHS_PSA_2020.shp"
+    DEM="./data/N00E120.zip"
     echo "Processing sensor: $sensor";
-    source ./scripts/process_sentinel1b.sh $INPUT
+    source ./scripts/process_sentinel1b.sh $INPUT $BOUNDS $DEM
 elif [[ $sensor == 'alos2palsar2' ]]
 then
     echo "Processing sensor: $sensor";
