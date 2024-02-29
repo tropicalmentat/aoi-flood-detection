@@ -208,7 +208,7 @@ def init_datasets(
         gtc = None
 
         with rio.open(
-            fp=f'./tests/data/cagayan-post-geocoded.tiff',mode='w',
+            fp=f'./tests/data/naga-post-geocoded.tiff',mode='w',
             **gtc_profile
         ) as tmp_gtc:
             tmp_gtc.write(gtc_mmp,1)

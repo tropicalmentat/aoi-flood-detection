@@ -7,10 +7,11 @@ do
     esac
 done
 
+INPUT="./data/SENTINEL1B"
 if [[ $sensor == 'sentinel1b' ]]
 then
     echo "Processing sensor: $sensor";
-    source ./scripts/process_sentinel1b.sh
+    source ./scripts/process_sentinel1b.sh $INPUT
 elif [[ $sensor == 'alos2palsar2' ]]
 then
     echo "Processing sensor: $sensor";

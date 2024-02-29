@@ -6,17 +6,24 @@ import rasterio as rio
 from rasterio.profiles import DefaultGTiffProfile
 from rasterio.vrt import WarpedVRT
 from rasterio import shutil as rio_shutil
-from . preprocess import init_datasets
+from preprocess import init_datasets
 from tempfile import NamedTemporaryFile
 from shared.utils import (
-    array_to_image,
-    sort_image_sequence
+    array_to_image
 )
 from skimage.morphology import square
 from skimage.filters.rank import majority
 
 logger = logging.getLogger(__name__)
-sensor = os.environ.get('SENSOR')
+
+def get_pre_post_imgs(indir):
+
+    pre_fn = None
+    post_fn = None
+    for fn in os.listdir(indir):
+        logger.info(fn)
+
+    return pre_fn, post_fn
 
 def extract(
         pre_safe_fp,post_safe_fp,bounds_fp,dem_fp

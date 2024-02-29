@@ -54,11 +54,6 @@ def get_raster_profile(img: bytes):
 
     return profile
 
-def sort_image_sequence(sensor, pre_fp, post_fp):
-    # Determine the pre and post impact image
-
-    return
-
 def get_bounds_intersect(pre_img: bytes, post_img: bytes, dst_crs):
 
     with rio.MemoryFile(file_or_bytes=pre_img) as tmp_pre,\

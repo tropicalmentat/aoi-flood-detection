@@ -1,10 +1,12 @@
 #!/bin/bash
 
+# echo $1
 docker run \
         -v ./src/sentinel1b/:/function/src \
-        -v ./shared/:/function/shared \
-        -v ./tests/data:/function/src/tests/data \
+        -v ./shared/:/function/src/shared \
+        -v ./data/:/function/src/data \
         -w /function/src \
-        --entrypoint pytest \
         --env SENSOR=sentinel1b \
-        -i aoi-sentinel1b -k test_flood_extract --log-cli-level=DEBUG
+        --env INPUT_DIR="$1" \
+        --env PYTHONUNBUFFERED=0 \
+        -it aoi-sentinel1b python -u main.py
