@@ -31,7 +31,7 @@ def get_pre_post_imgs(indir):
     pre_fn = img_idx[sorted_keys[0]]
     post_fn = img_idx[sorted_keys[1]]
 
-    return os.path.join(indir,pre_fn), os.path.join(post_fn)
+    return os.path.join(indir,pre_fn), os.path.join(indir,post_fn)
 
 def extract(
         pre_safe_fp,post_safe_fp,bounds_fp,dem_fp

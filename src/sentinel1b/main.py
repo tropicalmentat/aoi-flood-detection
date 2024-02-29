@@ -17,13 +17,28 @@ def main():
     bounds_fn = os.environ.get('BOUNDS')
     dem = os.environ.get('DEM')
 
-    logger.debug(input_dir)
-    logger.debug(bounds_fn)
-    logger.debug(dem)
+    # Check if boundary and DEM files exist
+    if os.path.exists(bounds_fn):
+        logger.info(f'Boundary SHP file detected: {bounds_fn}')
+    else:
+        raise FileNotFoundError()
+    if os.path.exists(dem):
+        logger.info(f'Digital Elevation file detected: {dem}')
+    else:
+        raise FileNotFoundError()
+
     pre_fn, post_fn = get_pre_post_imgs(indir=input_dir)
 
-    logger.info(f'Pre-image: {pre_fn}, Post-image: {post_fn}')
+    if os.path.exists(pre_fn):
+        logger.info(f'Pre-event image detected: {pre_fn}')
+    else:
+        raise FileNotFoundError()
+    if os.path.exists(post_fn):
+        logger.info(f'Post-event image detected: {post_fn}')
+    else:
+        raise FileNotFoundError()
 
+    logger.info(f'Extracting flood from pre and post event images')
     extract(pre_safe_fp=pre_fn,post_safe_fp=post_fn,bounds_fp=bounds_fn,dem_fp=dem)
     return
 
