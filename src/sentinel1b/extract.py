@@ -16,6 +16,7 @@ from skimage.morphology import square
 from skimage.filters.rank import majority
 
 logger = logging.getLogger(__name__)
+OUTPUT_DIR = os.environ.get('OUTPUT')
 
 def get_pre_post_imgs(indir):
 
@@ -53,11 +54,11 @@ def extract(
             memmap_fn=post_mem.name
         )
 
-        with rio.open(
-            fp=f'./tests/data/naga-post-post-processed.tiff',mode='w',
-            **post_profile
-        ) as tmp_src:
-            tmp_src.write(post_array,1)
+        # with rio.open(
+        #     fp=f'./tests/data/naga-post-post-processed.tiff',mode='w',
+        #     **post_profile
+        # ) as tmp_src:
+        #     tmp_src.write(post_array,1)
 
         logger.info('Performing image differencing')
 
@@ -68,8 +69,8 @@ def extract(
             array=post_array,profile=post_profile
         )
         
-        with open(file=f'./tests/data/naga-post-array2image.tiff',mode='wb') as tmp_post:
-            tmp_post.write(post_img)
+        # with open(file=f'./tests/data/naga-post-array2image.tiff',mode='wb') as tmp_post:
+        #     tmp_post.write(post_img)
 
     vrt_profile = {
         'transform':post_profile['transform'],
@@ -131,11 +132,11 @@ def extract(
             diff_memp_arr[:] = pst_memp_arr - pre_memp_arr
             diff_memp_arr.flush()
 
-            with rio.open(
-                fp=f'./tests/data/naga-diff.tiff',mode='w',
-                **post_profile
-            ) as tmp_dif:
-                tmp_dif.write(diff_memp_arr)
+            # with rio.open(
+            #     fp=f'./tests/data/naga-diff.tiff',mode='w',
+            #     **post_profile
+            # ) as tmp_dif:
+            #     tmp_dif.write(diff_memp_arr)
 
             threshold = np.where(diff_memp_arr<-0.1,1,0)
 
@@ -151,9 +152,12 @@ def extract(
             maj_filt_profile.update(dtype='uint8')
 
             with rio.open(
-                fp=f'./tests/data/naga-maj-filtered.tiff',mode='w',
+                fp=os.path.join(OUTPUT_DIR,f'{dt.datetime.now().isoformat()}-sentinel1b.tiff'),mode='w',
                 **maj_filt_profile
             ) as tmp_src:
                 tmp_src.write(maj_arr,1)
 
     return
+
+if __name__=="__main__":
+    logger = logging.getLogger(__name__)

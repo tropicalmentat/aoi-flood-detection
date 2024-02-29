@@ -6,8 +6,12 @@ from extract import (
     extract
 )
 
+logging.basicConfig(
+     level=logging.DEBUG, 
+     format= '[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s',
+     datefmt='%H:%M:%S'
+ )
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 console_handler = logging.StreamHandler(stdout)
 logger.addHandler(console_handler)
 

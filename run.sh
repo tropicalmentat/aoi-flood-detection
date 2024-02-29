@@ -12,8 +12,9 @@ then
     INPUT="./data/SENTINEL1B"
     BOUNDS="./data/National_PopAHS_PSA_2020.shp"
     DEM="./data/N00E120.zip"
+    OUTPUT="./data/OUTPUT"
     echo "Processing sensor: $sensor";
-    source ./scripts/process_sentinel1b.sh $INPUT $BOUNDS $DEM
+    source ./scripts/process_sentinel1b.sh $INPUT $BOUNDS $DEM $OUTPUT
 elif [[ $sensor == 'alos2palsar2' ]]
 then
     echo "Processing sensor: $sensor";

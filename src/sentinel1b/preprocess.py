@@ -207,11 +207,11 @@ def init_datasets(
         gtc_mmp.flush()
         gtc = None
 
-        with rio.open(
-            fp=f'./tests/data/naga-post-geocoded.tiff',mode='w',
-            **gtc_profile
-        ) as tmp_gtc:
-            tmp_gtc.write(gtc_mmp,1)
+        # with rio.open(
+        #     fp=f'./tests/data/naga-post-geocoded.tiff',mode='w',
+        #     **gtc_profile
+        # ) as tmp_gtc:
+        #     tmp_gtc.write(gtc_mmp,1)
 
         # use median filter because of dependency hell
         # between otb and osgeo docker containers
