@@ -6,4 +6,5 @@ docker run \
         -v ./data:/function/src/data \
         -w /function/src \
         --env INPUT_DIR="$1" \
+        --env OUTPUT="$2" \
         -it aoi-alos2palsar2 python3 main.py

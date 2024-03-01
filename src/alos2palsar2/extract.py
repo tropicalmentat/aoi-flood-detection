@@ -3,6 +3,7 @@ import numpy as np
 import shared.utils as utils
 import rasterio as rio
 import logging
+import datetime as dt
 
 from shared.preprocess.radar import (
     despeckle
@@ -12,16 +13,31 @@ from skimage.morphology import square
 from skimage.filters.rank import majority
 from rasterio.profiles import DefaultGTiffProfile
 from rasterio.vrt import WarpedVRT
+from zipfile import ZipFile
 
 logger = logging.getLogger(__name__)
+OUTPUT_DIR = os.environ.get('OUTPUT')
 
-def get_pre_post_imgs(indir):
+def get_pre_post_imgs(indir,tmpdir):
 
     logger.debug(indir)
     pre_fn = None
     post_fn = None
+    img_idx = dict()
+    for arch in os.listdir(indir):
+        with ZipFile(file=os.path.join(indir,arch)) as archive:
+            for fn in archive.namelist():
+                if 'HH' in fn and 'tif' in fn:
+                    archive.extract(member=fn,path=tmpdir) 
+                    date_elm = fn.split('-')[3]
+                    logger.debug(date_elm)
+                    img_idx[date_elm] = os.path.join(tmpdir,fn) 
+    
+    sorted_keys = sorted(img_idx)
+    pre_fn = img_idx[sorted_keys[0]]
+    post_fn = img_idx[sorted_keys[1]]
 
-    return os.path.join(indir,pre_fn), os.path.join(indir,post_fn)
+    return pre_fn, post_fn
 
 def get_preprocessed(
                      img_bin: bytes = None,
@@ -140,7 +156,8 @@ def extract(pre_fp:str, post_fp:str):
 
     # TODO SAVE THIS TO A FOLDER WHERE THE NEXT STAGE CAN PICK UP
     with rio.open(
-        fp=f'./tests/data/filtered.tiff',mode='w',
+        fp=os.path.join(OUTPUT_DIR,f"{dt.datetime.now().isoformat()}-alos2palsar2-extracted-flood.tif"),
+        mode='w',
         **maj_filt_profile
     ) as tmp:
         tmp.write(maj_filt_arr,1)
