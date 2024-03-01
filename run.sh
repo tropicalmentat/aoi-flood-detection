@@ -17,8 +17,9 @@ then
     source ./scripts/process_sentinel1b.sh $INPUT $BOUNDS $DEM $OUTPUT
 elif [[ $sensor == 'alos2palsar2' ]]
 then
+    INPUT="./data/ALOS2PALSAR2"
     echo "Processing sensor: $sensor";
-    source ./scripts/process_alos2palsar2.sh
+    source ./scripts/process_alos2palsar2.sh $INPUT
 
 elif [[ $sensor == 'landsat8' ]]
 then 

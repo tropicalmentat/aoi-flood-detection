@@ -5,4 +5,5 @@ docker run \
         -v ./shared/:/function/src/shared \
         -v ./data:/function/src/data \
         -w /function/src \
+        --env INPUT_DIR="$1" \
         -it aoi-alos2palsar2 python3 main.py

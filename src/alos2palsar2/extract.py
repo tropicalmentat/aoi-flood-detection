@@ -1,3 +1,9 @@
+import os
+import numpy as np
+import shared.utils as utils
+import rasterio as rio
+import logging
+
 from shared.preprocess.radar import (
     despeckle
 )
@@ -6,12 +12,16 @@ from skimage.morphology import square
 from skimage.filters.rank import majority
 from rasterio.profiles import DefaultGTiffProfile
 from rasterio.vrt import WarpedVRT
-import numpy as np
-import shared.utils as utils
-import rasterio as rio
-import logging
 
 logger = logging.getLogger(__name__)
+
+def get_pre_post_imgs(indir):
+
+    logger.debug(indir)
+    pre_fn = None
+    post_fn = None
+
+    return os.path.join(indir,pre_fn), os.path.join(indir,post_fn)
 
 def get_preprocessed(
                      img_bin: bytes = None,
