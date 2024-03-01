@@ -11,5 +11,4 @@ docker run \
         --env BOUNDS="$2" \
         --env DEM="$3" \
         --env OUTPUT="$4" \
-        --env PYTHONUNBUFFERED=0 \
-        -it aoi-sentinel1b python -u main.py
+        -it aoi-sentinel1b python main.py
