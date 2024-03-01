@@ -18,6 +18,7 @@ then
 elif [[ $sensor == 'alos2palsar2' ]]
 then
     echo "Processing sensor: $sensor";
+    source ./scripts/process_alos2palsar2.sh
 
 elif [[ $sensor == 'landsat8' ]]
 then 
