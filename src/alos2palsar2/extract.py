@@ -135,8 +135,8 @@ def extract(pre_fp:str, post_fp:str):
     diff = np.ma.masked_equal(
         post,value=pre_profile['nodata']) - np.ma.masked_equal(pre,value=pre_profile['nodata'])
     
-    with rio.open(fp=f'./tests/data/pampanga-diff.tiff',mode='w',**post_profile) as tmp_dif:
-        tmp_dif.write(diff,1)
+    # with rio.open(fp=f'./tests/data/pampanga-diff.tiff',mode='w',**post_profile) as tmp_dif:
+        # tmp_dif.write(diff,1)
 
     logger.info(f'Applying threshold')
 
@@ -151,8 +151,9 @@ def extract(pre_fp:str, post_fp:str):
     maj_filt_profile.update(nodata=0)
     maj_filt_profile.update(dtype='uint8')
     maj_filt_profile.update(compress='DEFLATE')
+    maj_filt_profile.update(driver='GTiff')
 
-    maj_filt_arr = majority(image=threshold[0],footprint=square(width=5))
+    maj_filt_arr = majority(image=threshold,footprint=square(width=5))
 
     # TODO SAVE THIS TO A FOLDER WHERE THE NEXT STAGE CAN PICK UP
     with rio.open(
