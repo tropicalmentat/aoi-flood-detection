@@ -7,42 +7,42 @@ import rasterio as rio
 logger = logging.getLogger(__name__)
 
 # TODO: Generalize func signatures for optical imagery
-def extract_flood(band3_fp: str,
-                  band5_fp: str,
-                  mtl_fp: str):
+def extract_flood(green_band_fp: str,
+                  nir_band_fp: str,
+                  mtl_fp: str=None):
     """
     Parameters
     ----------
-    band3_fp: Filepath of band3
-    band5_fp: Filepath of band5
+    green_band_fp: Filepath of band3
+    nir_band_fp: Filepath of band5
     mtl_fp: Filepath of metadata file
     """
     
-    if band3_fp is None or band5_fp is None:
+    if green_band_fp is None or nir_band_fp is None:
         raise Exception()
 
     metadata = utils.build_landsat_metadata(landsat_mtl_fp=mtl_fp)
     
-    b3_img = utils.load_image(fpath=band3_fp)
-    b5_img = utils.load_image(fpath=band5_fp)
+    g_img = utils.load_image(fpath=green_band_fp)
+    nir_img = utils.load_image(fpath=nir_band_fp)
     
-    b3_array, b3_profile,_ = utils.image_to_array(img=b3_img, masked=True)
-    b5_array, b5_profile,_ = utils.image_to_array(img=b5_img, masked=True)
+    g_array, g_profile,_ = utils.image_to_array(img=g_img, masked=True)
+    nir_array, nir_profile,_ = utils.image_to_array(img=nir_img, masked=True)
     
-    b3_reflect = radiance_to_reflectance(array=b3_array,
+    g_reflect = radiance_to_reflectance(array=g_array,
                                          band=3,
                                          metadata=metadata)
-    b5_reflect = radiance_to_reflectance(array=b5_array,
+    nir_reflect = radiance_to_reflectance(array=nir_array,
                                          band=5,
                                          metadata=metadata)
 
-    num = b3_reflect.__sub__(b5_reflect)
-    den = b3_reflect.__add__(b5_reflect)
+    num = g_reflect.__sub__(nir_reflect)
+    den = g_reflect.__add__(nir_reflect)
     ndwi = num/den
     
     water = ma.where(ndwi>0,1,0)
 
-    water_profile = b3_profile.copy()
+    water_profile = g_profile.copy()
     water_profile['nodata'] = 9999
 
     # with rio.open(fp=f'./tests/data/ndwi.tif',mode='w',**water_profile) as tif:
@@ -50,29 +50,29 @@ def extract_flood(band3_fp: str,
     return water
 
 def extract_true_color(
-        band4_fp:str, band3_fp:str, band2_fp:str,
+        blue_band:str, green_band_fp:str, red_band:str,
         outdir: str
         ):
 
-    band4_img = utils.load_image(fpath=band4_fp) 
-    band3_img = utils.load_image(fpath=band3_fp)
-    band2_img = utils.load_image(fpath=band2_fp)
+    r_img = utils.load_image(fpath=red_band)
+    g_img = utils.load_image(fpath=green_band_fp)
+    b_img = utils.load_image(fpath=blue_band) 
 
-    band4_array, b4_profile,_ = utils.image_to_array(
-        img=band4_img)
-    band3_array, b3_profile,_ = utils.image_to_array(
-        img=band3_img
+    r_array, r_profile,_ = utils.image_to_array(
+        img=r_img
     )
-    band2_array, b2_profile,_ = utils.image_to_array(
-        img=band2_img
+    g_array, g_profile,_ = utils.image_to_array(
+        img=g_img
     )
+    b_array, b_profile,_ = utils.image_to_array(
+        img=b_img)
 
     with rio.open(
-        fp=outdir,mode='w',width=b4_profile['width'],height=b4_profile['height'],
-        crs=b4_profile['crs'],transform=b4_profile['transform'],count=3,dtype=b4_profile['dtype']
+        fp=outdir,mode='w',width=b_profile['width'],height=b_profile['height'],
+        crs=b_profile['crs'],transform=b_profile['transform'],count=3,dtype=b_profile['dtype']
         ) as tif:
-        tif.write(band4_array,1)
-        tif.write(band3_array,2)
-        tif.write(band2_array,3)
+        tif.write(b_array,1)
+        tif.write(g_array,2)
+        tif.write(r_array,3)
 
     return

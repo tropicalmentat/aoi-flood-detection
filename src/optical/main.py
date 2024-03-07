@@ -1,5 +1,9 @@
 import os
 import logging
+from extract import (
+    extract_flood,
+    extract_true_color
+)
 
 from sys import stdout
 
@@ -21,6 +25,12 @@ def main():
     logger.debug(sensor)
     logger.debug(input)
     logger.debug(output)
+
+    if sensor=="landsat8":
+        extract_flood()
+    elif sensor=="sentinel2":
+        pass
+
     return
 
 if __name__=="__main__":
