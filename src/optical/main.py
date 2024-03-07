@@ -6,6 +6,8 @@ from extract import (
 )
 
 from sys import stdout
+from tarfile import TarFile
+from tempfile import TemporaryDirectory
 
 
 logging.basicConfig(
@@ -26,12 +28,19 @@ def main():
     logger.debug(input)
     logger.debug(output)
 
-    if sensor=="landsat8":
-        extract_flood()
-    elif sensor=="sentinel2":
-        pass
+    with TemporaryDirectory() as tmpdir:
+        if sensor=="landsat8":
+            for fn in os.listdir(input):
+                if '.tar' in fn:
+                    with TarFile(name=os.path.join(input,fn)) as tar:
+                        for mbr in tar.getnames():
+                            if '.xml' in mbr:
+                                tar.extract(member=mbr,path=tmpdir)
+            logger.debug(os.listdir(tmpdir))
+        elif sensor=="sentinel2":
+            pass
 
-    return
+        return
 
 if __name__=="__main__":
     main()
