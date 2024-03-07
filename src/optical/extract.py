@@ -1,10 +1,12 @@
 from shared.preprocess.landsat import radiance_to_reflectance
+import os
 import numpy.ma as ma
 import shared.utils as utils
 import logging
 import rasterio as rio
 
 logger = logging.getLogger(__name__)
+OUTPUT = os.environ.get('OUTPUT')
 
 # TODO: Generalize func signatures for optical imagery
 def extract_flood(green_band_fp: str,
@@ -17,6 +19,7 @@ def extract_flood(green_band_fp: str,
     nir_band_fp: Filepath of band5
     mtl_fp: Filepath of metadata file
     """
+    logger.info('Extracting')
     
     if green_band_fp is None or nir_band_fp is None:
         raise Exception()
@@ -43,10 +46,10 @@ def extract_flood(green_band_fp: str,
     water = ma.where(ndwi>0,1,0)
 
     water_profile = g_profile.copy()
-    water_profile['nodata'] = 9999
+    water_profile['nodata'] = 0
 
-    # with rio.open(fp=f'./tests/data/ndwi.tif',mode='w',**water_profile) as tif:
-        # tif.write(water)
+    with rio.open(fp=os.path.join(OUTPUT,f'landsat-ndwi.tif'),mode='w',**water_profile) as tif:
+        tif.write(water,indexes=1)
     return water
 
 def extract_true_color(
