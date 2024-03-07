@@ -21,15 +21,21 @@ then
     OUTPUT="./data/OUTPUT"
     echo "Processing sensor: $sensor";
     source ./scripts/process_alos2palsar2.sh $INPUT $OUTPUT
-
 elif [[ $sensor == 'landsat8' ]]
 then 
+    INPUT="./data/LANDSAT8"
+    OUTPUT="./data/OUTPUT"
     echo "Processing sensor: $sensor";
+    source ./scripts/process_optical.sh $sensor $INPUT $OUTPUT
 
 elif [[ $sensor == 'sentinel2' ]]
 then
+    INPUT="./data/SENTINEL2"
+    OUTPUT="./data/OUTPUT"
     echo "Processing sensor: $sensor";
+    source ./scripts/process_optical.sh $sensor $INPUT $OUTPUT
 
 else
     echo "Sensor argument not understood"
 fi
+

@@ -10,13 +10,13 @@ RUN apt install -y --no-install-recommends \
 
 RUN mkdir function
 
-COPY ./src/landsat/requirements.txt /function/
+COPY ./src/optical/requirements.txt /function/
 
 WORKDIR /function
 
 RUN pip3 install -U pip \
     && pip3 install --no-cache-dir -r ./requirements.txt
 
-COPY ./src/landsat/ /function/src/landsat
+COPY ./src/optical/ /function/src/optical
 
 COPY ./shared/ /function/shared/
