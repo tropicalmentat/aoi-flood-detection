@@ -21,6 +21,7 @@ console_handler = logging.StreamHandler(stdout)
 logger.addHandler(console_handler)
 
 sensor = os.environ.get("SENSOR")
+algo = os.environ.get("ALGORITHM")
 input = os.environ.get("INPUT")
 output = os.environ.get("OUTPUT")
 
@@ -47,17 +48,33 @@ def main():
                         tree = ET.parse(source=os.path.join(tmpdir,mtl_xml))
                         root = tree.getroot()
                         product_info = root.find(path='PRODUCT_CONTENTS')
-                        green_band_fn = product_info.find(path='FILE_NAME_BAND_3').text
-                        nir_band_fn = product_info.find(path='FILE_NAME_BAND_5').text
 
-                        tar.extract(member=green_band_fn,path=tmpdir)
-                        tar.extract(member=nir_band_fn,path=tmpdir)
+                        if algo == "ndwi":
+                            green_band_fn = product_info.find(path='FILE_NAME_BAND_3').text
+                            nir_band_fn = product_info.find(path='FILE_NAME_BAND_5').text
 
-                        extract_flood(
-                            green_band_fp=os.path.join(tmpdir,green_band_fn),
-                            nir_band_fp=os.path.join(tmpdir,nir_band_fn),
-                            mtl_fp=os.path.join(tmpdir,mtl_txt)
-                        )
+                            tar.extract(member=green_band_fn,path=tmpdir)
+                            tar.extract(member=nir_band_fn,path=tmpdir)
+
+                            extract_flood(
+                                green_band_fp=os.path.join(tmpdir,green_band_fn),
+                                nir_band_fp=os.path.join(tmpdir,nir_band_fn),
+                                mtl_fp=os.path.join(tmpdir,mtl_txt)
+                            )
+                        elif algo == "truecolor":
+                            red_band_fn = product_info.find(path="FILE_NAME_BAND_4").text
+                            green_band_fn = product_info.find(path="FILE_NAME_BAND_3").text
+                            blue_band_fn = product_info.find(path="FILE_NAME_BAND_2").text
+
+                            tar.extract(member=red_band_fn,path=tmpdir)
+                            tar.extract(member=green_band_fn,path=tmpdir)
+                            tar.extract(member=blue_band_fn,path=tmpdir)
+
+                            extract_true_color(
+                                red_band_fp=os.path.join(tmpdir,red_band_fn),
+                                green_band_fp=os.path.join(tmpdir,green_band_fn),
+                                blue_band_fp=os.path.join(tmpdir,blue_band_fn)
+                            )
             
         elif sensor=="sentinel2":
             pass

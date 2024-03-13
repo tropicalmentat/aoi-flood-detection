@@ -6,6 +6,7 @@ docker run \
         -v ./data:/function/src/data \
         -w /function/src \
         --env SENSOR="$1" \
-        --env INPUT="$2" \
-        --env OUTPUT="$3" \
+        --env ALGORITHM="$2" \
+        --env INPUT="$3" \
+        --env OUTPUT="$4" \
         -it aoi-optical python3 main.py

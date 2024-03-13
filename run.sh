@@ -1,9 +1,10 @@
 #!/bin/bash
 
-while getopts s: flag
+while getopts "s:a:" flag
 do
     case "${flag}" in
-        s) sensor=${OPTARG};;
+        s) sensor=$OPTARG;;
+        a) algorithm=$OPTARG;; 
     esac
 done
 
@@ -23,10 +24,21 @@ then
     source ./scripts/process_alos2palsar2.sh $INPUT $OUTPUT
 elif [[ $sensor == 'landsat8' ]]
 then 
-    INPUT="./data/LANDSAT8"
-    OUTPUT="./data/OUTPUT"
-    echo "Processing sensor: $sensor";
-    source ./scripts/process_optical.sh $sensor $INPUT $OUTPUT
+    if [[ $algorithm == 'ndwi' ]]
+    then
+        INPUT="./data/LANDSAT8"
+        OUTPUT="./data/OUTPUT"
+        echo "Processing $algorithm for sensor: $sensor";
+        source ./scripts/process_optical.sh $sensor $algorithm $INPUT $OUTPUT
+    elif [[ $algorithm == 'truecolor' ]]
+    then
+        INPUT="./data/LANDSAT8"
+        OUTPUT="./data/OUTPUT"
+        echo "Processing sensor: $sensor";
+        source ./scripts/process_optical.sh $sensor $algorithm $INPUT $OUTPUT
+    else
+        echo "Algorithm argument not understood"
+    fi
 
 elif [[ $sensor == 'sentinel2' ]]
 then

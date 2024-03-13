@@ -53,13 +53,12 @@ def extract_flood(green_band_fp: str,
     return water
 
 def extract_true_color(
-        blue_band:str, green_band_fp:str, red_band:str,
-        outdir: str
+        blue_band_fp:str, green_band_fp:str, red_band_fp:str
         ):
 
-    r_img = utils.load_image(fpath=red_band)
+    r_img = utils.load_image(fpath=red_band_fp)
     g_img = utils.load_image(fpath=green_band_fp)
-    b_img = utils.load_image(fpath=blue_band) 
+    b_img = utils.load_image(fpath=blue_band_fp) 
 
     r_array, r_profile,_ = utils.image_to_array(
         img=r_img
@@ -71,7 +70,7 @@ def extract_true_color(
         img=b_img)
 
     with rio.open(
-        fp=outdir,mode='w',width=b_profile['width'],height=b_profile['height'],
+        fp=os.path.join(OUTPUT,f'landsat-truecolor.tif'),mode='w',width=b_profile['width'],height=b_profile['height'],
         crs=b_profile['crs'],transform=b_profile['transform'],count=3,dtype=b_profile['dtype']
         ) as tif:
         tif.write(b_array,1)
