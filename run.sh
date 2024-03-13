@@ -34,7 +34,7 @@ then
     then
         INPUT="./data/LANDSAT8"
         OUTPUT="./data/OUTPUT"
-        echo "Processing sensor: $sensor";
+        echo "Processing $algorithm for sensor: $sensor";
         source ./scripts/process_optical.sh $sensor $algorithm $INPUT $OUTPUT
     else
         echo "Algorithm argument not understood"
