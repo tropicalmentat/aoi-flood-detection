@@ -11,7 +11,6 @@ logger = logging.getLogger(__name__)
 SENSOR = os.environ.get('SENSOR')
 OUTPUT = os.environ.get('OUTPUT')
 
-# TODO: Generalize func signatures for optical imagery
 def extract_flood(green_band_fp: str,
                   nir_band_fp: str,
                   mtl_fp: str=None):
