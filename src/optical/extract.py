@@ -1,5 +1,7 @@
 from shared.preprocess.landsat import radiance_to_reflectance
+from rasterio.profiles import DefaultGTiffProfile
 import os
+import numpy as np
 import numpy.ma as ma
 import shared.utils as utils
 import logging
@@ -34,25 +36,38 @@ def extract_flood(green_band_fp: str,
     g_array, g_profile,_ = utils.image_to_array(img=g_img, masked=True)
     nir_array, nir_profile,_ = utils.image_to_array(img=nir_img, masked=True)
     
-    g_reflect = radiance_to_reflectance(array=g_array,
-                                         band=3,
-                                         metadata=metadata)
-    nir_reflect = radiance_to_reflectance(array=nir_array,
-                                         band=5,
-                                         metadata=metadata)
+    if SENSOR == 'landsat8':
+        g_reflect = radiance_to_reflectance(array=g_array,
+                                             band=3,
+                                             metadata=metadata)
+        nir_reflect = radiance_to_reflectance(array=nir_array,
+                                             band=5,
+                                             metadata=metadata)
+    elif SENSOR == 'sentinel2':
+        g_reflect = g_array
+        nir_reflect = nir_array
 
     num = g_reflect.__sub__(nir_reflect)
     den = g_reflect.__add__(nir_reflect)
     ndwi = num/den
-    
-    water = ma.where(ndwi>0,1,0)
 
-    water_profile = g_profile.copy()
-    water_profile['nodata'] = 0
+    if SENSOR=='landsat8':
+        water = ma.where(ndwi>0,1,0)
+    elif SENSOR=='sentinel2':
+        water = ma.where(ndwi<1,1,0)
 
-    with rio.open(fp=os.path.join(OUTPUT,f'landsat-ndwi.tif'),mode='w',**water_profile) as tif:
+    out_profile = DefaultGTiffProfile()
+    out_profile.update(
+    {'width':water.shape[1],
+    'height':water.shape[0],
+    'count':1,
+    'nodata':0
+    })
+    out_profile.update(crs=g_profile['crs'])
+
+    with rio.open(fp=os.path.join(OUTPUT,f'{SENSOR}-ndwi.tif'),mode='w',**out_profile) as tif:
         tif.write(water,indexes=1)
-    return water
+    return 
 
 def extract_true_color(
         blue_band_fp:str, green_band_fp:str, red_band_fp:str
