@@ -9,6 +9,7 @@ from extract import (
 from sys import stdout
 from tarfile import TarFile
 from tempfile import TemporaryDirectory
+from zipfile import ZipFile
 
 
 logging.basicConfig(
@@ -77,7 +78,35 @@ def main():
                             )
             
         elif sensor=="sentinel2":
-            pass
+            for fn in os.listdir(input):
+                if '.zip' in fn:
+                    with ZipFile(file=os.path.join(input,fn),mode='r') as archive:
+                        for fn in archive.namelist():
+                            if 'manifest.safe' in fn:
+                                archive.extract(member=fn,path=tmpdir)
+                                tree = ET.parse(source=os.path.join(tmpdir,fn))
+                                root = tree.getroot()
+                                data_object_section = root.find(path='dataObjectSection')
+                                for child in data_object_section:
+                                    # red band element
+                                    # IMG_DATA_Band_10m_3_Tile1_Data
+                                    if child.get(key='ID') == 'IMG_DATA_Band_10m_3_Tile1_Data':
+                                        for gchild in child.iter():
+                                            if gchild.tag == 'fileLocation':
+                                                logger.debug(gchild.get(key='href'))
+                                    # green band element
+                                    # IMG_DATA_Band_10m_2_Tile1_Data
+                                    if child.get(key='ID') == 'IMG_DATA_Band_10m_2_Tile1_Data': 
+                                        for gchild in child.iter():
+                                            if gchild.tag == 'fileLocation':
+                                                logger.debug(gchild.get(key='href'))
+                                    # blue band element
+                                    # IMG_DATA_Band_10m_1_Tile1_Data
+                                    if child.get(key='ID') == 'IMG_DATA_Band_10m_1_Tile1_Data': 
+                                        for gchild in child.iter():
+                                            if gchild.tag == 'fileLocation':
+                                                logger.debug(gchild.get(key='href'))
+
 
         return
 
