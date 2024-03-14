@@ -25,7 +25,8 @@ def extract_flood(green_band_fp: str,
     if green_band_fp is None or nir_band_fp is None:
         raise Exception()
 
-    metadata = utils.build_landsat_metadata(landsat_mtl_fp=mtl_fp)
+    if mtl_fp is not None:
+        metadata = utils.build_landsat_metadata(landsat_mtl_fp=mtl_fp)
     
     g_img = utils.load_image(fpath=green_band_fp)
     nir_img = utils.load_image(fpath=nir_band_fp)

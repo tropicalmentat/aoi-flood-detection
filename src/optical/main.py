@@ -81,31 +81,52 @@ def main():
             for fn in os.listdir(input):
                 if '.zip' in fn:
                     with ZipFile(file=os.path.join(input,fn),mode='r') as archive:
-                        red_band_fn = None
-                        green_band_fn = None
-                        blue_band_fn = None
                         for fn in archive.namelist():
-                            # red band
-                            if "B04.jp2" in fn:
-                                logger.debug(fn)
-                                archive.extract(member=fn,path=tmpdir)
-                                red_band_fn = os.path.join(tmpdir,fn)
-                            # green band
-                            elif "B03.jp2" in fn:
-                                logger.debug(fn)
-                                archive.extract(member=fn,path=tmpdir)
-                                green_band_fn = os.path.join(tmpdir,fn)
-                            # blue band
-                            elif "B02.jp2" in fn:
-                                logger.debug(fn)
-                                archive.extract(member=fn,path=tmpdir)
-                                blue_band_fn = os.path.join(tmpdir,fn)
+                            # TODO extract calibration params for sentinel2
+
+                            if algo == "ndwi":
+                                green_band_fn = None
+                                nir_band_fn = None
+                                # green band
+                                if "B03.jp2" in fn:
+                                    logger.debug(fn)
+                                    archive.extract(member=fn,path=tmpdir)
+                                    green_band_fn = os.path.join(tmpdir,fn)
+                                # nir band
+                                elif "B08.jp2" in fn:
+                                    logger.debug(fn) 
+                                    nir_band_fn = os.path.join(tmpdir,fn)
+                                
+                                extract_flood(
+                                    green_band_fp=green_band_fn,
+                                    nir_band_fp=nir_band_fn
+                                )
+
+                            elif algo == "truecolor":
+                                red_band_fn = None
+                                green_band_fn = None
+                                blue_band_fn = None
+                                # red band
+                                if "B04.jp2" in fn:
+                                    logger.debug(fn)
+                                    archive.extract(member=fn,path=tmpdir)
+                                    red_band_fn = os.path.join(tmpdir,fn)
+                                # green band
+                                elif "B03.jp2" in fn:
+                                    logger.debug(fn)
+                                    archive.extract(member=fn,path=tmpdir)
+                                    green_band_fn = os.path.join(tmpdir,fn)
+                                # blue band
+                                elif "B02.jp2" in fn:
+                                    logger.debug(fn)
+                                    archive.extract(member=fn,path=tmpdir)
+                                    blue_band_fn = os.path.join(tmpdir,fn)
                         
-                        extract_true_color(
-                            red_band_fp=red_band_fn,
-                            green_band_fp=green_band_fn,
-                            blue_band_fp=blue_band_fn
-                        )
+                                extract_true_color(
+                                    red_band_fp=red_band_fn,
+                                    green_band_fp=green_band_fn,
+                                    blue_band_fp=blue_band_fn
+                                    )
         return
 
 if __name__=="__main__":
