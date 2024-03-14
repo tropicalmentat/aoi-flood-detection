@@ -42,11 +42,21 @@ then
 
 elif [[ $sensor == 'sentinel2' ]]
 then
-    INPUT="./data/SENTINEL2"
-    OUTPUT="./data/OUTPUT"
-    echo "Processing sensor: $sensor";
-    source ./scripts/process_optical.sh $sensor $INPUT $OUTPUT
-
+    if [[ $algorithm == 'ndwi' ]]
+    then
+        INPUT="./data/SENTINEL2"
+        OUTPUT="./data/OUTPUT"
+        echo "Processing $algorithm for sensor: $sensor";
+        source ./scripts/process_optical.sh $sensor $algorithm $INPUT $OUTPUT
+    elif [[ $algorithm == 'truecolor' ]]
+    then
+        INPUT="./data/SENTINEL2"
+        OUTPUT="./data/OUTPUT"
+        echo "Processing $algorithm for sensor: $sensor";
+        source ./scripts/process_optical.sh $sensor $algorithm $INPUT $OUTPUT
+    else
+        echo "Algorithm argument not understood"
+    fi
 else
     echo "Sensor argument not understood"
 fi

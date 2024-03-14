@@ -21,7 +21,7 @@ Containerized data processing workflows to extract flood hazards for Synthetic A
 This project was designed to run on Linux machines with Docker. Please insure that Docker and Git are installed prior to running the modules for image processing. 
 
 #### Build modules
-- Assuming docker is installed correctly, run the `./scripts/build_all.sh`
+- Assuming docker is installed correctly, run the `./scripts/build_all.sh`. This will build the Docker containers in your local machine that you can execute.
 
 #### Running modules
 
