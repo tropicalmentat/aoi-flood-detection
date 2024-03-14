@@ -6,6 +6,7 @@ import logging
 import rasterio as rio
 
 logger = logging.getLogger(__name__)
+SENSOR = os.environ.get('SENSOR')
 OUTPUT = os.environ.get('OUTPUT')
 
 # TODO: Generalize func signatures for optical imagery
@@ -70,7 +71,7 @@ def extract_true_color(
         img=b_img)
 
     with rio.open(
-        fp=os.path.join(OUTPUT,f'landsat-truecolor.tif'),mode='w',width=b_profile['width'],height=b_profile['height'],
+        fp=os.path.join(OUTPUT,f'{SENSOR}-truecolor.tif'),mode='w',width=b_profile['width'],height=b_profile['height'],
         crs=b_profile['crs'],transform=b_profile['transform'],count=3,dtype=b_profile['dtype']
         ) as tif:
         tif.write(b_array,1)

@@ -81,33 +81,31 @@ def main():
             for fn in os.listdir(input):
                 if '.zip' in fn:
                     with ZipFile(file=os.path.join(input,fn),mode='r') as archive:
+                        red_band_fn = None
+                        green_band_fn = None
+                        blue_band_fn = None
                         for fn in archive.namelist():
-                            if 'manifest.safe' in fn:
+                            # red band
+                            if "B04.jp2" in fn:
+                                logger.debug(fn)
                                 archive.extract(member=fn,path=tmpdir)
-                                tree = ET.parse(source=os.path.join(tmpdir,fn))
-                                root = tree.getroot()
-                                data_object_section = root.find(path='dataObjectSection')
-                                for child in data_object_section:
-                                    # red band element
-                                    # IMG_DATA_Band_10m_3_Tile1_Data
-                                    if child.get(key='ID') == 'IMG_DATA_Band_10m_3_Tile1_Data':
-                                        for gchild in child.iter():
-                                            if gchild.tag == 'fileLocation':
-                                                logger.debug(gchild.get(key='href'))
-                                    # green band element
-                                    # IMG_DATA_Band_10m_2_Tile1_Data
-                                    if child.get(key='ID') == 'IMG_DATA_Band_10m_2_Tile1_Data': 
-                                        for gchild in child.iter():
-                                            if gchild.tag == 'fileLocation':
-                                                logger.debug(gchild.get(key='href'))
-                                    # blue band element
-                                    # IMG_DATA_Band_10m_1_Tile1_Data
-                                    if child.get(key='ID') == 'IMG_DATA_Band_10m_1_Tile1_Data': 
-                                        for gchild in child.iter():
-                                            if gchild.tag == 'fileLocation':
-                                                logger.debug(gchild.get(key='href'))
-
-
+                                red_band_fn = os.path.join(tmpdir,fn)
+                            # green band
+                            elif "B03.jp2" in fn:
+                                logger.debug(fn)
+                                archive.extract(member=fn,path=tmpdir)
+                                green_band_fn = os.path.join(tmpdir,fn)
+                            # blue band
+                            elif "B02.jp2" in fn:
+                                logger.debug(fn)
+                                archive.extract(member=fn,path=tmpdir)
+                                blue_band_fn = os.path.join(tmpdir,fn)
+                        
+                        extract_true_color(
+                            red_band_fp=red_band_fn,
+                            green_band_fp=green_band_fn,
+                            blue_band_fp=blue_band_fn
+                        )
         return
 
 if __name__=="__main__":
