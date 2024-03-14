@@ -42,6 +42,10 @@ This project was designed to run on Linux machines with Docker. Please insure th
 
 1. .tar file containing all bands and metadata of a Landsat8 scene
 
+###### Execution
+
+- Place input dataset(s) in the designated `INPUT` folder.
+
 ### References
 - [Sentinel 1 RADAR](https://pro.arcgis.com/en/pro-app/latest/help/analysis/image-analyst/analysis-ready-sentinel-1-grd-data-generation.htm)
 - [Sentinel 1 snappy example](https://github.com/wajuqi/Sentinel-1-preprocessing-using-Snappy/tree/master)
