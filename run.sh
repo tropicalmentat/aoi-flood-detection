@@ -8,6 +8,10 @@ do
     esac
 done
 
+DB_PATH="./data/source.db"
+echo "Initializing database"
+source ./scripts/init_database.sh
+
 if [[ $sensor == 'sentinel1b' ]]
 then
     INPUT="./data/SENTINEL1B"

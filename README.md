@@ -21,18 +21,21 @@ Containerized data processing workflows to extract flood hazards for Synthetic A
 This project was designed to run on Linux machines with Docker. Please insure that Docker and Git are installed prior to running the modules for image processing. 
 
 #### Build modules
+
 - Assuming docker is installed correctly, run the `./scripts/build_all.sh`. This will build the Docker containers in your local machine that you can execute.
 
 #### Running modules
+
+- To execute a workflow for a sensor, use the `./run.sh` command (the run.sh script is found at the root of the repository)
+- Use the -h options for instructions on how to run the scripts with optional arguments
+
+- The default location that the scripts will expect the input files for each sensor is located in the `data` directory.
 
 ###### Sentine1lb
 
 1. Philippines DEM
 2. Poverty Incidence Dataset (as of 2020)
 3. Pre and post event .SAFE files of Sentinel1b
-
-- To execute a workflow for a sensor, use the `./run.sh` command (the run.sh script is found at the root of the repository)
-- Use the -h options for instructions on how to run the scripts with optional arguments
 
 ###### ALOS2-PALSAR2
 
@@ -41,6 +44,11 @@ This project was designed to run on Linux machines with Docker. Please insure th
 ###### Landsat8
 
 1. .tar file containing all bands and metadata of a Landsat8 scene
+
+
+###### Sentinel2
+
+1. Zipped .SAFE file of the Sentinel2 data
 
 ###### Execution
 
