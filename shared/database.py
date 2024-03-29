@@ -16,8 +16,12 @@ def main():
 
     logger.debug(f'Initializing database in {DB_PATH}')
 
-    sqlite3.connect(
+    cnxn = sqlite3.connect(
         database=DB_PATH)
+    
+    cur = cnxn.cursor()
+
+    cur.execute("CREATE TABLE source(id,sensor,path,created_on)")
 
     return
 

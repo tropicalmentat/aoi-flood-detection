@@ -10,7 +10,14 @@ done
 
 DB_PATH="./data/source.db"
 echo "Initializing database"
-source ./scripts/init_database.sh
+# check if database exists in path
+if ! [ -f $DB_PATH ];
+then
+    echo "Database does not exist, initializing..."
+    source ./scripts/init_database.sh
+else
+    echo "Database exists! Moving on..."
+fi
 
 if [[ $sensor == 'sentinel1b' ]]
 then
