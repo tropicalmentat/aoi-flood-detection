@@ -1,20 +1,46 @@
-from . import overlap as op
+import overlap as op
 from rasterio.vrt import WarpedVRT
 from rasterio.transform import from_bounds
 from rasterio.profiles import DefaultGTiffProfile
 from tempfile import NamedTemporaryFile
+from sys import stdout
 
+import os
 import shared.utils as utils
 import logging
 import json
 import numpy as np
 import rasterio as rio
+import sqlite3
 
+logging.basicConfig(
+     level=logging.DEBUG, 
+     format= '[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s',
+     datefmt='%H:%M:%S'
+ )
 logger = logging.getLogger(__name__)
+console_handler = logging.StreamHandler(stdout)
+logger.addHandler(console_handler)
 
-def execute(
-          flood_fpath, bounds_fpath, pov_inc_fpath, 
+BOUNDS = os.environ.get("BOUNDS")
+DB_PATH = os.environ.get("DB_PATH")
+
+def main(
+          bounds_fpath, pov_inc_fpath, 
           resolution=500):
+        
+    cnxn = sqlite3.connect(database=DB_PATH)
+    cur = cnxn.cursor()
+
+    res = cur.execute("""
+                    SELECT * FROM source
+                    ORDER BY created_on DESC
+                        """)
+    
+    # get path of extracted
+    # flood geotiff
+    path = res.fetchone()[2]
+    logger.debug(path)
 
     # DATA INITIALIZATION
     # check if coordinate systems are the same
@@ -22,7 +48,7 @@ def execute(
     # get intersect of poverty incidence data
     # get intersect of admin boundary data
     bounds, pov_inc, flood, flood_profile = op.initialize_data(
-        flood_fpath=flood_fpath, admin_bnds_fpath=bounds_fpath,
+        flood_fpath=path, admin_bnds_fpath=bounds_fpath,
         pov_inc_fpath= pov_inc_fpath
     )
     logger.debug(flood.total_bounds)
@@ -124,3 +150,6 @@ def execute(
                 src.write(log_com_array,1)
 
     return
+
+if __name__=="__main__":
+    main(bounds_fpath=BOUNDS,pov_inc_fpath=BOUNDS)

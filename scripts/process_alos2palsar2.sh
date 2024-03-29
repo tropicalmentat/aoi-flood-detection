@@ -9,3 +9,12 @@ docker run \
         --env OUTPUT="$2" \
         --env DB_PATH="$3" \
         -it aoi-alos2palsar2 python3 main.py
+
+docker run \
+        -v ./src/impact-assessment/:/function/src \
+        -v ./shared/:/function/src/shared \
+        -v ./data/:/function/src/data \
+        -w /function/src \
+        --env BOUNDS="$1" \
+        --env DB_PATH="$2" \
+        -it aoi-impact-assessment python main.py

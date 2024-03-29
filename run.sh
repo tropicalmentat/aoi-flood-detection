@@ -27,12 +27,15 @@ then
     OUTPUT="./data/OUTPUT"
     echo "Processing sensor: $sensor";
     source ./scripts/process_sentinel1b.sh $INPUT $BOUNDS $DEM $OUTPUT $DB_PATH
+    echo "Executing impact assesssment";
+    source ./scripts/impact_assessment.sh $BOUNDS $DB_PATH
 elif [[ $sensor == 'alos2palsar2' ]]
 then
     INPUT="./data/ALOS2PALSAR2"
     OUTPUT="./data/OUTPUT"
     echo "Processing sensor: $sensor";
     source ./scripts/process_alos2palsar2.sh $INPUT $OUTPUT $DB_PATH
+    source ./scripts/impact_assessment.sh $BOUNDS $DB_PATH
 elif [[ $sensor == 'landsat8' ]]
 then 
     if [[ $algorithm == 'ndwi' ]]
