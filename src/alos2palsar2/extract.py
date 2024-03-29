@@ -4,6 +4,7 @@ import shared.utils as utils
 import rasterio as rio
 import logging
 import datetime as dt
+import sqlite3
 
 from shared.preprocess.radar import (
     despeckle
@@ -14,9 +15,11 @@ from skimage.filters.rank import majority
 from rasterio.profiles import DefaultGTiffProfile
 from rasterio.vrt import WarpedVRT
 from zipfile import ZipFile
+from uuid import uuid4
 
 logger = logging.getLogger(__name__)
 OUTPUT_DIR = os.environ.get('OUTPUT')
+DB_PATH = os.environ.get("DB_PATH")
 
 def get_pre_post_imgs(indir,tmpdir):
 
@@ -156,10 +159,22 @@ def extract(pre_fp:str, post_fp:str):
     maj_filt_arr = majority(image=threshold,footprint=square(width=5))
 
     # TODO SAVE THIS TO A FOLDER WHERE THE NEXT STAGE CAN PICK UP
+    filepath = os.path.join(OUTPUT_DIR,f"{dt.datetime.now().isoformat()}-alos2palsar2-extracted-flood.tif")
+
     with rio.open(
-        fp=os.path.join(OUTPUT_DIR,f"{dt.datetime.now().isoformat()}-alos2palsar2-extracted-flood.tif"),
+        fp=filepath,
         mode='w',
         **maj_filt_profile
     ) as tmp:
         tmp.write(maj_filt_arr,1)
-    
+
+        logger.info(f'Connecting to database')
+        cnxn = sqlite3.connect(database=DB_PATH)
+        cur = cnxn.cursor()
+
+        cur.execute(f"""
+                    INSERT INTO source VALUES
+                    ('{uuid4()}','alos2palsar2','{filepath}','{dt.datetime.now().isoformat()}')
+                    """)
+
+        cnxn.commit()

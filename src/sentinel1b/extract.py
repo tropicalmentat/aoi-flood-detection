@@ -161,14 +161,10 @@ def extract(
 
                 cur.execute(f"""
                             INSERT INTO source VALUES
-                            ('{uuid4()}','sentinel1b',{filepath},{dt.datetime.now().isoformat()})
+                            ('{uuid4()}','sentinel1b','{filepath}','{dt.datetime.now().isoformat()}')
                             """)
 
                 cnxn.commit()
-
-                res = cur.execute("SELECT * FROM source")
-
-                logger.debug(res.fetchone())
 
     return
 
