@@ -1,6 +1,5 @@
 import sqlite3
 import logging
-from sys import stdout
 
 logger = logging.getLogger(__name__)
 DB_PATH=f'./data/source.db'

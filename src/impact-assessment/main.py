@@ -27,13 +27,16 @@ SENSOR = os.environ.get("SENSOR")
 BOUNDS = os.environ.get("BOUNDS")
 DB_PATH = os.environ.get("DB_PATH")
 OUTPUT = os.environ.get("OUTPUT")
+RESOLUTION = 500
 
-def main(
-          bounds_fpath, pov_inc_fpath, 
-          resolution=500):
+def main():
     
-    logger.debug(bounds_fpath)
-    logger.debug(pov_inc_fpath)
+    logger.debug(BOUNDS)
+
+    if os.path.exists(path=DB_PATH):
+        logger.info(f'Database exists!')
+    else:
+        raise FileNotFoundError()
         
     cnxn = sqlite3.connect(database=DB_PATH)
     cur = cnxn.cursor()
@@ -46,6 +49,8 @@ def main(
     # get path of extracted
     # flood geotiff
     path = res.fetchone()[2]
+    cnxn.close()
+
     logger.debug(path)
 
     # DATA INITIALIZATION
@@ -54,8 +59,8 @@ def main(
     # get intersect of poverty incidence data
     # get intersect of admin boundary data
     bounds, pov_inc, flood, flood_profile = op.initialize_data(
-        flood_fpath=path, admin_bnds_fpath=bounds_fpath,
-        pov_inc_fpath= pov_inc_fpath
+        flood_fpath=path, admin_bnds_fpath=BOUNDS,
+        pov_inc_fpath=BOUNDS
     )
     logger.debug(flood.total_bounds)
     logger.debug(flood_profile)
@@ -80,11 +85,11 @@ def main(
     # rasterize reclassified pov inc and overlap results
     # use crs of that of the flood raster
     rasterized_povinc, pi_profile = utils.convert_to_raster(
-        feature_collection=reclassed_pi_fc, resolution=resolution,
+        feature_collection=reclassed_pi_fc, resolution=RESOLUTION,
         crs=flood_profile['crs']
     )
     rasterized_bounds, bnds_profile = utils.convert_to_raster(
-        feature_collection=overlap_fc, resolution=resolution,
+        feature_collection=overlap_fc, resolution=RESOLUTION,
         crs=flood_profile['crs']
     )
     # with open(file=f'./tests/data/rasterized-pi.tiff',mode='wb') as tmppi:
@@ -101,8 +106,8 @@ def main(
     out_height = top - bottom
     logger.debug(out_width)
     logger.debug(out_height)
-    out_cols = round(out_width/resolution)
-    out_rows = round(out_height/resolution)
+    out_cols = round(out_width/RESOLUTION)
+    out_rows = round(out_height/RESOLUTION)
     out_shape = (out_rows, out_cols)
     out_transform = from_bounds(
         west=left,south=bottom,east=right,north=top,
@@ -161,4 +166,4 @@ def main(
     return
 
 if __name__=="__main__":
-    main(bounds_fpath=BOUNDS,pov_inc_fpath=BOUNDS)
+    main()

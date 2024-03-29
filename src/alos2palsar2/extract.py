@@ -178,3 +178,4 @@ def extract(pre_fp:str, post_fp:str):
                     """)
 
         cnxn.commit()
+        cnxn.close()

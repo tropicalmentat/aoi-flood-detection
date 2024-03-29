@@ -165,6 +165,7 @@ def extract(
                             """)
 
                 cnxn.commit()
+                cnxn.close()
 
     return
 
