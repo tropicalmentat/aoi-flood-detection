@@ -12,6 +12,7 @@ import json
 import numpy as np
 import rasterio as rio
 import sqlite3
+import datetime as dt
 
 logging.basicConfig(
      level=logging.DEBUG, 
@@ -22,12 +23,17 @@ logger = logging.getLogger(__name__)
 console_handler = logging.StreamHandler(stdout)
 logger.addHandler(console_handler)
 
+SENSOR = os.environ.get("SENSOR")
 BOUNDS = os.environ.get("BOUNDS")
 DB_PATH = os.environ.get("DB_PATH")
+OUTPUT = os.environ.get("OUTPUT")
 
 def main(
           bounds_fpath, pov_inc_fpath, 
           resolution=500):
+    
+    logger.debug(bounds_fpath)
+    logger.debug(pov_inc_fpath)
         
     cnxn = sqlite3.connect(database=DB_PATH)
     cur = cnxn.cursor()
@@ -65,11 +71,11 @@ def main(
     reclassed_pi_fc = json.loads(reclassed_povinc.to_json())
     overlap_fc = json.loads(overlap.to_json())
     
-    with open(file=f'./tests/data/reclassed_pi.json',mode='w') as tmp_rpi:
-        tmp_rpi.write(json.dumps(reclassed_pi_fc))
+    # with open(file=f'./tests/data/reclassed_pi.json',mode='w') as tmp_rpi:
+    #     tmp_rpi.write(json.dumps(reclassed_pi_fc))
     
-    with open(file=f'./tests/data/reclassed_overlap.json',mode='w') as tmp_rov:
-        tmp_rov.write(json.dumps(overlap_fc))
+    # with open(file=f'./tests/data/reclassed_overlap.json',mode='w') as tmp_rov:
+    #     tmp_rov.write(json.dumps(overlap_fc))
 
     # rasterize reclassified pov inc and overlap results
     # use crs of that of the flood raster
@@ -81,11 +87,11 @@ def main(
         feature_collection=overlap_fc, resolution=resolution,
         crs=flood_profile['crs']
     )
-    with open(file=f'./tests/data/rasterized-pi.tiff',mode='wb') as tmppi:
-        tmppi.write(rasterized_povinc)
+    # with open(file=f'./tests/data/rasterized-pi.tiff',mode='wb') as tmppi:
+    #     tmppi.write(rasterized_povinc)
 
-    with open(file=f'./tests/data/rasterized-overlap.tiff',mode='wb') as tmpov:
-        tmpov.write(rasterized_bounds)
+    # with open(file=f'./tests/data/rasterized-overlap.tiff',mode='wb') as tmpov:
+    #     tmpov.write(rasterized_bounds)
     
     # Init raster profile that has the 
     # bounds of the input flood data
@@ -136,16 +142,19 @@ def main(
                 log_com_array[:] = transposed[:]
                 log_com_array.flush()
 
+            # with rio.open(
+            #     fp=f'./tests/data/windowed-pi.tiff',mode='w', **out_profile
+            # ) as win_pi:
+            #     win_pi.write(pi_array,1)
+            # with rio.open(
+            #     fp=f'./tests/data/windowed-overlap.tiff',mode='w', **out_profile
+            # ) as win_ov:
+            #     win_ov.write(overlap_array,1)
+
+            filepath = os.path.join(OUTPUT,f'{SENSOR}-{dt.datetime.now().isoformat()}-flood-impact')
+
             with rio.open(
-                fp=f'./tests/data/windowed-pi.tiff',mode='w', **out_profile
-            ) as win_pi:
-                win_pi.write(pi_array,1)
-            with rio.open(
-                fp=f'./tests/data/windowed-overlap.tiff',mode='w', **out_profile
-            ) as win_ov:
-                win_ov.write(overlap_array,1)
-            with rio.open(
-                fp='./tests/data/flood-impact.tiff',mode='w', **out_profile
+                fp=filepath,mode='w', **out_profile
             ) as src:
                 src.write(log_com_array,1)
 
