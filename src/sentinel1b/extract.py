@@ -5,6 +5,7 @@ import rasterio as rio
 import datetime as dt
 import sqlite3
 
+from uuid import uuid4
 from rasterio.profiles import DefaultGTiffProfile
 from rasterio.vrt import WarpedVRT
 from rasterio import shutil as rio_shutil
@@ -79,7 +80,6 @@ def extract(
         'height':post_profile['height'],
         'width':post_profile['width']
     }
-    # TODO need common vrt profile
     with rio.MemoryFile(file_or_bytes=pre_img) as pre_memf,\
          rio.MemoryFile(file_or_bytes=post_img) as post_memf,\
          pre_memf.open() as pre_src,\
@@ -134,12 +134,6 @@ def extract(
             diff_memp_arr[:] = pst_memp_arr - pre_memp_arr
             diff_memp_arr.flush()
 
-            # with rio.open(
-            #     fp=f'./tests/data/naga-diff.tiff',mode='w',
-            #     **post_profile
-            # ) as tmp_dif:
-            #     tmp_dif.write(diff_memp_arr)
-
             threshold = np.where(diff_memp_arr<-0.1,1,0)
 
             maj_arr = majority(image=threshold[0],footprint=square(width=5))
@@ -153,11 +147,28 @@ def extract(
             maj_filt_profile.update(compress='DEFLATE')
             maj_filt_profile.update(dtype='uint8')
 
+            filepath = os.path.join(OUTPUT_DIR,f'{dt.datetime.now().isoformat()}-sentinel1b.tiff') 
+
             with rio.open(
-                fp=os.path.join(OUTPUT_DIR,f'{dt.datetime.now().isoformat()}-sentinel1b.tiff'),mode='w',
+                fp=filepath,mode='w',
                 **maj_filt_profile
             ) as tmp_src:
                 tmp_src.write(maj_arr,1)
+
+                logger.info(f'Connecting to database')
+                cnxn = sqlite3.connect(database=DB_PATH)
+                cur = cnxn.cursor()
+
+                cur.execute(f"""
+                            INSERT INTO source VALUES
+                            ('{uuid4()}','sentinel1b',{filepath},{dt.datetime.now().isoformat()})
+                            """)
+
+                cnxn.commit()
+
+                res = cur.execute("SELECT * FROM source")
+
+                logger.debug(res.fetchone())
 
     return
 

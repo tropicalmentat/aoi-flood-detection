@@ -7,4 +7,5 @@ docker run \
         -w /function/src \
         --env INPUT_DIR="$1" \
         --env OUTPUT="$2" \
+        --env DB_PATH="$3" \
         -it aoi-alos2palsar2 python3 main.py

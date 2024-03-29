@@ -9,4 +9,5 @@ docker run \
         --env ALGORITHM="$2" \
         --env INPUT="$3" \
         --env OUTPUT="$4" \
+        --env DB_PATH="$5" \
         -it aoi-optical python3 main.py

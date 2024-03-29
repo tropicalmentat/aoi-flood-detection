@@ -1,15 +1,19 @@
 from shared.preprocess.landsat import radiance_to_reflectance
 from rasterio.profiles import DefaultGTiffProfile
+from uuid import uuid4
+
 import os
-import numpy as np
 import numpy.ma as ma
 import shared.utils as utils
 import logging
 import rasterio as rio
+import sqlite3
+import datetime as dt
 
 logger = logging.getLogger(__name__)
 SENSOR = os.environ.get('SENSOR')
 OUTPUT = os.environ.get('OUTPUT')
+DB_PATH = os.environ.get('DB_PATH')
 
 def extract_flood(green_band_fp: str,
                   nir_band_fp: str,
@@ -84,13 +88,30 @@ def extract_true_color(
     )
     b_array, b_profile,_ = utils.image_to_array(
         img=b_img)
+    
+    filepath = os.path.join(OUTPUT,f'{SENSOR}-truecolor.tif') 
 
     with rio.open(
-        fp=os.path.join(OUTPUT,f'{SENSOR}-truecolor.tif'),mode='w',width=b_profile['width'],height=b_profile['height'],
+        fp=filepath,mode='w',width=b_profile['width'],height=b_profile['height'],
         crs=b_profile['crs'],transform=b_profile['transform'],count=3,dtype=b_profile['dtype']
         ) as tif:
         tif.write(b_array,1)
         tif.write(g_array,2)
         tif.write(r_array,3)
+
+        logger.info(f'Connecting to database')
+        cnxn = sqlite3.connect(database=DB_PATH)
+        cur = cnxn.cursor()
+
+        cur.execute(f"""
+                    INSERT INTO source VALUES
+                    ('{uuid4()}','{SENSOR}','{filepath}','{dt.datetime.now().isoformat()}')
+                    """)
+
+        cnxn.commit()
+
+        res = cur.execute("SELECT * FROM source")
+
+        logger.debug(res.fetchone())
 
     return

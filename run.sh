@@ -32,7 +32,7 @@ then
     INPUT="./data/ALOS2PALSAR2"
     OUTPUT="./data/OUTPUT"
     echo "Processing sensor: $sensor";
-    source ./scripts/process_alos2palsar2.sh $INPUT $OUTPUT
+    source ./scripts/process_alos2palsar2.sh $INPUT $OUTPUT $DB_PATH
 elif [[ $sensor == 'landsat8' ]]
 then 
     if [[ $algorithm == 'ndwi' ]]
@@ -40,13 +40,13 @@ then
         INPUT="./data/LANDSAT8"
         OUTPUT="./data/OUTPUT"
         echo "Processing $algorithm for sensor: $sensor";
-        source ./scripts/process_optical.sh $sensor $algorithm $INPUT $OUTPUT
+        source ./scripts/process_optical.sh $sensor $algorithm $INPUT $OUTPUT $DB_PATH
     elif [[ $algorithm == 'truecolor' ]]
     then
         INPUT="./data/LANDSAT8"
         OUTPUT="./data/OUTPUT"
         echo "Processing $algorithm for sensor: $sensor";
-        source ./scripts/process_optical.sh $sensor $algorithm $INPUT $OUTPUT
+        source ./scripts/process_optical.sh $sensor $algorithm $INPUT $OUTPUT $DB_PATH
     else
         echo "Algorithm argument not understood"
     fi
