@@ -3,6 +3,7 @@ import logging
 import numpy as np
 import rasterio as rio
 import datetime as dt
+import sqlite3
 
 from rasterio.profiles import DefaultGTiffProfile
 from rasterio.vrt import WarpedVRT
@@ -17,6 +18,7 @@ from skimage.filters.rank import majority
 
 logger = logging.getLogger(__name__)
 OUTPUT_DIR = os.environ.get('OUTPUT')
+DB_PATH = os.environ.get('DB_PATH')
 
 def get_pre_post_imgs(indir):
 

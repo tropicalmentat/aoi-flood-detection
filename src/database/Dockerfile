@@ -8,4 +8,6 @@ RUN mkdir function
 
 WORKDIR /function
 
-COPY ./shared/database.py /function
+COPY ./shared/ /function/shared/
+
+COPY ./src/database /function/src/database/

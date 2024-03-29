@@ -26,7 +26,7 @@ then
     DEM="./data/N00E120.zip"
     OUTPUT="./data/OUTPUT"
     echo "Processing sensor: $sensor";
-    source ./scripts/process_sentinel1b.sh $INPUT $BOUNDS $DEM $OUTPUT
+    source ./scripts/process_sentinel1b.sh $INPUT $BOUNDS $DEM $OUTPUT $DB_PATH
 elif [[ $sensor == 'alos2palsar2' ]]
 then
     INPUT="./data/ALOS2PALSAR2"
