@@ -173,7 +173,7 @@ def extract(pre_fp:str, post_fp:str):
         cur = cnxn.cursor()
 
         cur.execute(f"""
-                    INSERT INTO source VALUES
+                    INSERT INTO flood VALUES
                     ('{uuid4()}','alos2palsar2','{filepath}','{dt.datetime.now().isoformat()}')
                     """)
 

@@ -12,11 +12,11 @@ def init_db():
         database=DB_PATH)
     
     cur = cnxn.cursor()
-
-    cur.execute("CREATE TABLE source(id,sensor,path,created_on)")
-
+    # create table for flood extracted images
+    cur.execute("CREATE TABLE flood(id,sensor,path,created_on)")
+    # create table for flood impact images
+    cur.execute("CREATE TABLE impact(id,src_id,path,created_on)")
     res = cur.execute("SELECT * FROM sqlite_master")
-
     logger.debug(res.fetchone())
 
     return

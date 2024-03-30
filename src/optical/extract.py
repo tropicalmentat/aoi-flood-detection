@@ -104,7 +104,7 @@ def extract_true_color(
         cur = cnxn.cursor()
 
         cur.execute(f"""
-                    INSERT INTO source VALUES
+                    INSERT INTO flood VALUES
                     ('{uuid4()}','{SENSOR}','{filepath}','{dt.datetime.now().isoformat()}')
                     """)
 

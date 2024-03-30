@@ -4,8 +4,10 @@ from rasterio.transform import from_bounds
 from rasterio.profiles import DefaultGTiffProfile
 from tempfile import NamedTemporaryFile
 from sys import stdout
+from uuid import uuid4
 
 import os
+import sqlite3
 import shared.utils as utils
 import logging
 import json
@@ -30,7 +32,7 @@ OUTPUT = os.environ.get("OUTPUT")
 RESOLUTION = 500
 
 def main():
-    
+    logger.debug(os.environ.get("USER"))
     logger.debug(BOUNDS)
 
     if os.path.exists(path=DB_PATH):
@@ -38,7 +40,18 @@ def main():
     else:
         raise FileNotFoundError()
         
-    cnxn = sqlite3.connect(database=DB_PATH)
+    try:
+        cnxn = sqlite3.connect(database=DB_PATH)
+    except sqlite3.OperationalError as e:
+        # we handle this because the database
+        # is created with root ownership
+        import pwd
+        import grp
+        usr_name = os.environ.get("USER")
+        uid = pwd.getpwnam(usr_name).pw_uid
+        gid = grp.getgrnam(usr_name).gr_gid
+        os.chown(path=DB_PATH,uid=uid,gid=gid)
+
     cur = cnxn.cursor()
 
     res = cur.execute("""
@@ -48,7 +61,9 @@ def main():
     
     # get path of extracted
     # flood geotiff
-    path = res.fetchone()[2]
+    data = res.fetchone()
+    src_id = data[0]
+    path = data[2]
     cnxn.close()
 
     logger.debug(path)
@@ -162,6 +177,27 @@ def main():
                 fp=filepath,mode='w', **out_profile
             ) as src:
                 src.write(log_com_array,1)
+
+                try:
+                    cnxn = sqlite3.connect(database=DB_PATH)
+                except sqlite3.OperationalError as e:
+                    # we handle this because the database
+                    # is created with root ownership
+                    import pwd
+                    import grp
+                    usr_name = os.environ.get("USER")
+                    uid = pwd.getpwnam(usr_name).pw_uid
+                    gid = grp.getgrnam(usr_name).gr_gid
+                    os.chown(path=DB_PATH,uid=uid,gid=gid)
+
+                cur = cnxn.cursor()
+                
+                cur.execute(f"""
+                            INSERT INTO impact VALUES
+                            ('{uuid4()}','{src_id}','{filepath}','{dt.datetime.now().isoformat()}')
+                            """)
+                cnxn.commit()
+                cnxn.close()
 
     return
 

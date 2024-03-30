@@ -1,6 +1,7 @@
 #!/bin/bash
 
 docker run \
+        --user "$(id -u):$(id -g)" \
         -v ./src/impact-assessment/:/function/src \
         -v ./shared/:/function/src/shared \
         -v ./data/:/function/src/data \

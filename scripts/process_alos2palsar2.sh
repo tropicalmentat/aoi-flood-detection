@@ -1,6 +1,7 @@
 #!/bin/bash
 
 docker run \
+        --user "$(id -u):$(id -g)" \
         -v ./src/alos2palsar2/:/function/src \
         -v ./shared/:/function/src/shared \
         -v ./data:/function/src/data \

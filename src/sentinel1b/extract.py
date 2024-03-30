@@ -160,7 +160,7 @@ def extract(
                 cur = cnxn.cursor()
 
                 cur.execute(f"""
-                            INSERT INTO source VALUES
+                            INSERT INTO flood VALUES
                             ('{uuid4()}','sentinel1b','{filepath}','{dt.datetime.now().isoformat()}')
                             """)
 
