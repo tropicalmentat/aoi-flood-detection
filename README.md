@@ -26,7 +26,6 @@ This project was designed to run on Linux machines with Docker. Please insure th
 #### Executing the modules
 
 - To execute a workflow for a sensor, use the `./run.sh` command (the run.sh script is found at the root of the repository)
-- Use the -h options for instructions on how to run the scripts with optional arguments
 
 - The default location that the scripts will expect the input files for each sensor is located in the `data` directory located at the root of the repository.
 
