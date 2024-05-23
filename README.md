@@ -12,19 +12,18 @@ Containerized data processing workflows to extract flood hazards for Synthetic A
 - The execution of the flood extraction workflow is facilitated by the `extract.py` script in each module. This script consolidates the pre-processing steps required for the raw data to be transformed to flood data. 
 - The functions commonly used across the sensors are located in the `shared` directory.
 
-### Requirements
-- Git (to clone the repository)
-- Docker 
-
 ### Usage
 
 This project was designed to run on Linux machines with Docker. Please insure that Docker and Git are installed prior to running the modules for image processing. 
 
+- The installation procedure for Docker may found in the Docker documentation [here](https://docs.docker.com/engine/install/ubuntu/).
+- Git is preinstalled already in Ubuntu. However if you are in a situation where you need to install it you may find the instructions [here](https://github.com/git-guides/install-git#debianubuntu)
+
 #### Build modules
 
-- Assuming docker is installed correctly, run the `./scripts/build_all.sh`. This will build the Docker containers in your local machine that you can execute.
+- Assuming Docker is installed correctly, run the `./scripts/build_all.sh`. This will build the Docker containers in your local machine that you can execute.
 
-#### Running modules
+#### Executing the modules
 
 - To execute a workflow for a sensor, use the `./run.sh` command (the run.sh script is found at the root of the repository)
 - Use the -h options for instructions on how to run the scripts with optional arguments
@@ -33,10 +32,12 @@ This project was designed to run on Linux machines with Docker. Please insure th
 
 ![data](./imgs/data-input.png)
 
+- The following sections describe the data input requirements for the modules to process the data into the expected GeoTiff files:
+
 ###### Sentine1lb
 
-1. Philippines DEM
-2. Poverty Incidence Dataset (as of 2020)
+1. Philippines DEM (as a zipped .tiff file)
+2. Poverty Incidence Dataset (as of 2020) (as a .SHP)
 3. Pre and post event .SAFE files of Sentinel1b
 
 ###### ALOS2-PALSAR2
