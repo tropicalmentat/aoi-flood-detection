@@ -32,7 +32,7 @@ This project was designed to run on Linux machines with Docker. Please insure th
 
 ![data](./imgs/data-input.png)
 
-- The following sections describe the data input requirements for the modules to process the data into the expected GeoTiff files:
+- The following sections describe the data input requirements that must be present in the folders indicated above and the corresponding commands for the modules to process the data into the expected GeoTiff files:
 
 ###### Sentine1lb
 
@@ -40,22 +40,29 @@ This project was designed to run on Linux machines with Docker. Please insure th
 2. Poverty Incidence Dataset (as of 2020) (as a .SHP)
 3. Pre and post event .SAFE files of Sentinel1b
 
+To execute the processing of Sentinel1b datasets, use the following command `./run.sh -s sentinel1b`.
+
 ###### ALOS2-PALSAR2
 
 1. Pre and post event .zip files that contain the images
 
+To execute the processing of ALOS2-PALSAR2 datasets use the following command `./run.sh -s alos2palsar2`
+
 ###### Landsat8
 
-1. .tar file containing all bands and metadata of a Landsat8 scene
+- .tar file containing all bands and metadata of a Landsat8 scene
+
+- To extract the true color image of a Landsat8 datasets use the following `./run.sh -s landsat8 -a truecolor`.
+- To extract the binary image (GeoTiff format) of the Normalized Difference Water Index use the following command: `./run.sh -s landsat8 -a ndwi`
 
 
 ###### Sentinel2
 
 1. Zipped .SAFE file of the Sentinel2 data
 
-###### Execution
+- To extract the true color image of a Sentinel2 datasets use the following `./run.sh -s sentinel2 -a truecolor`.
+- To extract the binary image (GeoTiff format) of the Normalized Difference Water Index use the following command: `./run.sh -s sentinel2 -a ndwi`
 
-- Place input dataset(s) in the designated `INPUT` folder.
 
 ### References
 - [Sentinel 1 RADAR](https://pro.arcgis.com/en/pro-app/latest/help/analysis/image-analyst/analysis-ready-sentinel-1-grd-data-generation.htm)
