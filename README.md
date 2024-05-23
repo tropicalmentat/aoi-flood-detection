@@ -2,10 +2,10 @@
 
 Containerized data processing workflows to extract flood hazards for Synthetic Aperture Radar (SAR) and optical imagery. The following sensors and platforms are supported:
 
-1. Landsat 8 (Optical)
-2. Sentinel2 (Optical)
-2. ALOS2-PALSAR2 (SAR)
-3. Sentinel1b (SAR)
+1. ALOS2-PALSAR2 (SAR)
+2. Sentinel1b (SAR)
+3. Landsat 8 (Optical)
+4. Sentinel2 (Optical)
 
 ### Repository Structure
 - Each sensor (with the exception of Landsat8 and Sentinel2) have their own exclusive module in the `src` directory. This is because the raw data per sensor have different processing requirements, 
