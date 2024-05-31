@@ -90,7 +90,7 @@ def extract(
         logger.debug(pre_vrt.profile)
         logger.debug(pst_vrt.profile)
 
-        rio_shutil.copy(pst_vrt,f'./tests/data/naga-post-vrt.tiff',driver='GTiff')
+        # rio_shutil.copy(pst_vrt,f'./tests/data/naga-post-vrt.tiff',driver='GTiff')
 
         with NamedTemporaryFile() as pre_memp,\
              NamedTemporaryFile() as pst_memp,\
