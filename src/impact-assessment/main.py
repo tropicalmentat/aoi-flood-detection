@@ -33,6 +33,8 @@ RESOLUTION = 500
 
 def main():
     logger.debug(os.environ.get("USER"))
+    logger.debug(SENSOR)
+    logger.debug(DB_PATH)
     logger.debug(BOUNDS)
 
     if os.path.exists(path=DB_PATH):
@@ -41,6 +43,8 @@ def main():
         raise FileNotFoundError()
         
     try:
+        usr_name = os.environ.get("USER")
+        logger.debug(usr_name)
         cnxn = sqlite3.connect(database=DB_PATH)
     except sqlite3.OperationalError as e:
         # we handle this because the database
@@ -55,7 +59,7 @@ def main():
     cur = cnxn.cursor()
 
     res = cur.execute("""
-                    SELECT * FROM source
+                    SELECT * FROM flood
                     ORDER BY created_on DESC
                         """)
     

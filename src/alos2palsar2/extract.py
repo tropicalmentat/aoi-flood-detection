@@ -169,6 +169,8 @@ def extract(pre_fp:str, post_fp:str):
         tmp.write(maj_filt_arr,1)
 
         logger.info(f'Connecting to database')
+        usr_name = os.environ.get("USER")
+        logger.debug(usr_name)
         cnxn = sqlite3.connect(database=DB_PATH)
         cur = cnxn.cursor()
 

@@ -32,6 +32,7 @@ then
 elif [[ $sensor == 'alos2palsar2' ]]
 then
     INPUT="./data/ALOS2PALSAR2"
+    BOUNDS="./data/National_PopAHS_PSA_2020.shp"
     OUTPUT="./data/OUTPUT"
     echo "Processing sensor: $sensor";
     source ./scripts/process_alos2palsar2.sh $INPUT $OUTPUT $DB_PATH
