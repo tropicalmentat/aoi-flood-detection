@@ -2,3 +2,15 @@
 *.tiff
 *.tif
 __pycache__
+/data/*.SAFE
+/data/*.zip
+/data/*.shp
+/data/*.shx
+/data/*.prj
+/data/*.dbf
+/data/*.cpg
+/data/OUTPUT/*
+/data/ALOS2PALSAR2/*
+/data/LANDSAT8/*
+/data/*.db
+/tests/data/*
