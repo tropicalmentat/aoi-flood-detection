@@ -17,11 +17,11 @@ Containerized data processing workflows to extract flood hazards for Synthetic A
 This project was designed to run on Linux machines with Docker. Please insure that Docker and Git are installed prior to running the modules for image processing. 
 
 - The installation procedure for Docker may found in the Docker documentation [here](https://docs.docker.com/engine/install/ubuntu/).
-- Git is preinstalled already in Ubuntu. However if you are in a situation where you need to install it you may find the instructions [here](https://github.com/git-guides/install-git#debianubuntu)
+- Git is preinstalled already in Ubuntu. However if you are in a situation where you need to install it you may find the instructions [here](https://github.com/git-guides/install-git#debianubuntu).
 
 #### Build modules
 
-- Assuming Docker is installed correctly, run the `./scripts/build_all.sh`. This will build the Docker containers in your local machine that you can execute.
+- Assuming Docker is installed correctly, run the `./build_all.sh`. This will build the Docker containers in your local machine that you can execute.
 
 #### Executing the modules
 
