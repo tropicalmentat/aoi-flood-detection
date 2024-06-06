@@ -175,7 +175,7 @@ def main():
             # ) as win_ov:
             #     win_ov.write(overlap_array,1)
 
-            filepath = os.path.join(OUTPUT,f'{SENSOR}-{dt.datetime.now().isoformat()}-flood-impact')
+            filepath = os.path.join(OUTPUT,f'{SENSOR}-{dt.datetime.now().strftime("%Y%m%d%H%M%S")}-flood-impact')
 
             with rio.open(
                 fp=filepath,mode='w', **out_profile

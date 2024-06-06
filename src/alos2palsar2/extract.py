@@ -159,7 +159,7 @@ def extract(pre_fp:str, post_fp:str):
     maj_filt_arr = majority(image=threshold,footprint=square(width=5))
 
     # TODO SAVE THIS TO A FOLDER WHERE THE NEXT STAGE CAN PICK UP
-    filepath = os.path.join(OUTPUT_DIR,f"{dt.datetime.now().isoformat()}-alos2palsar2-extracted-flood.tif")
+    filepath = os.path.join(OUTPUT_DIR,f"{dt.datetime.now().strftime('%Y%m%d%H%M%S')}-alos2palsar2-extracted-flood.tif")
 
     with rio.open(
         fp=filepath,

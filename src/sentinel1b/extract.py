@@ -147,7 +147,7 @@ def extract(
             maj_filt_profile.update(compress='DEFLATE')
             maj_filt_profile.update(dtype='uint8')
 
-            filepath = os.path.join(OUTPUT_DIR,f'{dt.datetime.now().isoformat()}-sentinel1b.tiff') 
+            filepath = os.path.join(OUTPUT_DIR,f'{dt.datetime.now().strftime("%Y%m%d%H%M%S")}-sentinel1b.tiff') 
 
             with rio.open(
                 fp=filepath,mode='w',
