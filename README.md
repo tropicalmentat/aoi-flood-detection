@@ -52,7 +52,7 @@ To execute the processing of Sentinel1b datasets, use the following command `./r
 
 The Poverty Incidence .shp file dataset default location is in the `/data` directory.
 
-The input .zip files default location is in `/data/SENTINEL1B`.
+The input .zip files default location is in `/data/ALOS2PALSAR2`.
 
 To execute the processing of ALOS2-PALSAR2 datasets use the following command `./run.sh -s alos2palsar2`
 
