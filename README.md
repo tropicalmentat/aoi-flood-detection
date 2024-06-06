@@ -1,4 +1,4 @@
-# Extraction of Flood Hazards 
+# Extraction of Flood Hazards From Areas-of-Interest (AOI) 
 
 Containerized data processing workflows to extract flood hazards for Synthetic Aperture Radar (SAR) and optical imagery. The following sensors and platforms are supported:
 
