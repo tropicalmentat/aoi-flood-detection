@@ -39,11 +39,16 @@ This project was designed to run on Linux machines with Docker. Please insure th
 2. Poverty Incidence Dataset (as of 2020) (as a .SHP)
 3. Pre and post event .SAFE files of Sentinel1b
 
+The Poverty Incidence .shp file dataset default location is in the `/data` directory.
+
 To execute the processing of Sentinel1b datasets, use the following command `./run.sh -s sentinel1b`.
 
 ###### ALOS2-PALSAR2
 
 1. Pre and post event .zip files that contain the images
+2. Poverty Incidence Dataset (as of 2020) (as a .SHP)
+
+The Poverty Incidence .shp file dataset default location is in the `/data` directory.
 
 To execute the processing of ALOS2-PALSAR2 datasets use the following command `./run.sh -s alos2palsar2`
 
