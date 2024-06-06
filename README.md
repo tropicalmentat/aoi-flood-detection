@@ -71,6 +71,9 @@ To execute the processing of ALOS2-PALSAR2 datasets use the following command `.
 - To extract the true color image of a Sentinel2 datasets use the following `./run.sh -s sentinel2 -a truecolor`.
 - To extract the binary image (GeoTiff format) of the Normalized Difference Water Index use the following command: `./run.sh -s sentinel2 -a ndwi`
 
+###### Outputs
+
+The outputs (extracted flood hazard & flood impact assessment GeoTiffs) of each module are saved in the `/data/OUTPUT` folder.
 
 ### References
 - [Sentinel 1 RADAR](https://pro.arcgis.com/en/pro-app/latest/help/analysis/image-analyst/analysis-ready-sentinel-1-grd-data-generation.htm)
