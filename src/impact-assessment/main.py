@@ -29,6 +29,8 @@ SENSOR = os.environ.get("SENSOR")
 BOUNDS = os.environ.get("BOUNDS")
 DB_PATH = os.environ.get("DB_PATH")
 OUTPUT = os.environ.get("OUTPUT")
+EVENT = os.environ.get("EVENT")
+LOCATION = os.environ.get("LOCATION")
 RESOLUTION = 500
 
 def main():
@@ -175,7 +177,8 @@ def main():
             # ) as win_ov:
             #     win_ov.write(overlap_array,1)
 
-            filepath = os.path.join(OUTPUT,f'{dt.datetime.now().strftime("%Y%m%d%H%M%S")}-{SENSOR}-flood-impact.tiff')
+            filepath = os.path.join(
+                OUTPUT,f'{dt.datetime.now().strftime("%Y%m%d%H%M%S")}-{SENSOR}-{LOCATION}-{EVENT}-flood-impact.tiff')
 
             with rio.open(
                 fp=filepath,mode='w', **out_profile

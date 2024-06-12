@@ -8,4 +8,6 @@ docker run \
         --env INPUT_DIR="$1" \
         --env OUTPUT="$2" \
         --env DB_PATH="$3" \
+        --env EVENT="$4" \
+        --env LOCATION="$5" \
         -it aoi-alos2palsar2 python3 main.py
