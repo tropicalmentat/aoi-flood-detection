@@ -51,7 +51,8 @@ The DEM dataset and the Poverty Incidence .shp file dataset default location is 
 
 The input .SAFE files default location is in `/data/SENTINEL1B`.
 
-To execute the processing of Sentinel1b datasets, use the following command `./run.sh -s sentinel1b`.
+To execute the processing of Sentinel1b datasets, use the following command 
+```./run.sh -s sentinel1b -e <EVENT> -l <LOCATION>```.
 
 ###### ALOS2-PALSAR2
 
@@ -62,22 +63,23 @@ The Poverty Incidence .shp file dataset default location is in the `/data` direc
 
 The input .zip files default location is in `/data/ALOS2PALSAR2`.
 
-To execute the processing of ALOS2-PALSAR2 datasets use the following command `./run.sh -s alos2palsar2`
+To execute the processing of ALOS2-PALSAR2 datasets use the following command 
+```./run.sh -s alos2palsar2 -e <EVENT> -l <LOCATION>```
 
 ###### Landsat8
 
 - .tar file containing all bands and metadata of a Landsat8 scene
 
-- To extract the true color image of a Landsat8 datasets use the following `./run.sh -s landsat8 -a truecolor`.
-- To extract the binary image (GeoTiff format) of the Normalized Difference Water Index use the following command: `./run.sh -s landsat8 -a ndwi`
+- To extract the true color image of a Landsat8 datasets use the following: ```./run.sh -s landsat8 -a truecolor```.
+- To extract the binary image (GeoTiff format) of the Normalized Difference Water Index use the following command: ```./run.sh -s landsat8 -a ndwi```
 
 
 ###### Sentinel2
 
 1. Zipped .SAFE file of the Sentinel2 data
 
-- To extract the true color image of a Sentinel2 datasets use the following `./run.sh -s sentinel2 -a truecolor`.
-- To extract the binary image (GeoTiff format) of the Normalized Difference Water Index use the following command: `./run.sh -s sentinel2 -a ndwi`
+- To extract the true color image of a Sentinel2 datasets use the following ```./run.sh -s sentinel2 -a truecolor```.
+- To extract the binary image (GeoTiff format) of the Normalized Difference Water Index use the following command: ```./run.sh -s sentinel2 -a ndwi```
 
 ###### Outputs
 
