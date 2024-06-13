@@ -178,7 +178,7 @@ def main():
             #     win_ov.write(overlap_array,1)
 
             filepath = os.path.join(
-                OUTPUT,f'{dt.datetime.now().strftime("%Y%m%d%H%M%S")}-{SENSOR}-{LOCATION}-{EVENT}-flood-impact.tiff')
+                OUTPUT,f'{dt.datetime.now().strftime("%Y%m%d%H%M%S")}-{SENSOR}-{LOCATION}-{EVENT}-impact.tiff')
 
             with rio.open(
                 fp=filepath,mode='w', **out_profile

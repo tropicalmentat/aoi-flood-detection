@@ -20,6 +20,8 @@ from skimage.filters.rank import majority
 logger = logging.getLogger(__name__)
 OUTPUT_DIR = os.environ.get('OUTPUT')
 DB_PATH = os.environ.get('DB_PATH')
+EVENT = os.environ.get("EVENT")
+LOCATION = os.environ.get("LOCATION")
 
 def get_pre_post_imgs(indir):
 
@@ -147,7 +149,8 @@ def extract(
             maj_filt_profile.update(compress='DEFLATE')
             maj_filt_profile.update(dtype='uint8')
 
-            filepath = os.path.join(OUTPUT_DIR,f'{dt.datetime.now().strftime("%Y%m%d%H%M%S")}-sentinel1b.tiff') 
+            filepath = os.path.join(
+                OUTPUT_DIR,f'{dt.datetime.now().strftime("%Y%m%d%H%M%S")}-sentinel1b-{LOCATION}-{EVENT}-flood.tiff') 
 
             with rio.open(
                 fp=filepath,mode='w',

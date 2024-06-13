@@ -11,4 +11,6 @@ docker run \
         --env DEM="$3" \
         --env OUTPUT="$4" \
         --env DB_PATH="$5" \
+        --env EVENT="$6" \
+        --env LOCATION="$7" \
         -it aoi-sentinel1b python main.py

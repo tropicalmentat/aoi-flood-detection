@@ -9,4 +9,6 @@ docker run \
         --env BOUNDS="$2" \
         --env DB_PATH="$3" \
         --env OUTPUT="$4" \
+        --env EVENT="$5" \
+        --env LOCATION="$6" \
         -it aoi-impact python3 main.py
