@@ -30,9 +30,12 @@ This project was designed to run on Linux machines with Docker. Please insure th
 ```
 Parameter list:
 -s  Sensor name. Values accepted are: sentinel1b, alos2palsar2, landsat8, sentinel2
--a  Algorithm. Used only for optical sensors to specify processing algorithm. Accepted values: ndwi, truecolor
--e  Event. Add event/typhoon name that will be part of the output file name. Must be single word, no space.
--l  Location. Add location name that will be part of the output file name. Must be single word, no space.
+-a  Algorithm. Used only for optical sensors to specify processing algorithm. 
+    Accepted values: ndwi, truecolor
+-e  Event. Add event/typhoon name that will be part of the output file name. 
+    Must be single word, no space.
+-l  Location. Add location name that will be part of the output file name. 
+    Must be single word, no space.
 ```
 
 - The default locations that the scripts will expect the input files for each sensor is located in the `data` directory located at the root of the repository.
