@@ -161,7 +161,7 @@ def extract(pre_fp:str, post_fp:str):
     maj_filt_arr = majority(image=threshold,footprint=square(width=5))
 
     filepath = os.path.join(OUTPUT_DIR,
-    f"{dt.datetime.now().strftime('%Y%m%d%H%M%S')}-alos2palsar2-{LOCATION}-{EVENT}-extracted-flood.tif"
+    f"{dt.datetime.now().strftime('%Y%m%d%H%M%S')}-alos2palsar2-{LOCATION}-{EVENT}-flood.tif"
     )
 
     with rio.open(

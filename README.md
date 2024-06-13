@@ -27,6 +27,14 @@ This project was designed to run on Linux machines with Docker. Please insure th
 
 - To execute a workflow for a sensor, use the `./run.sh` command (the run.sh script is found at the root of the repository). Please refer to the sections below for more detailed instructions on using each module.
 
+```
+Parameter list:
+-s  Sensor name. Values accepted are: sentinel1b, alos2palsar2, landsat8, sentinel2
+-a  Algorithm. Used to specify for optical sensors. Accepted values: ndwi, truecolor
+-e
+-l
+```
+
 - The default locations that the scripts will expect the input files for each sensor is located in the `data` directory located at the root of the repository.
 
 ![data](./imgs/data-input.png)
