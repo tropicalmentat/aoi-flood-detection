@@ -82,13 +82,13 @@ To execute the processing of ALOS2-PALSAR2 datasets use the following command:
 - To extract the true color image of a Landsat8 datasets use the following: 
 
 ```
-./run.sh -s landsat8 -a truecolor
+./run.sh -s landsat8 -a truecolor -e <EVENT> -l <LOCATION>
 ```
 
 - To extract the binary image (GeoTiff format) of the Normalized Difference Water Index use the following command: 
 
 ```
-./run.sh -s landsat8 -a ndwi
+./run.sh -s landsat8 -a ndwi -e <EVENT> -l <LOCATION>
 ```
 
 
@@ -99,7 +99,7 @@ To execute the processing of ALOS2-PALSAR2 datasets use the following command:
 - To extract the true color image of a Sentinel2 datasets use the following 
 
 ```
-./run.sh -s sentinel2 -a truecolor
+./run.sh -s sentinel2 -a truecolor -e <EVENT> -l <LOCATION>
 ```
 
 - To extract the binary image (GeoTiff format) of the Normalized Difference Water Index use the following command: 
