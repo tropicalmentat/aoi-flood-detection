@@ -12,8 +12,11 @@ import datetime as dt
 
 logger = logging.getLogger(__name__)
 SENSOR = os.environ.get('SENSOR')
+ALGORITHM = os.environ.get('ALGORITHM')
 OUTPUT = os.environ.get('OUTPUT')
 DB_PATH = os.environ.get('DB_PATH')
+LOCATION = os.environ.get('LOCATION')
+EVENT = os.environ.get('EVENT')
 
 def extract_flood(green_band_fp: str,
                   nir_band_fp: str,
@@ -68,7 +71,8 @@ def extract_flood(green_band_fp: str,
     })
     out_profile.update(crs=g_profile['crs'])
 
-    with rio.open(fp=os.path.join(OUTPUT,f'{SENSOR}-ndwi.tif'),mode='w',**out_profile) as tif:
+    filepath = os.path.join(OUTPUT,f'{dt.datetime.now().strftime("%Y%m%d%H%M%S")}-{SENSOR}-{LOCATION}-{EVENT}-{ALGORITHM}.tif') 
+    with rio.open(fp=filepath,mode='w',**out_profile) as tif:
         tif.write(water,indexes=1)
     return 
 
@@ -89,7 +93,7 @@ def extract_true_color(
     b_array, b_profile,_ = utils.image_to_array(
         img=b_img)
     
-    filepath = os.path.join(OUTPUT,f'{SENSOR}-truecolor.tif') 
+    filepath = os.path.join(OUTPUT,f'{dt.datetime.now().strftime("%Y%m%d%H%M%S")}-{SENSOR}-{LOCATION}-{EVENT}-{ALGORITHM}.tif') 
 
     with rio.open(
         fp=filepath,mode='w',width=b_profile['width'],height=b_profile['height'],
@@ -98,20 +102,5 @@ def extract_true_color(
         tif.write(b_array,1)
         tif.write(g_array,2)
         tif.write(r_array,3)
-
-        logger.info(f'Connecting to database')
-        cnxn = sqlite3.connect(database=DB_PATH)
-        cur = cnxn.cursor()
-
-        cur.execute(f"""
-                    INSERT INTO flood VALUES
-                    ('{uuid4()}','{SENSOR}','{filepath}','{dt.datetime.now().isoformat()}')
-                    """)
-
-        cnxn.commit()
-
-        res = cur.execute("SELECT * FROM source")
-
-        logger.debug(res.fetchone())
 
     return
