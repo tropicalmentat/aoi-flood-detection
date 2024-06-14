@@ -2,7 +2,10 @@
 *.tiff
 *.tif
 __pycache__
-/data/*.SAFE
+/data/SENTINEL1B/*.SAFE
+/data/ALOS2PALSAR2/*.zip
+/data/LANDSAT8/*.zip
+/data/SENTINEL2/*.zip
 /data/*.zip
 /data/*.shp
 /data/*.shx
@@ -10,8 +13,6 @@ __pycache__
 /data/*.dbf
 /data/*.cpg
 /data/OUTPUT/*
-/data/ALOS2PALSAR2/*
-/data/LANDSAT8/*
 /data/*.db
 /tests/data/*
 *.SAFE/
