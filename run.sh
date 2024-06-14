@@ -79,3 +79,5 @@ else
     echo "Sensor argument not understood"
 fi
 
+echo "Pruning stopped containers..."
+docker system prune -f
