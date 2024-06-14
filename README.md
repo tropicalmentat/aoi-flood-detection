@@ -105,7 +105,7 @@ To execute the processing of ALOS2-PALSAR2 datasets use the following command:
 - To extract the binary image (GeoTiff format) of the Normalized Difference Water Index use the following command: 
 
 ```
-./run.sh -s sentinel2 -a ndwi
+./run.sh -s sentinel2 -a ndwi -e <EVENT> -l <LOCATION>
 ```
 
 ###### Outputs
