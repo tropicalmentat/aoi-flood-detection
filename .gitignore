@@ -5,6 +5,7 @@ __pycache__
 /data/SENTINEL1B/*.SAFE
 /data/ALOS2PALSAR2/*.zip
 /data/LANDSAT8/*.zip
+/data/LANDSAT8/*.tar
 /data/SENTINEL2/*.zip
 /data/*.zip
 /data/*.shp
@@ -12,7 +13,7 @@ __pycache__
 /data/*.prj
 /data/*.dbf
 /data/*.cpg
-/data/OUTPUT/*
+/data/OUTPUT/*.tiff
 /data/*.db
 /tests/data/*
 *.SAFE/
