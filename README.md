@@ -108,6 +108,8 @@ To execute the processing of ALOS2-PALSAR2 datasets use the following command:
 ./run.sh -s sentinel2 -a ndwi -e <EVENT> -l <LOCATION>
 ```
 
+###### Notes on input data schema and format
+
 ###### Outputs
 
 The outputs (extracted flood hazard & flood impact assessment GeoTiffs) of each module are saved in the `/data/OUTPUT` folder.
