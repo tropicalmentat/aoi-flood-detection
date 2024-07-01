@@ -67,7 +67,8 @@ def extract_flood(green_band_fp: str,
     {'width':water.shape[1],
     'height':water.shape[0],
     'count':1,
-    'nodata':0
+    'nodata':0,
+    'transform':g_profile['transform']
     })
     out_profile.update(crs=g_profile['crs'])
 
