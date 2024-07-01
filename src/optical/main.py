@@ -39,20 +39,23 @@ def main():
                         mtl_xml = None
                         mtl_txt = None
                         for mbr in tar.getnames():
-                            if '.xml' in mbr:
-                                tar.extract(member=mbr,path=tmpdir)
-                                mtl_xml = mbr
-                            elif 'MTL.txt' in mbr:
+                            if 'MTL.txt' in mbr:
                                 tar.extract(member=mbr,path=tmpdir)
                                 mtl_txt = mbr
+                        
+                        file_names = {}
+                        
+                        with open(file=os.path.join(tmpdir,mtl_txt)) as mtl_f:
+                            lines = mtl_f.readlines()
 
-                        tree = ET.parse(source=os.path.join(tmpdir,mtl_xml))
-                        root = tree.getroot()
-                        product_info = root.find(path='PRODUCT_CONTENTS')
+                            for line in lines:
+                                if f'FILE_NAME_BAND' in line:
+                                    tokens = line.replace(" ","").replace('"','').replace('\n','').split("=")
+                                    file_names[tokens[0]] = tokens[1]
 
                         if algo == "ndwi":
-                            green_band_fn = product_info.find(path='FILE_NAME_BAND_3').text
-                            nir_band_fn = product_info.find(path='FILE_NAME_BAND_5').text
+                            green_band_fn = file_names['FILE_NAME_BAND_3']
+                            nir_band_fn = file_names['FILE_NAME_BAND_5']
 
                             tar.extract(member=green_band_fn,path=tmpdir)
                             tar.extract(member=nir_band_fn,path=tmpdir)
@@ -63,9 +66,9 @@ def main():
                                 mtl_fp=os.path.join(tmpdir,mtl_txt)
                             )
                         elif algo == "truecolor":
-                            red_band_fn = product_info.find(path="FILE_NAME_BAND_4").text
-                            green_band_fn = product_info.find(path="FILE_NAME_BAND_3").text
-                            blue_band_fn = product_info.find(path="FILE_NAME_BAND_2").text
+                            red_band_fn = file_names["FILE_NAME_BAND_4"]
+                            green_band_fn = file_names["FILE_NAME_BAND_3"]
+                            blue_band_fn = file_names["FILE_NAME_BAND_2"]
 
                             tar.extract(member=red_band_fn,path=tmpdir)
                             tar.extract(member=green_band_fn,path=tmpdir)
