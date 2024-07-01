@@ -46,9 +46,9 @@ Parameter list:
 
 ###### Sentine1lb
 
-1. Philippines DEM (as a zipped .tiff file)
-2. Poverty Incidence Dataset (as of 2020) (as a .SHP)
-3. Pre and post event .SAFE files of Sentinel1b
+1. Philippines DEM (as a zipped .tiff file), must be in UTM 51N projected coordinates.
+2. Poverty Incidence Dataset (as of 2020) (as a .SHP), must be in UTM 51N projected coordinates.
+3. Pre and post event .SAFE files of Sentinel1b, must be in the raw CRS, WGS 84.
 
 The DEM dataset and the Poverty Incidence .shp file dataset default location is in the `/data` directory.
 
@@ -63,7 +63,7 @@ To execute the processing of Sentinel1b datasets, use the following command
 ###### ALOS2-PALSAR2
 
 1. Pre and post event .zip files that contain the images
-2. Poverty Incidence Dataset (as of 2020) (as a .SHP)
+2. Poverty Incidence Dataset (as of 2020) (as a .SHP), must be in UTM 51N projected coordinates.
 
 The Poverty Incidence .shp file dataset default location is in the `/data` directory.
 
