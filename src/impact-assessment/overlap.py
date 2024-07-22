@@ -1,5 +1,6 @@
 # for overlap analysis of extracted flood
 # with municipal boundaries
+import os
 import json
 import geopandas as gpd
 import logging
@@ -18,6 +19,7 @@ gdal.UseExceptions()
 logger = logging.getLogger(__name__)
 logging.getLogger('fiona').setLevel(logging.CRITICAL)
 
+POV_INC_HEADER = os.environ.get("POVERTY_INCIDENCE",None)
 RECLASS_KEY = 'reclassified'
 
 def get_filtered_data(in_ds, bbox):
@@ -139,7 +141,7 @@ def poverty_incidence_reclassify(pov_data):
         elif pov_inc <= 20:
             return 1
 
-    pov_inc = pov_data.Poverty_In
+    pov_inc = pov_data[f'{POV_INC_HEADER}']
 
     pov_data[RECLASS_KEY] = pov_inc.apply(lambda x: reclassify(x))
 

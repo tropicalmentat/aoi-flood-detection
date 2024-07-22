@@ -31,6 +31,7 @@ DB_PATH = os.environ.get("DB_PATH")
 OUTPUT = os.environ.get("OUTPUT")
 EVENT = os.environ.get("EVENT")
 LOCATION = os.environ.get("LOCATION")
+POVERTY_INCIDENCE = os.environ.get("POVERTY_INCIDENCE",None)
 RESOLUTION = 500
 
 def main():
@@ -38,6 +39,7 @@ def main():
     logger.debug(SENSOR)
     logger.debug(DB_PATH)
     logger.debug(BOUNDS)
+    logger.debug(POVERTY_INCIDENCE)
 
     if os.path.exists(path=DB_PATH):
         logger.info(f'Database exists!')

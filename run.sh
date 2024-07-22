@@ -1,12 +1,14 @@
 #!/bin/bash
 
-while getopts "s:a:e:l:" flag
+while getopts "s:a:e:l:p:d:" flag
 do
     case "${flag}" in
         s) sensor=$OPTARG;;
         a) algorithm=$OPTARG;; 
         e) event=$OPTARG;;
         l) location=$OPTARG;;
+    	p) povinc=$OPTARG;;
+        d) dem=$OPTARG;;
     esac
 done
 
@@ -24,22 +26,22 @@ fi
 if [[ $sensor == 'sentinel1b' ]]
 then
     INPUT="./data/SENTINEL1B"
-    BOUNDS="./data/National_PopAHS_PSA_2020.shp"
-    DEM="./data/N00E120.zip"
+    BOUNDS="./data/2018_Poverty_Incidence_UTM.shp"
+    DEM="./data/${dem}"
     OUTPUT="./data/OUTPUT"
     echo "Processing sensor: $sensor";
     source ./scripts/process_sentinel1b.sh $INPUT $BOUNDS $DEM $OUTPUT $DB_PATH $event $location
-    echo "Executing impact assesssment";
-    source ./scripts/impact_assessment.sh $sensor $BOUNDS $DB_PATH $OUTPUT $event $location
+    echo "Executing impact assesssment using ${povinc} column in the ${BOUNDS} dataset";
+    source ./scripts/impact_assessment.sh $sensor $BOUNDS $DB_PATH $OUTPUT $event $location $povinc
 elif [[ $sensor == 'alos2palsar2' ]]
 then
     INPUT="./data/ALOS2PALSAR2"
-    BOUNDS="./data/National_PopAHS_PSA_2020.shp"
+    BOUNDS="./data/2018_Poverty_Incidence_UTM.shp"
     OUTPUT="./data/OUTPUT"
     echo "Processing sensor: $sensor";
     source ./scripts/process_alos2palsar2.sh $INPUT $OUTPUT $DB_PATH $event $location
-    echo "Executing impact assesssment";
-    source ./scripts/impact_assessment.sh $sensor $BOUNDS $DB_PATH $OUTPUT $event $location 
+    echo "Executing impact assesssment using ${povinc} column in the ${BOUNDS} dataset";
+    source ./scripts/impact_assessment.sh $sensor $BOUNDS $DB_PATH $OUTPUT $event $location $povinc
 elif [[ $sensor == 'landsat8' ]]
 then 
     if [[ $algorithm == 'ndwi' ]]

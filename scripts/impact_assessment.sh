@@ -11,4 +11,5 @@ docker run \
         --env OUTPUT="$4" \
         --env EVENT="$5" \
         --env LOCATION="$6" \
+	--env POVERTY_INCIDENCE="$7" \
         -it aoi-impact python3 main.py
