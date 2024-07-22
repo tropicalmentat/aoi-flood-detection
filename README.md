@@ -36,6 +36,10 @@ Parameter list:
     Must be single word, no space.
 -l  Location. Add location name that will be part of the output file name. 
     Must be single word, no space.
+-p  Poverty Incidence. Specify the column name/header of the SHP file that contains
+    the poverty incidence data.
+-d  Digital Elevation Model. Specify the file name of the digital elevation model in
+    the /data directory.
 ```
 
 - The default locations that the scripts will expect the input files for each sensor is located in the `data` directory located at the root of the repository.
