@@ -61,7 +61,12 @@ The input .SAFE files default location is in `/data/SENTINEL1B`.
 To execute the processing of Sentinel1b datasets, use the following command 
 
 ```
-./run.sh -s sentinel1b -e <EVENT> -l <LOCATION>
+./run.sh -s sentinel1b -e <EVENT> -l <LOCATION> -p <POVERTY INCIDENCE HEADER> -d <DEM FILE NAME>
+```
+
+Here is a sample command with parameters filled in:
+```
+./run.sh -s sentinel1b -e typhoonrollo -l nagacity -p 2018_PovInc -d DEM_ifsar_30m_phil.tif.zip
 ```
 
 ###### ALOS2-PALSAR2
@@ -76,7 +81,13 @@ The input .zip files default location is in `/data/ALOS2PALSAR2`.
 To execute the processing of ALOS2-PALSAR2 datasets use the following command:
 
 ```
-./run.sh -s alos2palsar2 -e <EVENT> -l <LOCATION>
+./run.sh -s alos2palsar2 -e <EVENT> -l <LOCATION> -p <POVERTY INCIDENCE HEADER>
+```
+
+Here is a sample command with parameters filled in:
+
+```
+./run.sh -s alos2palsar2 -e typhoonulysses -l pampanga -p 2018_PovInc
 ```
 
 ###### Landsat8
