@@ -30,6 +30,7 @@ def get_pre_post_imgs(indir,tmpdir):
     post_fn = None
     img_idx = dict()
     for arch in os.listdir(indir):
+        logger.debug(arch)
         with ZipFile(file=os.path.join(indir,arch)) as archive:
             for fn in archive.namelist():
                 if 'HH' in fn and 'tif' in fn:
@@ -145,7 +146,7 @@ def extract(pre_fp:str, post_fp:str):
 
     logger.info(f'Applying threshold')
 
-    threshold = np.ma.where(diff<-3,1,0)
+    threshold = np.ma.where(diff<-8,1,0)
 
     logger.info(f'Applying majority filter')
 

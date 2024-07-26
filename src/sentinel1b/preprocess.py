@@ -135,7 +135,7 @@ def init_datasets(
 
     logger.debug([wgs_minx,wgs_miny,wgs_maxx,wgs_maxy])
 
-    target_res = 90 # 90x90m
+    target_res = 30 # 90x90m
     utm_w = right - left
     utm_h = top - bottom
     pix_w = utm_w/target_res
@@ -152,6 +152,7 @@ def init_datasets(
         'height':pix_h,
         'width':pix_w
     }
+    logger.debug(vrt_params)
 
     # Open DEM file with UTM CRS using a warped vrt
     with NamedTemporaryFile() as tmp_dem,\

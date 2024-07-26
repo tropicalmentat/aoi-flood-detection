@@ -1,6 +1,6 @@
 #!/bin/bash
 
-while getopts "s:a:e:l:p:d:" flag
+while getopts "s:a:e:l:p:d:b" flag
 do
     case "${flag}" in
         s) sensor=$OPTARG;;
@@ -9,6 +9,7 @@ do
         l) location=$OPTARG;;
     	p) povinc=$OPTARG;;
         d) dem=$OPTARG;;
+        b) bounds=$OPTARG;;
     esac
 done
 
@@ -23,10 +24,10 @@ else
     echo "Database exists! Moving on..."
 fi
 
+BOUNDS="./data/${OPTARG}"
 if [[ $sensor == 'sentinel1b' ]]
 then
     INPUT="./data/SENTINEL1B"
-    BOUNDS="./data/2018_Poverty_Incidence_UTM.shp"
     DEM="./data/${dem}"
     OUTPUT="./data/OUTPUT"
     echo "Processing sensor: $sensor";
@@ -36,7 +37,6 @@ then
 elif [[ $sensor == 'alos2palsar2' ]]
 then
     INPUT="./data/ALOS2PALSAR2"
-    BOUNDS="./data/2018_Poverty_Incidence_UTM.shp"
     OUTPUT="./data/OUTPUT"
     echo "Processing sensor: $sensor";
     source ./scripts/process_alos2palsar2.sh $INPUT $OUTPUT $DB_PATH $event $location
