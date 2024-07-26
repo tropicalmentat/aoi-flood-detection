@@ -40,6 +40,8 @@ Parameter list:
     the poverty incidence data.
 -d  Digital Elevation Model. Specify the file name of the digital elevation model in
     the /data directory.
+-b  Poverty Incidence .shp file. The modules will use the boundaries of the SHP to generate
+    the flood impact map using overlap analysis.
 ```
 
 - The default locations that the scripts will expect the input files for each sensor is located in the `data` directory located at the root of the repository.
