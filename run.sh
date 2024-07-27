@@ -1,6 +1,6 @@
 #!/bin/bash
 
-while getopts "s:a:e:l:p:d:b" flag
+while getopts "s:a:e:l:p:d:b:" flag
 do
     case "${flag}" in
         s) sensor=$OPTARG;;
@@ -24,7 +24,7 @@ else
     echo "Database exists! Moving on..."
 fi
 
-BOUNDS="./data/${OPTARG}"
+BOUNDS="./data/${bounds}"
 if [[ $sensor == 'sentinel1b' ]]
 then
     INPUT="./data/SENTINEL1B"
