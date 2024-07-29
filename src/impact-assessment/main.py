@@ -62,9 +62,10 @@ def main():
 
     cur = cnxn.cursor()
 
-    res = cur.execute("""
+    res = cur.execute(f"""
                     SELECT * FROM flood
                     ORDER BY created_on DESC
+                    WHERE sensor={SENSOR}
                         """)
     
     # get path of extracted
