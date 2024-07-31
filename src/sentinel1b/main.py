@@ -25,10 +25,12 @@ def main():
     if os.path.exists(bounds_fn):
         logger.info(f'Boundary SHP file detected: {bounds_fn}')
     else:
+        logger.error('Boundary SHP file not found!')
         raise FileNotFoundError()
     if os.path.exists(dem):
         logger.info(f'Digital Elevation file detected: {dem}')
     else:
+        logger.error('DEM file not found!')
         raise FileNotFoundError()
 
     pre_fn, post_fn = get_pre_post_imgs(indir=input_dir)
@@ -36,10 +38,12 @@ def main():
     if os.path.exists(pre_fn):
         logger.info(f'Pre-event image detected: {pre_fn}')
     else:
+        logger.error('Pre-event image not found!')
         raise FileNotFoundError()
     if os.path.exists(post_fn):
         logger.info(f'Post-event image detected: {post_fn}')
     else:
+        logger.error('Post-event image not found!')
         raise FileNotFoundError()
 
     logger.info(f'Extracting flood from pre and post event images')

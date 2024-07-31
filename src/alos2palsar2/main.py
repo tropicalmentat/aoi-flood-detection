@@ -28,11 +28,13 @@ def main():
         if os.path.exists(pre_fn): 
             logger.info(f'Pre-event image detected: {pre_fn}')
         else:
+            logger.error('Pre-event image not found!')
             raise FileNotFoundError()
 
         if os.path.exists(post_fn): 
-            logger.info(f'Pre-event image detected: {post_fn}')
+            logger.info(f'Post-event image detected: {post_fn}')
         else:
+            logger.error('Post-event image not found!')
             raise FileNotFoundError()
         
         extract(pre_fp=pre_fn,post_fp=post_fn)
