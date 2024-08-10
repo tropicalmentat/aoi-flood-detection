@@ -64,8 +64,8 @@ def main():
 
     res = cur.execute(f"""
                     SELECT * FROM flood
-                    ORDER BY created_on DESC
                     WHERE sensor={SENSOR}
+                    ORDER BY created_on DESC
                         """)
     
     # get path of extracted
