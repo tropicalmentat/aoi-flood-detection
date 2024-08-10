@@ -64,7 +64,7 @@ def main():
 
     res = cur.execute(f"""
                     SELECT * FROM flood
-                    WHERE sensor={SENSOR}
+                    WHERE sensor='{SENSOR}'
                     ORDER BY created_on DESC
                         """)
     
@@ -86,7 +86,6 @@ def main():
         flood_fpath=path, admin_bnds_fpath=BOUNDS,
         pov_inc_fpath=BOUNDS
     )
-    logger.debug(flood.total_bounds)
     logger.debug(flood_profile)
 
     # run overlap analysis of flood and admin bounds
