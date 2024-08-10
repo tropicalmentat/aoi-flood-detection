@@ -156,7 +156,7 @@ def init_datasets(
 
     # Open DEM file with UTM CRS using a warped vrt
     with NamedTemporaryFile() as tmp_dem,\
-         rio.open(fp=os.path.join(f"zip+file://",dem_fp)) as dem_src,\
+         rio.open(fp=dem_fp) as dem_src,\
          WarpedVRT(src_dataset=dem_src,**vrt_params) as dem_vrt:
         logger.debug(dem_src.profile)
         logger.debug(dem_vrt.profile)
