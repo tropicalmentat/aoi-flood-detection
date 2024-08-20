@@ -1,5 +1,6 @@
 from shared.preprocess.landsat import radiance_to_reflectance
 from rasterio.profiles import DefaultGTiffProfile
+from uuid import uuid4
 
 import os
 import numpy.ma as ma
@@ -7,6 +8,7 @@ import shared.utils as utils
 import logging
 import rasterio as rio
 import datetime as dt
+import sqlite3
 
 logger = logging.getLogger(__name__)
 SENSOR = os.environ.get("SENSOR")
@@ -75,6 +77,17 @@ def extract_flood(green_band_fp: str, nir_band_fp: str, mtl_fp: str = None):
     )
     with rio.open(fp=filepath, mode="w", **out_profile) as tif:
         tif.write(water, indexes=1)
+        logger.info(f'Connecting to database')
+        cnxn = sqlite3.connect(database=DB_PATH)
+        cur = cnxn.cursor()
+
+        cur.execute(f"""
+                    INSERT INTO flood VALUES
+                    ('{uuid4()}','{SENSOR}','{filepath}','{dt.datetime.now().isoformat()}')
+                    """)
+
+        cnxn.commit()
+        cnxn.close()
     return
 
 
