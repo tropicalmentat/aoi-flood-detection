@@ -12,12 +12,30 @@ Containerized data processing workflows to extract flood hazards for Synthetic A
 - The execution of the flood extraction workflow is facilitated by the `extract.py` script in each module. This script consolidates the pre-processing steps required for the raw data to be transformed to flood data. 
 - The functions commonly used across the sensors are located in the `shared` directory.
 
+### Pre-Usage Checklist
+
+- For radar processing, ensure the pre- and post- event images have the same overlapping w. This is required for image differencing to extract flood pixels. 
+- Ensure that all the input images were directly downloaded from the data provider AND not recompressed. This is to ensure that no artifacts are introduced along the way that may disrupt the operation of the modules.
+- Ensure that the input datasets, aside from the imagery, are in the required coordinate reference system.
+- Ensure that the input datasets are in the required format and compression (eg: .zip vs .rar).
+- Ensure that the compressed datasets are in the required file structure as documented. 
+
 ### Usage
 
 This project was designed to run on Linux machines with Docker. Please insure that Docker and Git are installed prior to running the modules for image processing. 
 
 - The installation procedure for Docker may found in the Docker documentation [here](https://docs.docker.com/engine/install/ubuntu/).
 - Git is preinstalled already in Ubuntu. However if you are in a situation where you need to install it you may find the instructions [here](https://github.com/git-guides/install-git#debianubuntu).
+
+#### Setting up the Environment 
+
+- If the modules are intended to be installed in a production system, it is highly recommended that you create a dedicated user account. 
+- The user account must be part of the sudo group as well as the docker group to avoid permission errors when the modules attempt to create or access files on the host filesystem. Please refer to the following tutorials from DigitalOcean on how to accomplish these initial steps.
+
+1. [How to create new `sudo` enabled user on Ubuntu](https://www.digitalocean.com/community/tutorials/how-to-create-a-new-sudo-enabled-user-on-ubuntu)
+2. [Initial server setup with Ubuntu](https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu)
+3. [Executing Docker commands without `sudo`](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-20-04#step-2-executing-the-docker-command-without-sudo-optional)
+
 
 #### Build modules
 
