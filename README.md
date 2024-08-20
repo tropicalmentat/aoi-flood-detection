@@ -120,10 +120,10 @@ Here is a sample command with parameters filled in:
 ./run.sh -s landsat8 -a truecolor -e <EVENT> -l <LOCATION>
 ```
 
-- To extract the binary image (GeoTiff format) of the Normalized Difference Water Index use the following command: 
+- To extract the binary image (GeoTiff format) of the Normalized Difference Water Index **AND** use the following command: 
 
 ```
-./run.sh -s landsat8 -a ndwi -e <EVENT> -l <LOCATION>
+./run.sh -s landsat8 -a ndwi -e <EVENT> -l <LOCATION> -b <POVERTY INCIDENCE SHP FILE NAME> -p <POVERTY INCIDENCE HEADER>
 ```
 
 
