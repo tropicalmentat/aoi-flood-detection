@@ -56,7 +56,7 @@ def get_latest_flood(sensor: str):
 
     path = fetch_img_path(sensor=sensor)
 
-    with open(file=img_fpath, mode='rb') as src:
+    with open(file=path, mode='rb') as src:
         img_bin = src.read()
 
         return img_bin
