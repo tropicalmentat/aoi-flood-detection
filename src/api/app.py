@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 DB_PATH = './data/source.db'
 
-def fetch_img_path(sensor: str):
+def fetch_img_path(type:str, sensor: str):
 
     if os.path.exists(path=DB_PATH):
         logger.info(f'Database exists!')
@@ -33,7 +33,7 @@ def fetch_img_path(sensor: str):
     cur = cnxn.cursor()
 
     res = cur.execute(f"""
-                    SELECT * FROM flood
+                    SELECT * FROM {type}
                     WHERE sensor='{sensor}'
                     ORDER BY created_on DESC
                         """)
@@ -54,7 +54,7 @@ def get_catalog():
 @app.route("/flood/<string:sensor>")
 def get_latest_flood(sensor: str):
 
-    path = fetch_img_path(sensor=sensor)
+    path = fetch_img_path(type='flood', sensor=sensor)
 
     with open(file=path, mode='rb') as src:
         img_bin = src.read()
@@ -62,6 +62,11 @@ def get_latest_flood(sensor: str):
         return img_bin
 
 @app.route("/impact/<string:sensor>")
-def get_latest_impact():
+def get_latest_impact(sensor: str):
 
-    return
+    path = fetch_img_path(type='impact', sensor=sensor)
+
+    with open(file=path, mode='rb') as src:
+        img_bin = src.read()
+
+        return img_bin
