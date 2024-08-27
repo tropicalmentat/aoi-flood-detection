@@ -1,15 +1,67 @@
+import os
+import logging
+import sqlite3
 from flask import Flask
+
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
-img_fpath = './tests/data/rasterized.tiff'
-img_bin = None
+DB_PATH = './data/source.db'
 
-with open(file=img_fpath, mode='rb') as src:
-    img_bin = src.read()
+def fetch_img_path(sensor: str):
 
-@app.route("/impact")
-def get_flood_impact():
+    if os.path.exists(path=DB_PATH):
+        logger.info(f'Database exists!')
+    else:
+        raise FileNotFoundError()
+        
+    try:
+        usr_name = os.environ.get("USER")
+        logger.debug(usr_name)
+        cnxn = sqlite3.connect(database=DB_PATH)
+    except sqlite3.OperationalError as e:
+        # we handle this because the database
+        # is created with root ownership
+        import pwd
+        import grp
+        usr_name = os.environ.get("USER")
+        uid = pwd.getpwnam(usr_name).pw_uid
+        gid = grp.getgrnam(usr_name).gr_gid
+        os.chown(path=DB_PATH,uid=uid,gid=gid)
 
-    # return "<p>Hello World!</p>"
-    return img_bin
+    cur = cnxn.cursor()
+
+    res = cur.execute(f"""
+                    SELECT * FROM flood
+                    WHERE sensor='{sensor}'
+                    ORDER BY created_on DESC
+                        """)
+    
+    # get path of extracted
+    # flood geotiff
+    data = res.fetchone()
+    path = data[2]
+    cnxn.close()
+
+    return path
+
+@app.route("/catalog")
+def get_catalog():
+
+    return
+
+@app.route("/flood/<string:sensor>")
+def get_latest_flood(sensor: str):
+
+    path = fetch_img_path(sensor=sensor)
+
+    with open(file=img_fpath, mode='rb') as src:
+        img_bin = src.read()
+
+        return img_bin
+
+@app.route("/impact/<string:sensor>")
+def get_latest_impact():
+
+    return

@@ -32,9 +32,7 @@ then
     OUTPUT="./data/OUTPUT"
     echo "Processing sensor: $sensor";
     source ./scripts/process_sentinel1b.sh $INPUT $BOUNDS $DEM $OUTPUT $DB_PATH $event $location
-    echo "Executing impact assesssment using ${povinc} column in the ${BOUNDS} dataset";
-    source ./scripts/impact_assessment.sh $sensor $BOUNDS $DB_PATH $OUTPUT $event $location $povinc
-elif [[ $sensor == 'alos2palsar2' ]]
+    echo "Executing impa 'alos2palsar2' ]]
 then
     INPUT="./data/ALOS2PALSAR2"
     OUTPUT="./data/OUTPUT"
