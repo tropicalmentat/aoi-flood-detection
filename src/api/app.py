@@ -1,7 +1,7 @@
 import os
 import logging
 import sqlite3
-from flask import Flask
+from flask import Flask, make_response
 
 logger = logging.getLogger(__name__)
 
@@ -9,12 +9,12 @@ app = Flask(__name__)
 
 DB_PATH = './data/source.db'
 
-def fetch_img_path(type:str, sensor: str):
+if os.path.exists(path=DB_PATH):
+    logger.info(f'Database exists!')
+else:
+    raise FileNotFoundError()
 
-    if os.path.exists(path=DB_PATH):
-        logger.info(f'Database exists!')
-    else:
-        raise FileNotFoundError()
+def fetch_img_path(type:str, sensor: str):
         
     try:
         usr_name = os.environ.get("USER")
@@ -41,6 +41,10 @@ def fetch_img_path(type:str, sensor: str):
     # get path of extracted
     # flood geotiff
     data = res.fetchone()
+
+    if data==None:
+        return None
+
     path = data[2]
     cnxn.close()
 
@@ -56,6 +60,9 @@ def get_latest_flood(sensor: str):
 
     path = fetch_img_path(type='flood', sensor=sensor)
 
+    if path==None:
+        return make_response('Not found', 404)
+
     with open(file=path, mode='rb') as src:
         img_bin = src.read()
 
@@ -65,6 +72,9 @@ def get_latest_flood(sensor: str):
 def get_latest_impact(sensor: str):
 
     path = fetch_img_path(type='impact', sensor=sensor)
+
+    if path==None:
+        return make_response('Not found', 404)
 
     with open(file=path, mode='rb') as src:
         img_bin = src.read()
