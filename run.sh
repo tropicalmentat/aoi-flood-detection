@@ -32,7 +32,7 @@ then
     OUTPUT="./data/OUTPUT"
     echo "Processing sensor: $sensor";
     source ./scripts/process_sentinel1b.sh $INPUT $BOUNDS $DEM $OUTPUT $DB_PATH $event $location
-    echo "Executing impa 'alos2palsar2' ]]
+elif [[ $sensor == 'alos2palsar2' ]]
 then
     INPUT="./data/ALOS2PALSAR2"
     OUTPUT="./data/OUTPUT"
