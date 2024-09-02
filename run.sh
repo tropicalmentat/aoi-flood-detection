@@ -68,6 +68,8 @@ then
         OUTPUT="./data/OUTPUT"
         echo "Processing $algorithm for sensor: $sensor";
         source ./scripts/process_optical.sh $sensor $algorithm $INPUT $OUTPUT $DB_PATH $event $location 
+        echo "Executing impact assesssment using ${povinc} column in the ${BOUNDS} dataset";
+        source ./scripts/impact_assessment.sh $sensor $BOUNDS $DB_PATH $OUTPUT $event $location $povinc
     elif [[ $algorithm == 'truecolor' ]]
     then
         INPUT="./data/SENTINEL2"
