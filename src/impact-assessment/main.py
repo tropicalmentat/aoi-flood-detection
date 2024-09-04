@@ -98,6 +98,16 @@ def main():
 
     reclassed_pi_fc = json.loads(reclassed_povinc.to_json())
     overlap_fc = json.loads(overlap.to_json())
+
+    rasterized_overlap = utils.convert_to_raster(
+        feature_collection=overlap_fc, resolution=RESOLUTION,
+        crs=flood_profile['crs']
+    )
+
+    rasterized_reclass = utils.convert_to_raster(
+        feature_collection=reclassed_pi_fc, resolution=RESOLUTION,
+        crs=flood_profile['crs']
+    )
     
     # with open(file=f'./tests/data/reclassed_pi.json',mode='w') as tmp_rpi:
     #     tmp_rpi.write(json.dumps(reclassed_pi_fc))
