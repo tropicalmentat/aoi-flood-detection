@@ -323,7 +323,7 @@ def project_coordinates(feature_collection,src_crs,dst_crs):
     return projected_fc
 
 def convert_to_raster(
-        feature_collection, crs, resolution,
+        feature_collection, crs, resolution, key, dtype = 'int16'
         ):
     logger.info(f'Converting feature collection to raster')
     iter_pairs = [
@@ -367,7 +367,7 @@ def convert_to_raster(
     # TODO: nodata as func param
     profile = DefaultGTiffProfile(data={
         'width':dst_w, 'height':dst_h, 'crs':crs, 'transform':dst_transform,
-        'nodata':0, 'dtype':'int16', 'count':1
+        'nodata':0, 'dtype':f'{dtype}', 'count':1
     })
     logger.debug(profile)
 
@@ -390,7 +390,7 @@ def convert_to_raster(
 
         rasterize(
             shapes=iter_pairs, out_shape=(dst_h,dst_w),
-            transform=dst_transform, out=rasterized, dtype='int16'
+            transform=dst_transform, out=rasterized, dtype=f'{dtype}'
             )
     
         rasterized.flush()

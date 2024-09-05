@@ -100,16 +100,6 @@ def main():
     reclassed_pi_fc = json.loads(reclassed_povinc.to_json())
     overlap_fc = json.loads(overlap.to_json())
 
-    rasterized_overlap, ovr_profile = utils.convert_to_raster(
-        feature_collection=overlap_fc, resolution=RESOLUTION,
-        crs=flood_profile['crs']
-    )
-
-    rasterized_reclass, rec_profile = utils.convert_to_raster(
-        feature_collection=reclassed_pi_fc, resolution=RESOLUTION,
-        crs=flood_profile['crs']
-    )
-    
     # with open(file=f'./tests/data/reclassed_pi.json',mode='w') as tmp_rpi:
     #     tmp_rpi.write(json.dumps(reclassed_pi_fc))
     
@@ -154,19 +144,12 @@ def main():
     logger.debug(out_profile)
 
     logger.info('Starting logical combination')
-    # TODO Fix normalization of datasets within common bounding box
     with rio.MemoryFile(file_or_bytes=rasterized_povinc) as pi_mem,\
          rio.MemoryFile(file_or_bytes=rasterized_bounds) as bnds_mem,\
-         rio.MemoryFile(file_or_bytes=rasterized_overlap) as ovr_mem, \
-         rio.MemoryFile(file_or_bytes=rasterized_reclass) as rec_mem, \
          pi_mem.open() as pi_src,\
          bnds_mem.open() as bnds_src,\
-         ovr_mem.open() as ovr_src,\
-         rec_mem.open() as rec_src,\
          WarpedVRT(pi_src,**out_profile) as pi_vrt,\
          WarpedVRT(bnds_src,**out_profile) as ov_vrt,\
-         WarpedVRT(ovr_src, **out_profile) as overlap_vrt,\
-         WarpedVRT(rec_src, **out_profile) as rec_vrt, \
          NamedTemporaryFile() as tmp:
             logging.debug(pi_vrt.profile)
             logging.debug(ov_vrt.profile)
