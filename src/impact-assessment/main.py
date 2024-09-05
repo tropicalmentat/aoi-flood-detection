@@ -1,4 +1,5 @@
 import overlap as op
+from rasterio import shutil as rio_shutil
 from rasterio.vrt import WarpedVRT
 from rasterio.transform import from_bounds
 from rasterio.profiles import DefaultGTiffProfile
@@ -99,12 +100,12 @@ def main():
     reclassed_pi_fc = json.loads(reclassed_povinc.to_json())
     overlap_fc = json.loads(overlap.to_json())
 
-    rasterized_overlap = utils.convert_to_raster(
+    rasterized_overlap, ovr_profile = utils.convert_to_raster(
         feature_collection=overlap_fc, resolution=RESOLUTION,
         crs=flood_profile['crs']
     )
 
-    rasterized_reclass = utils.convert_to_raster(
+    rasterized_reclass, rec_profile = utils.convert_to_raster(
         feature_collection=reclassed_pi_fc, resolution=RESOLUTION,
         crs=flood_profile['crs']
     )
@@ -156,10 +157,16 @@ def main():
     # TODO Fix normalization of datasets within common bounding box
     with rio.MemoryFile(file_or_bytes=rasterized_povinc) as pi_mem,\
          rio.MemoryFile(file_or_bytes=rasterized_bounds) as bnds_mem,\
+         rio.MemoryFile(file_or_bytes=rasterized_overlap) as ovr_mem, \
+         rio.MemoryFile(file_or_bytes=rasterized_reclass) as rec_mem, \
          pi_mem.open() as pi_src,\
          bnds_mem.open() as bnds_src,\
+         ovr_mem.open() as ovr_src,\
+         rec_mem.open() as rec_src,\
          WarpedVRT(pi_src,**out_profile) as pi_vrt,\
          WarpedVRT(bnds_src,**out_profile) as ov_vrt,\
+         WarpedVRT(ovr_src, **out_profile) as overlap_vrt,\
+         WarpedVRT(rec_src, **out_profile) as rec_vrt, \
          NamedTemporaryFile() as tmp:
             logging.debug(pi_vrt.profile)
             logging.debug(ov_vrt.profile)
@@ -191,6 +198,16 @@ def main():
 
             filepath = os.path.join(
                 OUTPUT,f'{dt.datetime.now().strftime("%Y%m%d%H%M%S")}-{SENSOR}-{LOCATION}-{EVENT}-impact.tiff')
+
+            overlap_fp = os.path.join(
+                OUTPUT,f'{dt.datetime.now().strftime("%Y%m%d%H%M%S")}-{SENSOR}-{LOCATION}-{EVENT}-flood_percentage.tiff')
+
+            reclassed_fp = os.path.join(
+                OUTPUT,f'{dt.datetime.now().strftime("%Y%m%d%H%M%S")}-{SENSOR}-{LOCATION}-{EVENT}-reclassed_pov_inc.tiff')
+            
+            rio_shutil.copy(overlap_vrt, overlap_fp, driver='GTiff')
+
+            rio_shutil.copy(rec_vrt, reclassed_fp, driver='GTiff')
 
             with rio.open(
                 fp=filepath,mode='w', **out_profile
