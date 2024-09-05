@@ -100,11 +100,11 @@ def main():
     reclassed_pi_fc = json.loads(reclassed_povinc.to_json())
     overlap_fc = json.loads(overlap.to_json())
 
-    # with open(file=f'./tests/data/reclassed_pi.json',mode='w') as tmp_rpi:
-    #     tmp_rpi.write(json.dumps(reclassed_pi_fc))
+    with open(file=f'./tests/data/reclassed_pi.json',mode='w') as tmp_rpi:
+        tmp_rpi.write(json.dumps(reclassed_pi_fc))
     
-    # with open(file=f'./tests/data/reclassed_overlap.json',mode='w') as tmp_rov:
-    #     tmp_rov.write(json.dumps(overlap_fc))
+    with open(file=f'./tests/data/reclassed_overlap.json',mode='w') as tmp_rov:
+        tmp_rov.write(json.dumps(overlap_fc))
 
     # rasterize reclassified pov inc and overlap results
     # use crs of that of the flood raster
@@ -188,9 +188,9 @@ def main():
             reclassed_fp = os.path.join(
                 OUTPUT,f'{dt.datetime.now().strftime("%Y%m%d%H%M%S")}-{SENSOR}-{LOCATION}-{EVENT}-reclassed_pov_inc.tiff')
             
-            rio_shutil.copy(overlap_vrt, overlap_fp, driver='GTiff')
+            rio_shutil.copy(ov_vrt, overlap_fp, driver='GTiff')
 
-            rio_shutil.copy(rec_vrt, reclassed_fp, driver='GTiff')
+            rio_shutil.copy(pi_vrt, reclassed_fp, driver='GTiff')
 
             with rio.open(
                 fp=filepath,mode='w', **out_profile

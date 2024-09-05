@@ -323,7 +323,7 @@ def project_coordinates(feature_collection,src_crs,dst_crs):
     return projected_fc
 
 def convert_to_raster(
-        feature_collection, crs, resolution, key, dtype = 'int16'
+        feature_collection, crs, resolution, dtype = 'int16'
         ):
     logger.info(f'Converting feature collection to raster')
     iter_pairs = [
