@@ -13,9 +13,13 @@ def init_db():
     
     cur = cnxn.cursor()
     # create table for flood extracted images
-    cur.execute("CREATE TABLE flood(id,sensor,path,created_on)")
+    cur.execute("CREATE TABLE flood(id,sensor,event,location,path,created_on)")
     # create table for flood impact images
     cur.execute("CREATE TABLE impact(id,src_id,path,created_on)")
+    # create table for reclassed overlap analysis images
+    cur.execute("CREATE TABLE rc_overlap(id,flood_id,bounds_src,path,created_on)")
+    # create table for reclassed poverty incidence images
+    cur.execute("CREATE TABLE rc_povinc(id,povinc_src,path,created_on)")
     res = cur.execute("SELECT * FROM sqlite_master")
     logger.debug(res.fetchone())
 
