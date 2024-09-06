@@ -75,7 +75,20 @@ then
         INPUT="./data/SENTINEL2"
         OUTPUT="./data/OUTPUT"
         echo "Processing $algorithm for sensor: $sensor";
-        source ./scripts/process_optical.sh $sensor $algorithm $INPUT $OUTPUT $DB_PATH $event $location
+        docker run \
+                -v ./src/optical/:/function/src \
+                -v ./shared/:/function/src/shared \
+                -v ./data:/function/src/data \
+                -w /function/src \
+                --env SENSOR="$sensor" \
+                --env ALGORITHM="$algorithm" \
+                --env INPUT="$INPUT" \
+                --env OUTPUT="$OUTPUT" \
+                --env DB_PATH="$DB_PATH" \
+                --env EVENT="$event" \
+                --env LOCATION="$location" \
+                -it aoi-optical python3 main.py
+        # source ./scripts/process_optical.sh $sensor $algorithm $INPUT $OUTPUT $DB_PATH $event $location
     else
         echo "Algorithm argument not understood"
     fi
