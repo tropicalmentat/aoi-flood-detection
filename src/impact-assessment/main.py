@@ -70,10 +70,12 @@ def main():
                         """)
     
     # get path of extracted
+    # which is 5th column in 
+    # flood table 
     # flood geotiff
     data = res.fetchone()
     src_id = data[0]
-    path = data[2]
+    path = data[4]
     cnxn.close()
 
     logger.debug(path)
@@ -214,6 +216,14 @@ def main():
                 cur.execute(f"""
                             INSERT INTO impact VALUES
                             ('{uuid4()}','{src_id}','{filepath}','{dt.datetime.now().isoformat()}')
+                            """)
+                cur.execute(f"""
+                            INSERT INTO rc_overlap VALUES
+                            ('{uuid4()}','{src_id}','{BOUNDS}','{overlap_fp}','{dt.datetime.now().isoformat()}')
+                            """)
+                cur.execute(f"""
+                            INSERT INTO rc_povinc VALUES
+                            ('{uuid4()}','{BOUNDS}','{reclassed_fp}','{dt.datetime.now().isoformat()}')
                             """)
                 cnxn.commit()
                 cnxn.close()

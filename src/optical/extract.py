@@ -83,7 +83,7 @@ def extract_flood(green_band_fp: str, nir_band_fp: str, mtl_fp: str = None):
 
         cur.execute(f"""
                     INSERT INTO flood VALUES
-                    ('{uuid4()}','{SENSOR}','{filepath}','{dt.datetime.now().isoformat()}')
+                    ('{uuid4()}','{SENSOR}','{EVENT}','{LOCATION}','{filepath}','{dt.datetime.now().isoformat()}')
                     """)
 
         cnxn.commit()
