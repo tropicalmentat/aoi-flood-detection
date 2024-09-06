@@ -31,6 +31,20 @@ then
     DEM="./data/${dem}"
     OUTPUT="./data/OUTPUT"
     echo "Processing sensor: $sensor";
+    docker run \
+            -v ./src/sentinel1b/:/function/src \
+            -v ./shared/:/function/src/shared \
+            -v ./data/:/function/src/data \
+            -w /function/src \
+            --env SENSOR="$sensor" \
+            --env INPUT_DIR="$INPUT" \
+            --env BOUNDS="$BOUNDS" \
+            --env DEM="$DEM" \
+            --env OUTPUT="$OUTPUT" \
+            --env DB_PATH="$DB_PATH" \
+            --env EVENT="$event" \
+            --env LOCATION="$location" \
+            -it aoi-sentinel1b python main.py
     source ./scripts/process_sentinel1b.sh $INPUT $BOUNDS $DEM $OUTPUT $DB_PATH $event $location
 elif [[ $sensor == 'alos2palsar2' ]]
 then
@@ -90,9 +104,33 @@ then
         INPUT="./data/SENTINEL2"
         OUTPUT="./data/OUTPUT"
         echo "Processing $algorithm for sensor: $sensor";
-        source ./scripts/process_optical.sh $sensor $algorithm $INPUT $OUTPUT $DB_PATH $event $location 
+        docker run \
+                -v ./src/optical/:/function/src \
+                -v ./shared/:/function/src/shared \
+                -v ./data:/function/src/data \
+                -w /function/src \
+                --env SENSOR="$sensor" \
+                --env ALGORITHM="$algorithm" \
+                --env INPUT="$INPUT" \
+                --env OUTPUT="$OUTPUT" \
+                --env DB_PATH="$DB_PATH" \
+                --env EVENT="$event" \
+                --env LOCATION="$location" \
+                -it aoi-optical python3 main.py
         echo "Executing impact assesssment using ${povinc} column in the ${BOUNDS} dataset";
-        source ./scripts/impact_assessment.sh $sensor $BOUNDS $DB_PATH $OUTPUT $event $location $povinc
+        docker run \
+                -v ./src/impact-assessment/:/function/src \
+                -v ./shared/:/function/src/shared \
+                -v ./data:/function/src/data \
+                -w /function/src \
+                --env SENSOR="$sensor" \
+                --env BOUNDS="$BOUNDS" \
+                --env DB_PATH="$DB_PATH" \
+                --env OUTPUT="$OUTPUT" \
+                --env EVENT="$event" \
+                --env LOCATION="$location" \
+                --env POVERTY_INCIDENCE="$povinc" \
+                -it aoi-impact python3 main.py
     elif [[ $algorithm == 'truecolor' ]]
     then
         INPUT="./data/SENTINEL2"

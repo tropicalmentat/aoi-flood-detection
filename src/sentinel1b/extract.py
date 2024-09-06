@@ -18,6 +18,7 @@ from skimage.morphology import square
 from skimage.filters.rank import majority
 
 logger = logging.getLogger(__name__)
+SENSOR = os.environ.get('SENSOR')
 OUTPUT_DIR = os.environ.get('OUTPUT')
 DB_PATH = os.environ.get('DB_PATH')
 EVENT = os.environ.get("EVENT")
@@ -164,7 +165,7 @@ def extract(
 
                 cur.execute(f"""
                             INSERT INTO flood VALUES
-                            ('{uuid4()}','sentinel1b','{filepath}','{dt.datetime.now().isoformat()}')
+                            ('{uuid4()}','{SENSOR}','{EVENT}','{LOCATION}','{filepath}','{dt.datetime.now().isoformat()}')
                             """)
 
                 cnxn.commit()
