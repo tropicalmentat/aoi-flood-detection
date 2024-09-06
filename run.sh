@@ -37,9 +37,32 @@ then
     INPUT="./data/ALOS2PALSAR2"
     OUTPUT="./data/OUTPUT"
     echo "Processing sensor: $sensor";
-    source ./scripts/process_alos2palsar2.sh $INPUT $OUTPUT $DB_PATH $event $location
+    docker run \
+            -v ./src/alos2palsar2/:/function/src \
+            -v ./shared/:/function/src/shared \
+            -v ./data:/function/src/data \
+            -w /function/src \
+            --env SENSOR="$sensor" \
+            --env INPUT_DIR="$INPUT" \
+            --env OUTPUT="$OUTPUT" \
+            --env DB_PATH="$DB_PATH" \
+            --env EVENT="$event" \
+            --env LOCATION="$location" \
+            -it aoi-alos2palsar2 python3 main.py
     echo "Executing impact assesssment using ${povinc} column in the ${BOUNDS} dataset";
-    source ./scripts/impact_assessment.sh $sensor $BOUNDS $DB_PATH $OUTPUT $event $location $povinc
+    docker run \
+            -v ./src/impact-assessment/:/function/src \
+            -v ./shared/:/function/src/shared \
+            -v ./data:/function/src/data \
+            -w /function/src \
+            --env SENSOR="$sensor" \
+            --env BOUNDS="$BOUNDS" \
+            --env DB_PATH="$DB_PATH" \
+            --env OUTPUT="$OUTPUT" \
+            --env EVENT="$event" \
+            --env LOCATION="$location" \
+	        --env POVERTY_INCIDENCE="$povinc" \
+            -it aoi-impact python3 main.py
 elif [[ $sensor == 'landsat8' ]]
 then 
     if [[ $algorithm == 'ndwi' ]]

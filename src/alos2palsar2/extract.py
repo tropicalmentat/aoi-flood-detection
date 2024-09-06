@@ -18,6 +18,7 @@ from zipfile import ZipFile
 from uuid import uuid4
 
 logger = logging.getLogger(__name__)
+SENSOR = os.environ.get("SENSOR")
 OUTPUT_DIR = os.environ.get('OUTPUT')
 DB_PATH = os.environ.get("DB_PATH")
 EVENT = os.environ.get("EVENT")
@@ -111,8 +112,6 @@ def get_preprocessed(
 
 def extract(pre_fp:str, post_fp:str):
 
-    # TODO add image sorter
-    # TODO user WarpedVRT at the preprocessing stage to automatically reproject
     # image data into the destination projection
     pre_img_bin = utils.load_image(fpath=pre_fp)
     post_img_bin = utils.load_image(fpath=post_fp)
@@ -180,7 +179,7 @@ def extract(pre_fp:str, post_fp:str):
 
         cur.execute(f"""
                     INSERT INTO flood VALUES
-                    ('{uuid4()}','alos2palsar2','{filepath}','{dt.datetime.now().isoformat()}')
+                    ('{uuid4()}','{SENSOR}','{EVENT}','{LOCATION}','{filepath}','{dt.datetime.now().isoformat()}')
                     """)
 
         cnxn.commit()
