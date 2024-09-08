@@ -215,15 +215,15 @@ def main():
                 
                 cur.execute(f"""
                             INSERT INTO impact VALUES
-                            ('{uuid4()}','{src_id}','{filepath}','{dt.datetime.now().isoformat()}')
+                            ('{uuid4()}','{src_id}','{SENSOR}','{EVENT}','{LOCATION}','{filepath}','{dt.datetime.now().isoformat()}')
                             """)
                 cur.execute(f"""
                             INSERT INTO rc_overlap VALUES
-                            ('{uuid4()}','{src_id}','{BOUNDS}','{overlap_fp}','{dt.datetime.now().isoformat()}')
+                            ('{uuid4()}','{src_id}','{SENSOR}','{EVENT}','{LOCATION}','{BOUNDS}','{overlap_fp}','{dt.datetime.now().isoformat()}')
                             """)
                 cur.execute(f"""
                             INSERT INTO rc_povinc VALUES
-                            ('{uuid4()}','{BOUNDS}','{reclassed_fp}','{dt.datetime.now().isoformat()}')
+                            ('{uuid4()}','{src_id}','{SENSOR}','{BOUNDS}','{reclassed_fp}','{dt.datetime.now().isoformat()}')
                             """)
                 cnxn.commit()
                 cnxn.close()

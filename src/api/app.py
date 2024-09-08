@@ -31,9 +31,8 @@ def fetch_img_path(type:str, sensor: str):
         os.chown(path=DB_PATH,uid=uid,gid=gid)
 
     cur = cnxn.cursor()
-
     res = cur.execute(f"""
-                    SELECT * FROM {type}
+                    SELECT * FROM flood
                     WHERE sensor='{sensor}'
                     ORDER BY created_on DESC
                         """)
@@ -42,13 +41,69 @@ def fetch_img_path(type:str, sensor: str):
     # flood geotiff
     data = res.fetchone()
 
-    if data==None:
-        return None
+    if type=='flood':
 
-    path = data[2]
-    cnxn.close()
+        if data==None:
+            return None
 
-    return path
+        path = data[4]
+        cnxn.close()
+
+        return path
+    elif type=='impact':
+        res = cur.execute(f"""
+                        SELECT * FROM impact
+                        WHERE src_id=='{data[0]}'
+                        ORDER BY created_on DESC
+                            """)
+    
+        # get path of extracted
+        # flood geotiff
+        data = res.fetchone()
+
+        if data==None:
+            return None
+
+        path = data[5]
+        cnxn.close()
+
+        return path
+    elif type=='overlap':
+        res = cur.execute(f"""
+                        SELECT * FROM rc_overlap
+                        WHERE src_id=='{data[0]}'
+                        ORDER BY created_on DESC
+                            """)
+    
+        # get path of extracted
+        # flood geotiff
+        data = res.fetchone()
+
+        if data==None:
+            return None
+
+        path = data[6]
+        cnxn.close()
+
+        return path
+    elif type=='povinc':
+        res = cur.execute(f"""
+                        SELECT * FROM rc_povinc
+                        WHERE src_id=='{data[0]}'
+                        ORDER BY created_on DESC
+                            """)
+    
+        # get path of extracted
+        # flood geotiff
+        data = res.fetchone()
+
+        if data==None:
+            return None
+
+        path = data[4]
+        cnxn.close()
+
+        return path
 
 @app.route("/catalog")
 def get_catalog():
@@ -72,6 +127,32 @@ def get_latest_flood(sensor: str):
 def get_latest_impact(sensor: str):
 
     path = fetch_img_path(type='impact', sensor=sensor)
+
+    if path==None:
+        return make_response('Not found', 404)
+
+    with open(file=path, mode='rb') as src:
+        img_bin = src.read()
+
+        return img_bin
+
+@app.route("/reclass_pov_inc/<string:sensor>")
+def get_latest_reclassed_poverty_incidence(sensor: str):
+
+    path = fetch_img_path(type='povinc', sensor=sensor)
+
+    if path==None:
+        return make_response('Not found', 404)
+
+    with open(file=path, mode='rb') as src:
+        img_bin = src.read()
+
+        return img_bin
+
+@app.route("/reclass_overlap_analysis/<string:sensor>")
+def get_latest_reclassed_overlap_analysis(sensor: str):
+
+    path = fetch_img_path(type='overlap', sensor=sensor)
 
     if path==None:
         return make_response('Not found', 404)
