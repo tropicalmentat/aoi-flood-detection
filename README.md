@@ -140,7 +140,7 @@ Here is a sample command with parameters filled in:
 - To extract the binary image (GeoTiff format) of the Normalized Difference Water Index use the following command: 
 
 ```
-./run.sh -s sentinel2 -a ndwi -e <EVENT> -l <LOCATION>
+./run.sh -s sentinel2 -a ndwi -e <EVENT> -l <LOCATION> -b <POVERTY INCIDENCE SHP FILE NAME> -p <POVERTY INCIDENCE HEADER>
 ```
 
 ###### Notes on input data schema and format
