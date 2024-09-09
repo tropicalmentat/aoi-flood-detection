@@ -45,7 +45,20 @@ then
             --env EVENT="$event" \
             --env LOCATION="$location" \
             -it aoi-sentinel1b python main.py
-    source ./scripts/process_sentinel1b.sh $INPUT $BOUNDS $DEM $OUTPUT $DB_PATH $event $location
+    echo "Executing impact assesssment using ${povinc} column in the ${BOUNDS} dataset";
+    docker run \
+            -v ./src/impact-assessment/:/function/src \
+            -v ./shared/:/function/src/shared \
+            -v ./data:/function/src/data \
+            -w /function/src \
+            --env SENSOR="$sensor" \
+            --env BOUNDS="$BOUNDS" \
+            --env DB_PATH="$DB_PATH" \
+            --env OUTPUT="$OUTPUT" \
+            --env EVENT="$event" \
+            --env LOCATION="$location" \
+	        --env POVERTY_INCIDENCE="$povinc" \
+            -it aoi-impact python3 main.py
 elif [[ $sensor == 'alos2palsar2' ]]
 then
     INPUT="./data/ALOS2PALSAR2"
